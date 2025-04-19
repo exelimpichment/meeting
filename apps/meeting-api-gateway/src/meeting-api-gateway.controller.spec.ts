@@ -11,7 +11,9 @@ describe('MeetingApiGatewayController', () => {
       providers: [MeetingApiGatewayService],
     }).compile();
 
-    meetingApiGatewayController = app.get<MeetingApiGatewayController>(MeetingApiGatewayController);
+    meetingApiGatewayController = app.get<MeetingApiGatewayController>(
+      MeetingApiGatewayController,
+    );
   });
 
   describe('root', () => {
