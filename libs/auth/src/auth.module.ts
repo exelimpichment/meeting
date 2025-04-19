@@ -4,6 +4,9 @@ import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { authEnvSchema } from './env.schema';
 import { ConfigModule } from '@app/config';
 import { AuthPrismaModule } from './prisma/prisma.module';
+import { UsersModule } from './users/users.module';
+import { HashingService } from './hashing/hashing.service';
+import { BcryptService } from './hashing/bcrypt.service';
 
 @Module({
   imports: [
@@ -14,8 +17,12 @@ import { AuthPrismaModule } from './prisma/prisma.module';
     }),
     ConfigModule,
     AuthPrismaModule,
+    UsersModule,
   ],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    { provide: HashingService, useClass: BcryptService },
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

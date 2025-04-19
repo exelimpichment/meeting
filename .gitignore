@@ -137,4 +137,4 @@ dist
 .env*
 
 # Generated code directories
-/libs/generated/
+/libs/generated/*
