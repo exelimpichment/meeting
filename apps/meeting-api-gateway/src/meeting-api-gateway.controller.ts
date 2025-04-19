@@ -3,7 +3,9 @@ import { MeetingApiGatewayService } from './meeting-api-gateway.service';
 
 @Controller()
 export class MeetingApiGatewayController {
-  constructor(private readonly meetingApiGatewayService: MeetingApiGatewayService) {}
+  constructor(
+    private readonly meetingApiGatewayService: MeetingApiGatewayService,
+  ) {}
 
   @Get()
   getHello(): string {
