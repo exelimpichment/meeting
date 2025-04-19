@@ -1,0 +1,22 @@
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: nest_mysql_auth
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: auth_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: auth_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - nest-network
+
+volumes:
+  mysql_data:
+
+networks:
+  nest-network:
