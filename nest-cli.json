@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/meeting/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/meeting/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/meeting",
+  "projects": {
+    "meeting": {
+      "type": "application",
+      "root": "apps/meeting",
+      "entryFile": "main",
+      "sourceRoot": "apps/meeting/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/meeting/tsconfig.app.json"
+      }
+    },
+    "meeting-api-gateway": {
+      "type": "application",
+      "root": "apps/meeting-api-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/meeting-api-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/meeting-api-gateway/tsconfig.app.json"
+      }
+    }
+  }
+}
