@@ -1,28 +1,31 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { IAmService } from './iam.service';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { authEnvSchema } from './env.schema';
+import { IAmEnvSchema } from './env.schema';
 import { ConfigModule } from '@app/config';
-import { AuthPrismaModule } from './prisma/prisma.module';
+import { IAmPrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { HashingService } from './hashing/hashing.service';
 import { BcryptService } from './hashing/bcrypt.service';
+import { AuthenticationService } from '../authentication/authentication.service';
 
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './libs/auth/.env.auth',
-      validate: (env) => authEnvSchema.parse(env),
+      envFilePath: './libs/iam/.env.iam',
+      validate: (env) => IAmEnvSchema.parse(env),
     }),
     ConfigModule,
-    AuthPrismaModule,
+    IAmPrismaModule,
     UsersModule,
   ],
   providers: [
-    AuthService,
+    IAmService,
     { provide: HashingService, useClass: BcryptService },
+    AuthenticationService,
   ],
-  exports: [AuthService],
+  exports: [IAmService, AuthenticationService],
+  controllers: [],
 })
-export class AuthModule {}
+export class IAmModule {}

@@ -1,9 +1,9 @@
 import { z } from 'zod';
 
 // Define the schema for environment variables
-export const authEnvSchema = z.object({
+export const IAmEnvSchema = z.object({
   DATABASE_URL: z.string(),
 });
 
 // Infer the type from the schema
-export type AuthEnv = z.infer<typeof authEnvSchema>;
+export type IAmEnv = z.infer<typeof IAmEnvSchema>;

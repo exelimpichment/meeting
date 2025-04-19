@@ -18,8 +18,8 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/auth": ["libs/auth/src"],
-      "@app/auth/*": ["libs/auth/src/*"],
+      "@app/iam": ["libs/iam/src"],
+      "@app/iam/*": ["libs/iam/src/*"],
       "@app/config": ["libs/config/src"],
       "@app/config/*": ["libs/config/src/*"]
     }

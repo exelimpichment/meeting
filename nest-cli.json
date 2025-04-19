@@ -10,13 +10,13 @@
   "monorepo": true,
   "root": "apps/meeting",
   "projects": {
-    "auth": {
+    "iam": {
       "type": "library",
-      "root": "libs/auth",
+      "root": "libs/iam",
       "entryFile": "index",
-      "sourceRoot": "libs/auth/src",
+      "sourceRoot": "libs/iam/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/auth/tsconfig.lib.json"
+        "tsConfigPath": "libs/iam/tsconfig.lib.json"
       }
     },
     "config": {
