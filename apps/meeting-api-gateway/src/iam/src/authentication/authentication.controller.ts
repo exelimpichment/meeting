@@ -1,15 +1,22 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { SignInDto } from './dto/sign-in.dto';
 import { AuthenticationService } from './authentication.service';
+import {
+  SignInDto,
+  SignUpDto,
+} from '@apps/meeting-api-gateway/src/iam/src/authentication/dto';
 
 @Controller('auth')
 export class AuthenticationController {
-  constructor(private readonly authenticationService: AuthenticationService) {}
+  constructor(private readonly authService: AuthenticationService) {}
 
-  @Post('sign-in')
-  @HttpCode(HttpStatus.OK) // Typically sign-in returns 200 OK
+  @Post('sign-up') // Route: /auth/sign-up
+  signUp(@Body() signUpDto: SignUpDto) {
+    return this.authService.signUp(signUpDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('sign-in') // Route: /auth/sign-in
   signIn(@Body() signInDto: SignInDto) {
-    // Call the injected service
-    return this.authenticationService.signIn(signInDto);
+    return this.authService.signIn(signInDto);
   }
 }

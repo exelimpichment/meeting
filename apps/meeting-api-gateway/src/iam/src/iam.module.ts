@@ -1,7 +1,6 @@
 import { AuthenticationModule } from '@apps/meeting-api-gateway/src/iam/src/authentication';
 import { IAmEnvSchema } from '@apps/meeting-api-gateway/src/iam/src/env.schema';
 import { IAmPrismaModule } from '@apps/meeting-api-gateway/src/iam/src/prisma';
-import { IAmService } from '@apps/meeting-api-gateway/src/iam/src';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { BcryptService } from '@libs/hashing/src/bcrypt.service';
 import { UsersModule } from './users/users.module';
@@ -21,7 +20,7 @@ import { Module } from '@nestjs/common';
     UsersModule,
     AuthenticationModule,
   ],
-  providers: [IAmService, { provide: HashingService, useClass: BcryptService }],
+  providers: [{ provide: HashingService, useClass: BcryptService }],
   controllers: [],
 })
 export class IAmModule {}

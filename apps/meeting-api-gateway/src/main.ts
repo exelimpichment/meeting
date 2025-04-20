@@ -8,4 +8,5 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   await app.listen(process.env.port ?? 3000);
 }
+
 bootstrap();
