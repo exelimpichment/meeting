@@ -18,8 +18,8 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/iam": ["libs/iam/src"],
-      "@app/iam/*": ["libs/iam/src/*"],
+      "@app/iam": ["apps/meeting-api-gateway/src/iam/src"],
+      "@app/iam/*": ["apps/meeting-api-gateway/src/iam/src/*"],
       "@app/config": ["libs/config/src"],
       "@app/config/*": ["libs/config/src/*"]
     }

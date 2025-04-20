@@ -5,27 +5,23 @@ import { IAmEnvSchema } from './env.schema';
 import { ConfigModule } from '@app/config';
 import { IAmPrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
-import { HashingService } from './hashing/hashing.service';
-import { BcryptService } from './hashing/bcrypt.service';
-import { AuthenticationService } from '../authentication/authentication.service';
+import { HashingService } from '../../../../../libs/hashing/src/hashing.service';
+import { BcryptService } from '../../../../../libs/hashing/src/bcrypt.service';
+import { AuthenticationModule } from './authentication/authentication.module';
 
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: './libs/iam/.env.iam',
+      envFilePath: './apps/meeting-api-gateway/src/iam/.env.iam',
       validate: (env) => IAmEnvSchema.parse(env),
     }),
     ConfigModule,
     IAmPrismaModule,
     UsersModule,
+    AuthenticationModule,
   ],
-  providers: [
-    IAmService,
-    { provide: HashingService, useClass: BcryptService },
-    AuthenticationService,
-  ],
-  exports: [IAmService, AuthenticationService],
+  providers: [IAmService, { provide: HashingService, useClass: BcryptService }],
   controllers: [],
 })
 export class IAmModule {}

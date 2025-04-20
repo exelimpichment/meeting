@@ -12,11 +12,11 @@
   "projects": {
     "iam": {
       "type": "library",
-      "root": "libs/iam",
+      "root": "apps/meeting-api-gateway/src/iam",
       "entryFile": "index",
-      "sourceRoot": "libs/iam/src",
+      "sourceRoot": "apps/meeting-api-gateway/src/iam/src",
       "compilerOptions": {
-        "tsConfigPath": "libs/iam/tsconfig.lib.json"
+        "tsConfigPath": "apps/meeting-api-gateway/src/iam/tsconfig.lib.json"
       }
     },
     "config": {
@@ -26,6 +26,15 @@
       "sourceRoot": "libs/config/src",
       "compilerOptions": {
         "tsConfigPath": "libs/config/tsconfig.lib.json"
+      }
+    },
+    "hashing": {
+      "type": "library",
+      "root": "libs/hashing",
+      "entryFile": "index",
+      "sourceRoot": "libs/hashing/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/hashing/tsconfig.lib.json"
       }
     },
     "meeting": {

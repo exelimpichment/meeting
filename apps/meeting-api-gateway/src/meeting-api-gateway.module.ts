@@ -4,8 +4,7 @@ import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
 import { MeetingApiGatewayService } from './meeting-api-gateway.service';
 import { ConfigModule } from '@app/config';
 import { envSchema } from './env.schema';
-import { AuthController } from './auth/auth.controller';
-import { IAmModule } from 'libs/iam/src/iam.module';
+import { IAmModule } from 'apps/meeting-api-gateway/src/iam/src/iam.module';
 
 @Module({
   imports: [
@@ -17,7 +16,7 @@ import { IAmModule } from 'libs/iam/src/iam.module';
     ConfigModule,
     IAmModule,
   ],
-  controllers: [MeetingApiGatewayController, AuthController],
+  controllers: [MeetingApiGatewayController],
   providers: [MeetingApiGatewayService],
 })
 export class MeetingApiGatewayModule {}

@@ -19,8 +19,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/meeting/test/jest-e2e.json",
-    "migrate:auth-db": "dotenv -e libs/auth/.env.iam -- prisma migrate dev --schema=libs/iam/prisma/schema.prisma",
-    "generate:auth-db": "dotenv -e libs/auth/.env.iam -- prisma generate --schema=libs/iam/prisma/schema.prisma"
+    "migrate:auth-db": "dotenv -e apps/meeting-api-gateway/src/iam/.env.iam -- prisma migrate dev --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
+    "generate:auth-db": "dotenv -e apps/meeting-api-gateway/src/iam/.env.iam -- prisma generate --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "11.0.1",
