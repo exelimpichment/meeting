@@ -9,13 +9,13 @@ import {
 export class AuthenticationController {
   constructor(private readonly authService: AuthenticationService) {}
 
-  @Post('sign-up') // Route: /auth/sign-up
+  @Post('sign-up') // route: /auth/sign-up
   signUp(@Body() signUpDto: SignUpDto) {
     return this.authService.signUp(signUpDto);
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('sign-in') // Route: /auth/sign-in
+  @Post('sign-in') // route: /auth/sign-in
   signIn(@Body() signInDto: SignInDto) {
     return this.authService.signIn(signInDto);
   }

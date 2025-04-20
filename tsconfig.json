@@ -17,7 +17,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-     "paths": {
+    "paths": {
       "@apps/meeting/*": ["apps/meeting/*"],
       "@apps/meeting-api-gateway/*": ["apps/meeting-api-gateway/*"],
       "@apps/iam/*": ["apps/meeting-api-gateway/src/iam/*"],

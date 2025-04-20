@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { SignInDto } from './dto/sign-in.dto';
+import { handlePrismaError } from '@apps/meeting-api-gateway/src/iam/src/common/utils';
 import { UsersRepository } from '../users/repositories/users.repository';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { HashingService } from '@libs/hashing/src';
+import { SignInDto } from './dto/sign-in.dto';
 
 @Injectable()
 export class AuthenticationService {
@@ -33,11 +34,20 @@ export class AuthenticationService {
     const email = signInDto.email;
     const password = signInDto.password;
 
+    const existingUser = await this.usersRepository.findOneByEmail(email);
+    if (existingUser) {
+      throw new UnauthorizedException('Email is already taken');
+    }
+
     const hashedPassword = await this.hashingService.hash(password);
 
-    return this.usersRepository.create({
-      email,
-      hashedPassword,
-    });
+    try {
+      return await this.usersRepository.create({
+        email,
+        hashedPassword,
+      });
+    } catch (error) {
+      handlePrismaError(error);
+    }
   }
 }

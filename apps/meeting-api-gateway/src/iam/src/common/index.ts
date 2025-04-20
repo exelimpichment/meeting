@@ -1,1 +1,1 @@
-export * from './utils/prisma-error.util';
+export * from './utils';
