@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { IAmModule } from 'apps/meeting-api-gateway/src/iam/src/iam.module';
 import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
 import { MeetingApiGatewayService } from './meeting-api-gateway.service';
-import { ConfigModule } from '@app/config';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common';
 import { envSchema } from './env.schema';
-import { IAmModule } from 'apps/meeting-api-gateway/src/iam/src/iam.module';
+import { ConfigModule } from '@libs/config';
 
 @Module({
   imports: [

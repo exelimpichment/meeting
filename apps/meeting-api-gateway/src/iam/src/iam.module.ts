@@ -1,13 +1,13 @@
-import { Module } from '@nestjs/common';
-import { IAmService } from './iam.service';
+import { AuthenticationModule } from '@apps/meeting-api-gateway/src/iam/src/authentication';
+import { IAmEnvSchema } from '@apps/meeting-api-gateway/src/iam/src/env.schema';
+import { IAmPrismaModule } from '@apps/meeting-api-gateway/src/iam/src/prisma';
+import { IAmService } from '@apps/meeting-api-gateway/src/iam/src';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { IAmEnvSchema } from './env.schema';
-import { ConfigModule } from '@app/config';
-import { IAmPrismaModule } from './prisma/prisma.module';
+import { BcryptService } from '@libs/hashing/src/bcrypt.service';
 import { UsersModule } from './users/users.module';
-import { HashingService } from '../../../../../libs/hashing/src/hashing.service';
-import { BcryptService } from '../../../../../libs/hashing/src/bcrypt.service';
-import { AuthenticationModule } from './authentication/authentication.module';
+import { HashingService } from '@libs/hashing/src';
+import { ConfigModule } from '@libs/config';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
