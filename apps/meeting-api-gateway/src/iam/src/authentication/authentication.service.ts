@@ -1,14 +1,21 @@
 import { UsersRepository } from '@apps/meeting-api-gateway/src/iam/src/users/repositories';
 import { handlePrismaError } from '@apps/meeting-api-gateway/src/iam/src/common/utils';
 import { SignInDto } from '@apps/meeting-api-gateway/src/iam/src/authentication/dto';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import { HashingService } from '@libs/hashing/src';
+import { JwtService } from '@nestjs/jwt';
+import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
+import { ConfigType } from '@nestjs/config';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly hashingService: HashingService,
+    private readonly jwtService: JwtService,
+
+    @Inject(jwtConfig.KEY)
+    private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
   ) {}
 
   async signUp(signInDto: SignInDto) {
@@ -27,7 +34,7 @@ export class AuthenticationService {
     }
   }
 
-  async signIn(signInDto: SignInDto): Promise<boolean> {
+  async signIn(signInDto: SignInDto): Promise<{ accessToken: string }> {
     const user = await this.usersRepository.findOneByEmail(signInDto.email);
 
     if (!user) {
@@ -43,6 +50,20 @@ export class AuthenticationService {
       throw new UnauthorizedException('Password does not match');
     }
 
-    return true;
+    // Generate JWT token using config values
+    const accessToken = await this.jwtService.signAsync(
+      {
+        sub: user.id,
+        email: user.email,
+      },
+      {
+        audience: this.jwtConfiguration.audience,
+        issuer: this.jwtConfiguration.issuer,
+        secret: this.jwtConfiguration.secret,
+        expiresIn: this.jwtConfiguration.accessTokenTtl,
+      },
+    );
+
+    return { accessToken };
   }
 }

@@ -3,20 +3,10 @@ import { MeetingApiGatewayService } from '@apps/meeting-api-gateway/src/meeting-
 import { RequestLoggerMiddleware } from '@apps/meeting-api-gateway/src/common';
 import { IAmModule } from 'apps/meeting-api-gateway/src/iam/src/iam.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { envSchema } from '@apps/meeting-api-gateway/src/env.schema';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { ConfigModule } from '@libs/config';
 
 @Module({
-  imports: [
-    NestConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: './apps/meeting-api-gateway/.env',
-      validate: (env) => envSchema.parse(env),
-    }),
-    ConfigModule,
-    IAmModule,
-  ],
+  imports: [ConfigModule, IAmModule],
   controllers: [MeetingApiGatewayController],
   providers: [MeetingApiGatewayService],
 })
