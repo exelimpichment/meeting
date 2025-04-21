@@ -1,9 +1,10 @@
+import { MeetingApiGatewayController } from '@apps/meeting-api-gateway/src/meeting-api-gateway.controller';
+import { MeetingApiGatewayService } from '@apps/meeting-api-gateway/src/meeting-api-gateway.service';
+import { RequestLoggerMiddleware } from '@apps/meeting-api-gateway/src/common';
 import { IAmModule } from 'apps/meeting-api-gateway/src/iam/src/iam.module';
-import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
-import { MeetingApiGatewayService } from './meeting-api-gateway.service';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { envSchema } from '@apps/meeting-api-gateway/src/env.schema';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { Module } from '@nestjs/common';
-import { envSchema } from './env.schema';
 import { ConfigModule } from '@libs/config';
 
 @Module({
@@ -19,4 +20,8 @@ import { ConfigModule } from '@libs/config';
   controllers: [MeetingApiGatewayController],
   providers: [MeetingApiGatewayService],
 })
-export class MeetingApiGatewayModule {}
+export class MeetingApiGatewayModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}
