@@ -1,4 +1,4 @@
+import { AuthSchema } from '@apps/meeting-api-gateway/src/iam/src/authentication/dto/auth.schema';
 import { createZodDto } from 'nestjs-zod';
-import { AuthSchema } from './auth.schema';
 
 export class SignInDto extends createZodDto(AuthSchema) {}

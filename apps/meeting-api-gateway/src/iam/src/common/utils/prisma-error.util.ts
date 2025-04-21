@@ -1,33 +1,30 @@
-import { ConflictException } from '@nestjs/common';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import {
+  ConflictException,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
+import { PrismaClientKnownRequestError } from '../../../generated/iam-client/runtime/library';
 
 export function handlePrismaError(error: unknown): never {
-  console.log(error instanceof PrismaClientKnownRequestError);
-
   if (error instanceof PrismaClientKnownRequestError) {
-    // console.log(error.code);
-
-    if (error.code === 'P2002') {
-      console.log('hello');
-    }
     switch (error.code) {
-      case 'P2002': {
-        // Unique constraint violation
-
-        const target = error.meta?.target as string[] | undefined;
-        const field = target?.[0] ?? 'record';
-        console.log('inside');
-
-        throw new ConflictException(
-          `A ${field} with this value already exists.`,
+      case 'P2002':
+        throw new ConflictException('Unique constraint violation');
+      case 'P2025':
+        throw new NotFoundException('Record not found');
+      case 'P2003':
+        throw new BadRequestException('Foreign key constraint failed');
+      case 'P2014':
+        throw new BadRequestException(
+          'The change you are trying to make would violate the required relation',
         );
-      }
-
+      case 'P2016':
+        throw new BadRequestException('Query interpretation error');
+      case 'P2001':
+        throw new NotFoundException('Record does not exist');
       default:
-        // Re-throw unknown Prisma errors
-        throw error;
+        throw new BadRequestException(`Database error: ${error.code}`);
     }
   }
-  // Re-throw non-Prisma errors
   throw error;
 }
