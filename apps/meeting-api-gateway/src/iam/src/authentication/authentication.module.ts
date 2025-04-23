@@ -14,5 +14,6 @@ import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
   ],
   controllers: [AuthenticationController],
   providers: [AuthenticationService],
+  exports: [JwtModule],
 })
 export class AuthenticationModule {}

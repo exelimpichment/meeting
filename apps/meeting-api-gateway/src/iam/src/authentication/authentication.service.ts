@@ -34,7 +34,7 @@ export class AuthenticationService {
     }
   }
 
-  async signIn(signInDto: SignInDto): Promise<{ accessToken: string }> {
+  async signIn(signInDto: SignInDto): Promise<string> {
     const user = await this.usersRepository.findOneByEmail(signInDto.email);
 
     if (!user) {
@@ -60,10 +60,10 @@ export class AuthenticationService {
         audience: this.jwtConfiguration.audience,
         issuer: this.jwtConfiguration.issuer,
         secret: this.jwtConfiguration.secret,
-        expiresIn: this.jwtConfiguration.accessTokenTtl,
+        expiresIn: `${this.jwtConfiguration.accessTokenTtl}s`,
       },
     );
 
-    return { accessToken };
+    return accessToken;
   }
 }
