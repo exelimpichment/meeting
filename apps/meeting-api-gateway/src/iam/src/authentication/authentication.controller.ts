@@ -15,7 +15,10 @@ import {
 } from '@apps/meeting-api-gateway/src/iam/src/authentication/dto';
 import { ConfigType } from '@nestjs/config';
 import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
+import { Auth } from '@apps/meeting-api-gateway/src/iam/src/authentication/decorators';
+import { AuthType } from '@apps/meeting-api-gateway/src/iam/src/authentication/enums';
 
+@Auth(AuthType.None)
 @Controller('auth')
 export class AuthenticationController {
   constructor(
@@ -51,7 +54,7 @@ export class AuthenticationController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('logout')
+  @Post('logout') // route: /auth/logout
   logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('access_token');
     return { success: true };

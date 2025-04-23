@@ -5,9 +5,12 @@ import { IAmModule } from 'apps/meeting-api-gateway/src/iam/src/iam.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@libs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { AccessTokenGuard } from 'apps/meeting-api-gateway/src/iam/src/authentication/guards/access-token.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConfig } from 'apps/meeting-api-gateway/src/iam/jwt.config';
+import {
+  AccessTokenGuard,
+  AuthenticationGuard,
+} from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
 
 @Module({
   imports: [
@@ -20,8 +23,9 @@ import { jwtConfig } from 'apps/meeting-api-gateway/src/iam/jwt.config';
     MeetingApiGatewayService,
     {
       provide: APP_GUARD,
-      useClass: AccessTokenGuard,
+      useClass: AuthenticationGuard,
     },
+    AccessTokenGuard,
   ],
 })
 export class MeetingApiGatewayModule implements NestModule {
