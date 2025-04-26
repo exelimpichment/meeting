@@ -11,12 +11,24 @@ import {
   AccessTokenGuard,
   AuthenticationGuard,
 } from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     ConfigModule,
     IAmModule,
+    UsersModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),
+    ClientsModule.register([
+      {
+        name: 'MEETING_SERVICE',
+        transport: Transport.NATS,
+        options: {
+          servers: ['nats://localhost:4222'],
+        },
+      },
+    ]),
   ],
   controllers: [MeetingApiGatewayController],
   providers: [
