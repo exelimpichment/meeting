@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@libs/config';
 import { envSchema } from './env.schema';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
       validate: (env) => envSchema.parse(env),
     }),
     ConfigModule,
+    UsersModule,
     ClientsModule.register([
       {
         name: 'MEETING_SERVICE',
