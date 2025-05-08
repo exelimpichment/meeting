@@ -3,7 +3,9 @@ import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@libs/config';
-import { envSchema } from './env.schema';
+import { envSchema } from '../env.schema';
+import { UsersModule } from './users/users.module';
+import { MessagingModule } from './conversations/conversations.module';
 
 @Module({
   imports: [
@@ -13,6 +15,8 @@ import { envSchema } from './env.schema';
       validate: (env) => envSchema.parse(env),
     }),
     ConfigModule,
+    UsersModule,
+    MessagingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
