@@ -11,24 +11,14 @@ import {
   AccessTokenGuard,
   AuthenticationGuard,
 } from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { UsersModule } from './users/users.module';
-
-const MEETING_SERVICE_CLIENT = ClientsModule.register([
-  {
-    name: 'MEETING_SERVICE',
-    transport: Transport.NATS,
-    options: {
-      servers: ['nats://localhost:4222'],
-    },
-  },
-]);
+import { UsersModule } from '@apps/meeting-api-gateway/src/users/users.module';
+import { MicroserviceModule } from '@apps/meeting-api-gateway/src/microservice/microservice.module';
 
 @Module({
   imports: [
     ConfigModule,
     IAmModule,
-    MEETING_SERVICE_CLIENT,
+    MicroserviceModule,
     UsersModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
@@ -41,7 +31,6 @@ const MEETING_SERVICE_CLIENT = ClientsModule.register([
     },
     AccessTokenGuard,
   ],
-  exports: [MEETING_SERVICE_CLIENT],
 })
 export class MeetingApiGatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

@@ -3,8 +3,7 @@ import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@libs/config';
-import { envSchema } from './env.schema';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { envSchema } from '../env.schema';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -16,15 +15,6 @@ import { UsersModule } from './users/users.module';
     }),
     ConfigModule,
     UsersModule,
-    ClientsModule.register([
-      {
-        name: 'MEETING_SERVICE',
-        transport: Transport.NATS,
-        options: {
-          servers: ['nats://localhost:4222'],
-        },
-      },
-    ]),
   ],
   controllers: [AppController],
   providers: [AppService],

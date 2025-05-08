@@ -9,7 +9,7 @@ export class UsersService {
 
   async getUser(id: string): Promise<UserDto> {
     return await firstValueFrom<UserDto>(
-      this.meetingClient.send<UserDto, { id: string }>('meeting.getUser', {
+      this.meetingClient.send<UserDto, { id: string }>('users.findOne', {
         id,
       }),
     );
