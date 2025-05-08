@@ -138,3 +138,6 @@ dist
 
 # Generated code directories
 **/generated/
+
+# Nest.js idiomatic rules
+nest.rules.txt

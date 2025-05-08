@@ -20,6 +20,9 @@ async function bootstrap() {
   app.useGlobalPipes(new ZodValidationPipe());
   app.use(cookieParser());
   app.setGlobalPrefix('api');
+
+  // Start both HTTP and microservice
+  await app.startAllMicroservices();
   await app.listen(process.env.port ?? 3000);
 }
 
