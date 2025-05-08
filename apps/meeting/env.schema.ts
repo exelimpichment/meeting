@@ -5,7 +5,8 @@ export const envSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
-  TEST: z.string(),
+  PORT: z.string().optional(),
+  NATS_URL: z.string().default('nats://localhost:4222'),
 });
 
 // Infer the type from the schema

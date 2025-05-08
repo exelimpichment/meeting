@@ -11,11 +11,15 @@ import {
   AccessTokenGuard,
   AuthenticationGuard,
 } from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
+import { UsersModule } from '@apps/meeting-api-gateway/src/users/users.module';
+import { MicroserviceModule } from '@apps/meeting-api-gateway/src/microservice/microservice.module';
 
 @Module({
   imports: [
     ConfigModule,
     IAmModule,
+    MicroserviceModule,
+    UsersModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
   controllers: [MeetingApiGatewayController],
