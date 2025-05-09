@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@libs/config';
 import { envSchema } from '../env.schema';
 import { UsersModule } from './users/users.module';
+import { MessagingModule } from './conversations/conversations.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { UsersModule } from './users/users.module';
     }),
     ConfigModule,
     UsersModule,
+    MessagingModule,
   ],
   controllers: [AppController],
   providers: [AppService],
