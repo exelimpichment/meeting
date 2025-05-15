@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+
 import { ConfigModule } from '@libs/config';
 import { envSchema } from '../env.schema';
 import { UsersModule } from './users/users.module';
+import { MessengerModule } from './messenger/messenger.module';
 
 @Module({
   imports: [
@@ -15,8 +15,7 @@ import { UsersModule } from './users/users.module';
     }),
     ConfigModule,
     UsersModule,
+    MessengerModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

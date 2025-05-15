@@ -13,6 +13,7 @@ import { AccessTokenGuard } from '@apps/meeting-api-gateway/src/iam/src/authenti
 import { REQUEST_USER_KEY } from '@apps/meeting-api-gateway/src/iam/iam.constants';
 import { ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
+import { MEETING_SERVICE } from '@apps/meeting-api-gateway/src/consts';
 
 // Define interface for WebSocket with user data
 interface AuthenticatedWebSocket extends WebSocket {
@@ -40,7 +41,7 @@ export class WebsocketGateway
   private readonly logger = new Logger(WebsocketGateway.name);
 
   constructor(
-    @Inject('MEETING_SERVICE') private readonly meetingClient: ClientProxy,
+    @Inject(MEETING_SERVICE) private readonly meetingClient: ClientProxy,
     private readonly accessTokenGuard: AccessTokenGuard,
   ) {}
 
