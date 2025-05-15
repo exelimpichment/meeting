@@ -3,7 +3,6 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
-  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -176,23 +175,5 @@ export class WebsocketGateway
       userId: client.user?.sub,
       timestamp: new Date().toISOString(),
     });
-  }
-
-  @SubscribeMessage('message')
-  handleMessage(client: AuthenticatedWebSocket, message: string): void {
-    // Forward the message to the meeting service
-    this.meetingClient.emit('client.message', {
-      userId: client.user?.sub,
-      message,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Echo back to the client
-    client.send(
-      JSON.stringify({
-        event: 'messageReceived',
-        data: message,
-      }),
-    );
   }
 }
