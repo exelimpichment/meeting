@@ -9,8 +9,11 @@ import {
 } from '@nestjs/websockets';
 import { ClientProxy } from '@nestjs/microservices';
 import { Server, WebSocket } from 'ws';
-import { JwtService } from '@nestjs/jwt';
-import { parse } from 'url';
+import { IncomingMessage } from 'http';
+import { AccessTokenGuard } from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
+import { REQUEST_USER_KEY } from '@apps/meeting-api-gateway/src/iam/iam.constants';
+import { ExecutionContext } from '@nestjs/common';
+import { Request } from 'express';
 
 // Define interface for WebSocket with user data
 interface AuthenticatedWebSocket extends WebSocket {
@@ -20,10 +23,13 @@ interface AuthenticatedWebSocket extends WebSocket {
   };
 }
 
-// Define user payload interface
-interface JwtPayload {
-  sub: string;
-  [key: string]: any;
+// Define request interface for authentication
+interface AuthRequest extends Request {
+  cookies: Record<string, string>;
+  [REQUEST_USER_KEY]?: {
+    sub: string;
+    [key: string]: any;
+  };
 }
 
 @WebSocketGateway({
@@ -36,7 +42,7 @@ export class WebsocketGateway
 
   constructor(
     @Inject('MEETING_SERVICE') private readonly meetingClient: ClientProxy,
-    private readonly jwtService: JwtService,
+    private readonly accessTokenGuard: AccessTokenGuard,
   ) {}
 
   @WebSocketServer()
@@ -47,38 +53,104 @@ export class WebsocketGateway
     this.logger.log('WebSocket Gateway Initialized');
   }
 
-  handleConnection(client: AuthenticatedWebSocket, request: Request): void {
+  handleConnection(
+    client: AuthenticatedWebSocket,
+    request: IncomingMessage,
+  ): void {
     try {
-      // Extract token from query parameters
-      const { query } = parse(request.url, true);
-      const token = query.token as string;
+      // Extract token from cookies
+      const cookieHeader = request.headers.cookie;
+      if (!cookieHeader) {
+        this.handleUnauthorized(client, 'No cookies provided');
+        return;
+      }
 
-      if (!token) {
+      // Extract access_token from cookie header
+      const accessToken = this.extractCookieValue(cookieHeader, 'access_token');
+      if (!accessToken) {
         this.handleUnauthorized(client, 'Missing authentication token');
         return;
       }
 
-      // Verify the token
-      try {
-        const payload = this.jwtService.verify<JwtPayload>(token);
-        client.user = payload;
-      } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        this.handleUnauthorized(client, 'Invalid authentication token');
+      // Basic token format validation (JWT tokens have 3 parts separated by dots)
+      if (!this.isValidTokenFormat(accessToken)) {
+        this.handleUnauthorized(client, 'Malformed token format');
         return;
       }
 
-      this.logger.log('Client connected');
+      // Create a mock request object that AccessTokenGuard can use
+      const mockRequest = {
+        cookies: { access_token: accessToken },
+      } as any as AuthRequest;
 
-      // Notify the meeting service about the new connection
-      this.meetingClient.emit('client.connected', {
-        userId: client.user?.sub,
-        timestamp: new Date().toISOString(),
-      });
+      // Use AccessTokenGuard's verification logic
+      // We need to create a minimal execution context that the guard can use
+      const mockExecutionContext = {
+        switchToHttp: () => ({
+          getRequest: () => mockRequest,
+          getResponse: () => ({}),
+          getNext: () => ({}),
+        }),
+      } as ExecutionContext;
+
+      // Use the guard to verify the token
+      this.accessTokenGuard
+        .canActivate(mockExecutionContext)
+        .then(() => {
+          // Authentication successful, get the user data from the request
+          client.user = mockRequest[REQUEST_USER_KEY];
+
+          this.logger.log('Client connected');
+
+          // Notify the meeting service about the new connection
+          this.meetingClient.emit('client.connected', {
+            userId: client.user?.sub,
+            timestamp: new Date().toISOString(),
+          });
+        })
+        .catch((error) => {
+          this.logger.error('Token validation failed', error);
+          this.handleUnauthorized(client, 'Invalid authentication token');
+        });
     } catch (error) {
       this.logger.error('Authentication error', error);
       this.handleUnauthorized(client, 'Authentication failed');
     }
+  }
+
+  /**
+   * Basic validation of JWT token format
+   * A valid JWT token has 3 parts separated by dots
+   */
+  private isValidTokenFormat(token: string): boolean {
+    if (!token || typeof token !== 'string') {
+      return false;
+    }
+
+    // JWT tokens have 3 parts separated by dots
+    const parts = token.split('.');
+    return parts.length === 3 && parts.every((part) => part.trim().length > 0);
+  }
+
+  /**
+   * Extract a cookie value from the cookie header
+   */
+  private extractCookieValue(
+    cookieHeader: string,
+    cookieName: string,
+  ): string | undefined {
+    const cookies: Record<string, string> = {};
+
+    cookieHeader.split(';').forEach((cookie) => {
+      const parts = cookie.split('=');
+      if (parts.length >= 2) {
+        const name = parts[0].trim();
+        const value = parts.slice(1).join('=').trim();
+        cookies[name] = value;
+      }
+    });
+
+    return cookies[cookieName];
   }
 
   private handleUnauthorized(
@@ -108,8 +180,6 @@ export class WebsocketGateway
 
   @SubscribeMessage('message')
   handleMessage(client: AuthenticatedWebSocket, message: string): void {
-    this.logger.log(`Received message: ${message}`);
-
     // Forward the message to the meeting service
     this.meetingClient.emit('client.message', {
       userId: client.user?.sub,
