@@ -8,10 +8,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model users {
+model messages {
   id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  message   String
 }
