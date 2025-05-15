@@ -1,12 +1,12 @@
+import { MEETING_SERVICE } from '@apps/meeting-api-gateway/src/consts';
+import { ClientProxy } from '@nestjs/microservices';
 import { Inject, Logger } from '@nestjs/common';
+import { Server, WebSocket } from 'ws';
 import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { ClientProxy } from '@nestjs/microservices';
-import { Server, WebSocket } from 'ws';
-import { MEETING_SERVICE } from '@apps/meeting-api-gateway/src/consts';
 
 // Define interface for WebSocket with user data
 interface AuthenticatedWebSocket extends WebSocket {
@@ -29,10 +29,10 @@ export class MessengerGateway {
   @WebSocketServer()
   server: Server;
 
-  @SubscribeMessage('message:send')
+  @SubscribeMessage('message.send')
   handleMessage(client: AuthenticatedWebSocket, message: string): void {
     // Forward the message to the meeting service
-    this.meetingClient.emit('client.message.send', {
+    this.meetingClient.emit('messenger.send', {
       userId: client.user?.sub,
       message,
       timestamp: new Date().toISOString(),
@@ -47,10 +47,10 @@ export class MessengerGateway {
     );
   }
 
-  @SubscribeMessage('message:delete')
+  @SubscribeMessage('message.delete')
   handleMessageDelete(client: AuthenticatedWebSocket, message: string): void {
     // Forward the message to the meeting service
-    this.meetingClient.emit('client.message.delete', {
+    this.meetingClient.emit('messenger.delete', {
       userId: client.user?.sub,
       message,
       timestamp: new Date().toISOString(),
@@ -65,10 +65,10 @@ export class MessengerGateway {
     );
   }
 
-  @SubscribeMessage('message:edit')
+  @SubscribeMessage('message.edit')
   handleMessageEdit(client: AuthenticatedWebSocket, message: string): void {
     // Forward the message to the meeting service
-    this.meetingClient.emit('client.message.edit', {
+    this.meetingClient.emit('messenger.edit', {
       userId: client.user?.sub,
       message,
       timestamp: new Date().toISOString(),
@@ -83,21 +83,74 @@ export class MessengerGateway {
     );
   }
 
-  @SubscribeMessage('message:writing')
+  @SubscribeMessage('message.writing')
   handleMessageWriting(client: AuthenticatedWebSocket, message: string): void {
     // Forward the message to the meeting service
-    this.meetingClient.emit('client.message.writing', {
-      userId: client.user?.sub,
-      message,
-      timestamp: new Date().toISOString(),
-    });
-
-    // Echo back to the client
-    client.send(
-      JSON.stringify({
-        event: 'messageReceived',
-        data: message,
-      }),
+    const responseObservable = this.meetingClient.send<string>(
+      'messenger.writing',
+      {
+        userId: client.user?.sub,
+        message,
+        timestamp: new Date().toISOString(),
+      },
     );
+
+    responseObservable.subscribe({
+      next: (response: string) => {
+        // Echo back to the client
+        client.send(
+          JSON.stringify({ event: 'writingResponse', data: response }),
+        );
+      },
+      error: (err) => {
+        this.logger.error(
+          'Error receiving response from messenger.writing',
+          err,
+        );
+        client.send(
+          JSON.stringify({
+            event: 'writingError',
+            data: 'Failed to get response',
+          }),
+        );
+      },
+    });
+  }
+
+  @SubscribeMessage('message.stopWriting')
+  handleMessageStopWriting(
+    client: AuthenticatedWebSocket,
+    message: string,
+  ): void {
+    // Forward the message to the meeting service
+    const responseObservable = this.meetingClient.send<string>(
+      'messenger.stopWriting',
+      {
+        userId: client.user?.sub,
+        message,
+        timestamp: new Date().toISOString(),
+      },
+    );
+
+    responseObservable.subscribe({
+      next: (response: string) => {
+        // Echo back to the client
+        client.send(
+          JSON.stringify({ event: 'writingResponse', data: response }),
+        );
+      },
+      error: (err) => {
+        this.logger.error(
+          'Error receiving response from messenger.writing',
+          err,
+        );
+        client.send(
+          JSON.stringify({
+            event: 'writingError',
+            data: 'Failed to get response',
+          }),
+        );
+      },
+    });
   }
 }

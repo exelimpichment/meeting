@@ -10,15 +10,6 @@
   "monorepo": true,
   "root": "apps/meeting",
   "projects": {
-    "iam": {
-      "type": "library",
-      "root": "apps/meeting-api-gateway/src/iam",
-      "entryFile": "index",
-      "sourceRoot": "apps/meeting-api-gateway/src/iam/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/meeting-api-gateway/src/iam/tsconfig.lib.json"
-      }
-    },
     "config": {
       "type": "library",
       "root": "libs/config",
@@ -28,6 +19,15 @@
         "tsConfigPath": "libs/config/tsconfig.lib.json"
       }
     },
+    "contracts": {
+      "type": "library",
+      "root": "libs/contracts",
+      "entryFile": "index",
+      "sourceRoot": "libs/contracts/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/contracts/tsconfig.lib.json"
+      }
+    },
     "hashing": {
       "type": "library",
       "root": "libs/hashing",
@@ -35,6 +35,15 @@
       "sourceRoot": "libs/hashing/src",
       "compilerOptions": {
         "tsConfigPath": "libs/hashing/tsconfig.lib.json"
+      }
+    },
+    "iam": {
+      "type": "library",
+      "root": "apps/meeting-api-gateway/src/iam",
+      "entryFile": "index",
+      "sourceRoot": "apps/meeting-api-gateway/src/iam/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/meeting-api-gateway/src/iam/tsconfig.lib.json"
       }
     },
     "meeting": {
@@ -53,6 +62,15 @@
       "sourceRoot": "apps/meeting-api-gateway/src",
       "compilerOptions": {
         "tsConfigPath": "apps/meeting-api-gateway/tsconfig.app.json"
+      }
+    },
+    "messenger": {
+      "type": "application",
+      "root": "apps/messenger",
+      "entryFile": "main",
+      "sourceRoot": "apps/messenger/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/messenger/tsconfig.app.json"
       }
     }
   }

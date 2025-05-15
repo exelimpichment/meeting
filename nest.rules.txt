@@ -21,3 +21,11 @@ do i need to signal somehow if NATS message was not delivered (At-Most-Once Deli
 if two or more services included in a transaction and one of them errors how to handle (distributed transactions)
 do i need proxy server in front of my server 
 do i need CDN
+
+🔁 Optional Refinement: Use Outbox Pattern
+To make the saving and publishing atomic, consider this:
+Save the message and an "outbox" event record in the same transaction.
+A background process or separate service reads the outbox and sends Kafka messages.
+This avoids issues like:
+Message saved, but Kafka event not sent.
+Kafka event sent, but message not saved.

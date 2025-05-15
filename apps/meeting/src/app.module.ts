@@ -4,7 +4,6 @@ import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { ConfigModule } from '@libs/config';
 import { envSchema } from '../env.schema';
 import { UsersModule } from './users/users.module';
-import { MessengerModule } from './messenger/messenger.module';
 
 @Module({
   imports: [
@@ -15,7 +14,6 @@ import { MessengerModule } from './messenger/messenger.module';
     }),
     ConfigModule,
     UsersModule,
-    MessengerModule,
   ],
 })
 export class AppModule {}
