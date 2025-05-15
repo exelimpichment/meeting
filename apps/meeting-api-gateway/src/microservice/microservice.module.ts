@@ -1,11 +1,12 @@
 import { Global, Module } from '@nestjs/common';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { MEETING_SERVICE } from '@apps/meeting-api-gateway/src/consts';
 
 @Global()
 @Module({
   providers: [
     {
-      provide: 'MEETING_SERVICE',
+      provide: MEETING_SERVICE,
       useFactory: () => {
         return ClientProxyFactory.create({
           transport: Transport.NATS,
@@ -16,6 +17,6 @@ import { ClientProxyFactory, Transport } from '@nestjs/microservices';
       },
     },
   ],
-  exports: ['MEETING_SERVICE'],
+  exports: [MEETING_SERVICE],
 })
 export class MicroserviceModule {}

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { MessangerGateway } from './messanger.gateway';
+import { MessengerGateway } from './messenger.gateway';
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { MessangerGateway } from './messanger.gateway';
       },
     ]),
   ],
-  providers: [MessangerGateway],
-  exports: [MessangerGateway], // Export if other modules need to use it directly
+  providers: [MessengerGateway],
+  exports: [MessengerGateway], // Export if other modules need to use it directly
 })
-export class MessangerModule {}
+export class MessengerModule {}

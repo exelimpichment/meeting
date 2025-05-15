@@ -14,7 +14,7 @@ import {
   AccessTokenGuard,
   AuthenticationGuard,
 } from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
-import { MessangerModule } from './messanger/messanger.module';
+import { MessengerModule } from './messenger/messenger.module';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { MessangerModule } from './messanger/messanger.module';
     MicroserviceModule,
     UsersModule,
     WebsocketModule,
-    MessangerModule,
+    MessengerModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
   controllers: [MeetingApiGatewayController],
