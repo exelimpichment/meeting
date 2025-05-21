@@ -38,6 +38,7 @@ import { KafkaModule } from './kafka/kafka.module';
         }
         return result.data;
       },
+      load: [jwtConfig],
     }),
     LibsConfigModule,
     IAmModule,
