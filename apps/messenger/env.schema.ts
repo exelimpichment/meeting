@@ -1,9 +1,12 @@
 import { z } from 'zod';
 
-// Define the schema for environment variables
 export const MessengerEnvSchema = z.object({
   DATABASE_URL: z.string(),
+  KAFKA_BROKER: z.string(),
+  KAFKA_GROUP_ID: z.string(),
 });
 
-// Infer the type from the schema
 export type MessengerEnv = z.infer<typeof MessengerEnvSchema>;
+
+// Optional: token for injection
+export const MESSENGER_ENV = 'MESSENGER_ENV';

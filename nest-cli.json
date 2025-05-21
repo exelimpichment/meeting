@@ -72,6 +72,24 @@
       "compilerOptions": {
         "tsConfigPath": "apps/messenger/tsconfig.app.json"
       }
+    },
+    "notification": {
+      "type": "application",
+      "root": "apps/notification",
+      "entryFile": "main",
+      "sourceRoot": "apps/notification/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/notification/tsconfig.app.json"
+      }
+    },
+    "presence": {
+      "type": "application",
+      "root": "apps/presence",
+      "entryFile": "main",
+      "sourceRoot": "apps/presence/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/presence/tsconfig.app.json"
+      }
     }
   }
 }

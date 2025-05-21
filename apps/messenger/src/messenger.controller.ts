@@ -1,36 +1,30 @@
-import { WritingMessageDto } from '@app/contracts/messenger';
-import { Controller } from '@nestjs/common';
-import { MessagePattern } from '@nestjs/microservices';
-import { DeleteMessageDto } from '@app/contracts/messenger';
-import { Payload } from '@nestjs/microservices';
-import { MessengerService } from './messenger.service';
-import { SendMessageDto } from '@app/contracts/messenger';
 import { EditMessageDto } from '@app/contracts/messenger/edit-message-dto';
+import { DeleteMessageDto } from '@app/contracts/messenger';
+import { SendMessageDto } from '@app/contracts/messenger';
+import { MessagePattern } from '@nestjs/microservices';
+import { MessengerService } from './messenger.service';
+import { Payload } from '@nestjs/microservices';
+import { Controller } from '@nestjs/common';
 
 @Controller()
 export class MessengerController {
   constructor(private readonly messengerService: MessengerService) {}
 
-  @MessagePattern('messenger.send')
+  @MessagePattern('message.send')
   sendMessageHandler(@Payload() sendMessageDto: SendMessageDto) {
-    return 'hello';
+    // return this.messengerService.sendMessage(sendMessageDto);
+    console.log('message.send');
   }
 
-  @MessagePattern('messenger.delete')
-  deleteMessageHandler(@Payload() deleteMessageDto: DeleteMessageDto) {}
-
-  @MessagePattern('messenger.edit')
-  editMessageHandler(@Payload() editMessageDto: EditMessageDto) {}
-
-  @MessagePattern('messenger.writing')
-  writingMessageHandler(@Payload() writingMessageDto: WritingMessageDto) {
-    return 'hello';
+  @MessagePattern('message.delete')
+  deleteMessageHandler(@Payload() deleteMessageDto: DeleteMessageDto) {
+    // return this.messengerService.deleteMessage(deleteMessageDto);
+    console.log('message.delete');
   }
 
-  @MessagePattern('messenger.stopWriting')
-  stopWritingMessageHandler(@Payload() writingMessageDto: WritingMessageDto) {
-    console.log('HERE!!');
-
-    return 'hello';
+  @MessagePattern('message.edit')
+  editMessageHandler(@Payload() editMessageDto: EditMessageDto) {
+    // return this.messengerService.editMessage(editMessageDto);
+    console.log('message.edit');
   }
 }

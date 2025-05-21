@@ -18,12 +18,30 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/contracts": ["libs/contracts/src"],
-      "@app/contracts/*": ["libs/contracts/src/*"],
-      "@apps/iam/*": ["apps/meeting-api-gateway/src/iam/*"],
-      "@apps/meeting-api-gateway/*": ["apps/meeting-api-gateway/*"],
-      "@apps/meeting/*": ["apps/meeting/*"],
-      "@libs/*": ["libs/*"]
+      "@app/contracts": [
+        "libs/contracts/src"
+      ],
+      "@app/contracts/*": [
+        "libs/contracts/src/*"
+      ],
+      "@apps/iam/*": [
+        "apps/meeting-api-gateway/src/iam/*"
+      ],
+      "@apps/meeting-api-gateway/*": [
+        "apps/meeting-api-gateway/*"
+      ],
+      "@apps/meeting/*": [
+        "apps/meeting/*"
+      ],
+      "@libs/*": [
+        "libs/*"
+      ],
+      "@apps/messenger": [
+        "apps/messenger/src"
+      ],
+      "@apps/messenger/*": [
+        "apps/messenger/*"
+      ]
     }
   }
 }
