@@ -1,6 +1,6 @@
 import { MeetingApiGatewayController } from '@apps/meeting-api-gateway/src/meeting-api-gateway.controller';
 import { MeetingApiGatewayService } from '@apps/meeting-api-gateway/src/meeting-api-gateway.service';
-import { MicroserviceModule } from '@apps/meeting-api-gateway/src/microservice/microservice.module';
+import { NatsModule } from '@apps/meeting-api-gateway/src/nats/nats.module';
 import { WebsocketModule } from '@apps/meeting-api-gateway/src/websocket/websocket.module';
 import { RequestLoggerMiddleware } from '@apps/meeting-api-gateway/src/common';
 import { UsersModule } from '@apps/meeting-api-gateway/src/users/users.module';
@@ -42,7 +42,7 @@ import { KafkaModule } from './kafka/kafka.module';
     }),
     LibsConfigModule,
     IAmModule,
-    MicroserviceModule,
+    NatsModule,
     UsersModule,
     WebsocketModule,
     MessengerModule,

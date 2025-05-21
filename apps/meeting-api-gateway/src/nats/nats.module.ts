@@ -19,4 +19,4 @@ import { MEETING_API_NATS_CLIENT } from '@apps/meeting-api-gateway/src/consts';
   ],
   exports: [MEETING_API_NATS_CLIENT],
 })
-export class MicroserviceModule {}
+export class NatsModule {}

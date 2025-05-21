@@ -2,12 +2,12 @@ import { Injectable, Inject } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 // ProducerRecord import might no longer be needed if send method signature changes
 // import { ProducerRecord } from 'kafkajs';
-import { KAFKA_SERVICE_CLIENT } from '../constants'; // Will add this import later
+import { MEETING_API_SERVICE_CLIENT } from '../constants'; // Will add this import later
 
 @Injectable()
 export class KafkaProducerService {
   constructor(
-    @Inject(KAFKA_SERVICE_CLIENT) private readonly client: ClientKafka,
+    @Inject(MEETING_API_SERVICE_CLIENT) private readonly client: ClientKafka,
   ) {}
 
   /**
