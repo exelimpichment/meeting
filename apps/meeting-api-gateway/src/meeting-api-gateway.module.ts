@@ -7,7 +7,8 @@ import { UsersModule } from '@apps/meeting-api-gateway/src/users/users.module';
 import { IAmModule } from 'apps/meeting-api-gateway/src/iam/src/iam.module';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { jwtConfig } from 'apps/meeting-api-gateway/src/iam/jwt.config';
-import { ConfigModule } from '@libs/config';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { ConfigModule as LibsConfigModule } from '@libs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import {
@@ -15,15 +16,36 @@ import {
   AuthenticationGuard,
 } from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
 import { MessengerModule } from './messenger/messenger.module';
+import { meetingApiGatewayEnvSchema } from '../meeting-api-gateway.schema';
+import { KafkaModule } from './kafka/kafka.module';
 
 @Module({
   imports: [
-    ConfigModule,
+    NestConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath:
+        process.cwd() + '/apps/meeting-api-gateway/.env.meeting-api-gateway',
+      validate: (config) => {
+        const result = meetingApiGatewayEnvSchema.safeParse(config);
+        if (!result.success) {
+          console.error(
+            'Environment validation error:',
+            result.error.flatten().fieldErrors,
+          );
+          throw new Error(
+            'Invalid environment variables for meeting-api-gateway',
+          );
+        }
+        return result.data;
+      },
+    }),
+    LibsConfigModule,
     IAmModule,
     MicroserviceModule,
     UsersModule,
     WebsocketModule,
     MessengerModule,
+    KafkaModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
   controllers: [MeetingApiGatewayController],
