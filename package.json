@@ -19,8 +19,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/meeting/test/jest-e2e.json",
-    "generate:auth-db": "dotenv -e apps/meeting-api-gateway/src/iam/.env.iam -- prisma generate --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
-    "migrate:auth-db": "dotenv -e apps/meeting-api-gateway/src/iam/.env.iam -- prisma migrate dev --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
+    "generate:auth-db": "dotenv -e apps/meeting-api-gateway/.env.meeting-api-gateway -- prisma generate --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
+    "migrate:auth-db": "dotenv -e apps/meeting-api-gateway/.env.meeting-api-gateway -- prisma migrate dev --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
     "generate:messenger-db": "dotenv -e apps/messenger/.env.messenger -- prisma generate --schema=apps/messenger/prisma/schema.prisma",
     "migrate:messenger-db": "dotenv -e apps/messenger/.env.messenger -- prisma migrate dev --schema=apps/messenger/prisma/schema.prisma"
   },
