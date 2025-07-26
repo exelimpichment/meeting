@@ -11,9 +11,9 @@ export class MessengerService {
     const { groupId, userId, message } = sendMessageDto;
     return await this.prisma.messages.create({
       data: {
-        message,
-        groupId,
-        userId,
+        content: message,
+        conversation_id: groupId,
+        user_id: userId,
       },
     });
   }
@@ -23,6 +23,8 @@ export class MessengerService {
     return await this.prisma.messages.delete({
       where: {
         id: messageId,
+        conversation_id: groupId,
+        user_id: userId,
       },
     });
   }
@@ -32,8 +34,10 @@ export class MessengerService {
     return await this.prisma.messages.update({
       where: {
         id: messageId,
+        conversation_id: groupId,
+        user_id: userId,
       },
-      data: { message },
+      data: { content: message },
     });
   }
 }
