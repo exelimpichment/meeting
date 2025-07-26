@@ -14,6 +14,21 @@ services:
     networks:
       - nest-network
 
+  mysql_messenger:
+    image: mysql:8.0
+    container_name: nest_mysql_messenger
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: messenger_db
+      MYSQL_USER: auth_user
+      MYSQL_PASSWORD: auth_pass
+    volumes:
+      - mysql_messenger_data:/var/lib/mysql
+    networks:
+      - nest-network
+
   nats:
     image: nats:2.10-alpine
     container_name: nest_nats
@@ -24,8 +39,45 @@ services:
     networks:
       - nest-network
 
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - nest-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: kafka
+    ports:
+      # Exposes 29092 for external connections to the broker
+      # See KAFKA_ADVERTISED_LISTENERS for how UIs connect to it
+      - "29092:29092"
+      # Exposes 9092 for internal connections to the broker
+      # See KAFKA_ADVERTISED_LISTENERS for how UIs connect to it
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - nest-network
+
 volumes:
   mysql_data:
+  mysql_messenger_data:
+  kafka_data:
 
 networks:
   nest-network:

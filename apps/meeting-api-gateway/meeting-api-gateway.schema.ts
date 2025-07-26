@@ -1,9 +1,8 @@
 import { z } from 'zod';
 
-// Define the schema for environment variables
-export const IAmEnvSchema = z.object({
+export const meetingApiGatewayEnvSchema = z.object({
+  KAFKA_BROKER: z.string({ required_error: 'KAFKA_BROKER is required' }),
   DATABASE_URL: z.string(),
-
   JWT_ACCESS_TOKEN_SECRET: z.string(),
   JWT_ACCESS_TOKEN_AUDIENCE: z.string(),
   JWT_ACCESS_TOKEN_ISSUER: z.string(),
@@ -11,7 +10,8 @@ export const IAmEnvSchema = z.object({
     .string()
     .default('3600')
     .transform((val) => parseInt(val, 10)),
+  JWT_REFRESH_SECRET: z.string(),
+  JWT_REFRESH_EXPIRATION_TIME: z.string(),
 });
 
-// Infer the type from the schema
-export type IAmEnv = z.infer<typeof IAmEnvSchema>;
+export type MeetingApiGatewayEnv = z.infer<typeof meetingApiGatewayEnvSchema>;

@@ -12,15 +12,17 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/meeting/main",
-    "start:all:dev": "concurrently \"npm run start:dev meeting-api-gateway\" \"npm run start:dev meeting\"",
+    "start:all:dev": "concurrently \"npm run start:dev meeting-api-gateway\" \"npm run start:dev meeting\" \"npm run start:dev messenger\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./apps/meeting/test/jest-e2e.json",
-    "migrate:auth-db": "dotenv -e apps/meeting-api-gateway/src/iam/.env.iam -- prisma migrate dev --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
-    "generate:auth-db": "dotenv -e apps/meeting-api-gateway/src/iam/.env.iam -- prisma generate --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma"
+    "generate:auth-db": "dotenv -e apps/meeting-api-gateway/.env.meeting-api-gateway -- prisma generate --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
+    "migrate:auth-db": "dotenv -e apps/meeting-api-gateway/.env.meeting-api-gateway -- prisma migrate dev --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
+    "generate:messenger-db": "dotenv -e apps/messenger/.env.messenger -- prisma generate --schema=apps/messenger/prisma/schema.prisma",
+    "migrate:messenger-db": "dotenv -e apps/messenger/.env.messenger -- prisma migrate dev --schema=apps/messenger/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "11.0.1",
@@ -28,19 +30,23 @@
     "@nestjs/core": "11.0.1",
     "@nestjs/jwt": "11.0.0",
     "@nestjs/mapped-types": "*",
-    "@nestjs/microservices": "^11.1.0",
+    "@nestjs/microservices": "11.1.0",
     "@nestjs/platform-express": "11.0.1",
+    "@nestjs/platform-ws": "11.1.0",
+    "@nestjs/websockets": "11.1.0",
     "@prisma/client": "6.6.0",
     "@types/cookie-parser": "1.4.8",
     "bcrypt": "5.1.1",
     "cookie-parser": "1.4.7",
     "jsonwebtoken": "9.0.2",
-    "nats": "^2.29.3",
+    "kafkajs": "2.2.4",
+    "nats": "2.29.3",
     "nestjs-zod": "4.3.1",
     "passport": "0.7.0",
     "passport-jwt": "4.0.1",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.1",
+    "ws": "8.18.2",
     "zod": "3.24.3"
   },
   "devDependencies": {
@@ -54,9 +60,10 @@
     "@types/bcrypt": "5.0.2",
     "@types/express": "5.0.0",
     "@types/jest": "29.5.14",
-    "@types/jsonwebtoken": "^9.0.9",
+    "@types/jsonwebtoken": "9.0.9",
     "@types/node": "22.10.7",
     "@types/supertest": "6.0.2",
+    "@types/ws": "8.18.1",
     "concurrently": "9.1.2",
     "dotenv-cli": "8.0.0",
     "eslint": "9.18.0",
@@ -97,7 +104,8 @@
     ],
     "moduleNameMapper": {
       "@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
-      "^@app/auth(|/.*)$": "<rootDir>/libs/auth/src/$1"
+      "^@app/auth(|/.*)$": "<rootDir>/libs/auth/src/$1",
+      "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1"
     }
   }
 }

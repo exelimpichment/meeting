@@ -1,0 +1,31 @@
+- modules import modules
+
+- do not import controllers 
+
+- try not to import services (import the whole module where needed service is exported)
+1. Declare providers in the providers array of their own module.
+2. Export them if they need to be shared.
+3. Import the module containing the provider into another module.
+
+TODO: check where dynamic modules are useful
+
+
+------------------------------- technical debt ----
+i need current user decorator
+user dto has to use zod
+deploy separate containers
+arrange github ci cd
+write tests
+am i communicating inside private networkor not + do i need TLS
+do i need to signal somehow if NATS message was not delivered (At-Most-Once Delivery)
+if two or more services included in a transaction and one of them errors how to handle (distributed transactions)
+do i need proxy server in front of my server 
+do i need CDN
+
+🔁 Optional Refinement: Use Outbox Pattern
+To make the saving and publishing atomic, consider this:
+Save the message and an "outbox" event record in the same transaction.
+A background process or separate service reads the outbox and sends Kafka messages.
+This avoids issues like:
+Message saved, but Kafka event not sent.
+Kafka event sent, but message not saved.

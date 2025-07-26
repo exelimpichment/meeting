@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/messenger-client"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model messages {
+  id              String   @id @default(uuid())
+  conversation_id String
+  user_id         String
+  content         String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  conversation conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+}
+
+model conversations {
+  id   String @id @default(uuid())
+  name String @db.VarChar(100)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  users_conversations users_conversations[]
+  messages            messages[]
+}
+
+model users_conversations {
+  id              String   @id @default(uuid())
+  user_id         String
+  conversation_id String
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  conversation conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, conversation_id])
+}
