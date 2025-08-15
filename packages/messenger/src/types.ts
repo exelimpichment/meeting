@@ -1,12 +1,10 @@
-// Re-export all Prisma types and client
-export * from '../generated/index';
-export { PrismaClient } from '../generated/index';
+import { conversations, messages, users } from '../generated/index';
 
-// Export specific types for convenience
-export type {
-  users,
-  messages,
-  conversations,
-  users_conversations,
-  Prisma,
-} from '../generated/index';
+export type MessageWithUser = messages & { users: users };
+export type Conversation = conversations;
+
+// API response types
+export type ApiResponses = {
+  'GET /api/conversations/:id/messages': MessageWithUser[];
+  'GET api/conversations': Conversation;
+};

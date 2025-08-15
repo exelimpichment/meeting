@@ -1,13 +1,13 @@
-import { PrismaClient } from '@prisma/client';
+export { PrismaClient as MeetingApiGatewayPrismaClient } from '../generated/index';
 
-// Export the prisma client instance
+// export the prisma client instance
 export declare const prisma: PrismaClient;
 
-// Export a context creator function
+// export a context creator function
 export declare function createContext(): { prisma: PrismaClient };
 
-// Re-export all Prisma types
+// re-export all Prisma types
 export * from '../generated/index';
 
-// Export specific types for convenience
+// export specific types for convenience
 export type { users, Prisma } from '../generated/index';

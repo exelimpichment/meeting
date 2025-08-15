@@ -1,6 +1,6 @@
 {
   "name": "@exelimpichment/meeting-api-gateway",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Shared Prisma client and types for meeting API gateway",
   "main": "dist/src/index.js",
   "types": "src/index.d.ts",
@@ -29,8 +29,8 @@
   },
   "devDependencies": {
     "prisma": "6.6.0",
-    "typescript": "^5.7.3",
-    "rimraf": "^5.0.0"
+    "typescript": "5.7.3",
+    "rimraf": "5.0.0"
   },
   "keywords": [
     "prisma",

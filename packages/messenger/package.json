@@ -1,6 +1,6 @@
 {
   "name": "@exelimpichment/messenger",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Shared Prisma client and types for messenger service",
   "main": "dist/src/index.js",
   "types": "src/index.d.ts",
@@ -25,14 +25,12 @@
     "registry": "https://npm.pkg.github.com"
   },
   "dependencies": {
-    "@exelimpichment/meeting-api-gateway": "^0.0.2",
-    "@exelimpichment/messenger": "^0.0.2",
     "@prisma/client": "6.6.0"
   },
   "devDependencies": {
     "prisma": "6.6.0",
-    "rimraf": "^5.0.0",
-    "typescript": "^5.7.3"
+    "rimraf": "5.0.0",
+    "typescript": "5.7.3"
   },
   "keywords": [
     "prisma",
