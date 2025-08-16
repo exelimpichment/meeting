@@ -3,6 +3,11 @@ generator client {
   output   = "../generated/messenger-client"
 }
 
+generator packageClient {
+  provider = "prisma-client-js"
+  output   = "../../../packages/messenger/generated"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
@@ -17,6 +22,18 @@ model messages {
   updated_at      DateTime @updatedAt
 
   conversation conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+  users        users?        @relation(fields: [user_id], references: [id])
+}
+
+model users {
+  id        String @id @default(uuid())
+  name      String @db.VarChar(100)
+  last_name String @db.VarChar(100)
+  email     String @unique
+  image_url String @db.VarChar(255)
+
+  messages            messages[]
+  users_conversations users_conversations[]
 }
 
 model conversations {
@@ -38,6 +55,7 @@ model users_conversations {
   updated_at      DateTime @updatedAt
 
   conversation conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
+  users        users?        @relation(fields: [user_id], references: [id])
 
   @@unique([user_id, conversation_id])
 }
