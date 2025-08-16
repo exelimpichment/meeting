@@ -1,10 +1,10 @@
-import { MessengerPrismaModule } from './prisma/messenger-prisma.module';
+import { MessengerPrismaModule } from '@apps/messenger/src/prisma/messenger-prisma.module';
+import { ConversationsModule } from '@apps/messenger/src/conversations/conversations.module';
+import { MESSENGER_ENV, MessengerEnvSchema } from '@apps/messenger/env.schema';
+import { MessagesModule } from '@apps/messenger/src/messages/messages.module';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { MessengerController } from './messenger.controller';
-import { MessengerService } from './messenger.service';
-import { Module } from '@nestjs/common';
 import { ConfigModule } from '@libs/config';
-import { MESSENGER_ENV, MessengerEnvSchema } from '../env.schema';
+import { Module } from '@nestjs/common';
 import { join } from 'path';
 
 @Module({
@@ -16,10 +16,10 @@ import { join } from 'path';
     }),
     ConfigModule,
     MessengerPrismaModule,
+    MessagesModule,
+    ConversationsModule,
   ],
-  controllers: [MessengerController],
   providers: [
-    MessengerService,
     {
       provide: MESSENGER_ENV,
       useFactory: () => MessengerEnvSchema.parse(process.env),

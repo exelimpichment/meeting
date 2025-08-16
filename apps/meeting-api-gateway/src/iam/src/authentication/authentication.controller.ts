@@ -1,4 +1,7 @@
 import { AuthenticationService } from '@apps/meeting-api-gateway/src/iam/src/authentication/authentication.service';
+import { AuthType } from '@apps/meeting-api-gateway/src/iam/src/authentication/enums';
+import { Auth } from '@apps/meeting-api-gateway/src/iam/src/authentication/decorators/auth.decorator';
+import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
 import { Response } from 'express';
 import {
   Body,
@@ -14,9 +17,8 @@ import {
   SignUpDto,
 } from '@apps/meeting-api-gateway/src/iam/src/authentication/dto';
 import { ConfigType } from '@nestjs/config';
-import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
-import { Auth } from '@apps/meeting-api-gateway/src/iam/src/authentication/decorators';
-import { AuthType } from '@apps/meeting-api-gateway/src/iam/src/authentication/enums';
+import { ConfigService } from '@nestjs/config';
+import { MeetingApiGatewayEnv } from '@apps/meeting-api-gateway/meeting-api-gateway.schema';
 
 @Auth(AuthType.None)
 @Controller('auth')
@@ -25,6 +27,7 @@ export class AuthenticationController {
     private readonly authService: AuthenticationService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly configService: ConfigService<MeetingApiGatewayEnv>,
   ) {}
 
   @Post('sign-up') // route: /auth/sign-up
@@ -43,9 +46,11 @@ export class AuthenticationController {
     const accessTokenTtl = this.jwtConfiguration.accessTokenTtl;
     const maxAge = accessTokenTtl ? Number(accessTokenTtl) * 1000 : 3600 * 1000;
 
+    const nodeEnv = this.configService.get('NODE_ENV');
+
     response.cookie('access_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV !== 'development',
+      secure: nodeEnv !== 'development',
       sameSite: 'strict',
       maxAge,
     });

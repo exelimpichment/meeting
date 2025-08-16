@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { MeetingApiGatewayService } from './meeting-api-gateway.service';
-import { Auth } from './iam/src/authentication/decorators';
+import { Auth } from './iam/src/authentication/decorators/auth.decorator';
 import { AuthType } from './iam/src/authentication/enums';
 
 @Controller()

@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
-// import { ClientsModule, Transport } from '@nestjs/microservices'; // Removed
-import { MessengerGateway } from './messenger.gateway';
-import { KafkaModule } from '../kafka/kafka.module'; // Added KafkaModule import
+import { KafkaModule } from '../kafka/kafka.module';
+import { MessagesModule } from './messages/messages.module';
+import { ConversationsModule } from './conversations/conversations.module';
 
 @Module({
-  imports: [KafkaModule],
-  providers: [MessengerGateway],
-  exports: [MessengerGateway],
+  imports: [KafkaModule, MessagesModule, ConversationsModule],
+  exports: [],
 })
 export class MessengerModule {}

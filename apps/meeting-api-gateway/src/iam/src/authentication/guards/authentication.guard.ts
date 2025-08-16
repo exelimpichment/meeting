@@ -1,4 +1,4 @@
-import { AUTH_TYPE_KEY } from '@apps/meeting-api-gateway/src/iam/src/authentication/decorators';
+import { AUTH_TYPE_KEY } from '@apps/meeting-api-gateway/src/iam/src/authentication/decorators/auth.decorator';
 import { AccessTokenGuard } from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
 import { AuthType } from '@apps/meeting-api-gateway/src/iam/src/authentication/enums';
 import { Reflector } from '@nestjs/core';

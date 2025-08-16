@@ -5,21 +5,21 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { KafkaProducerService } from '../kafka/kafka.producer.service';
+import { KafkaProducerService } from '../../kafka/kafka.producer.service';
 
-// Define interface for WebSocket with user data
+// define interface for WebSocket with user data
 interface AuthenticatedWebSocket extends WebSocket {
   user?: {
     sub: string;
-    [key: string]: any;
+    [key: string]: unknown;
   };
 }
 
 @WebSocketGateway({
   path: '/ws',
 })
-export class MessengerGateway {
-  private readonly logger = new Logger(MessengerGateway.name);
+export class MessagesGateway {
+  private readonly logger = new Logger(MessagesGateway.name);
 
   constructor(private readonly kafkaProducerService: KafkaProducerService) {}
 
@@ -27,22 +27,16 @@ export class MessengerGateway {
   server: Server;
 
   @SubscribeMessage('message.send')
-  async handleMessage(
-    client: AuthenticatedWebSocket,
-    message: string,
-  ): Promise<void> {
+  handleMessage(client: AuthenticatedWebSocket, message: string): void {
     const payload = {
       userId: client.user?.sub,
       message,
       timestamp: new Date().toISOString(),
     };
-    // Forward the message to the meeting service via Kafka
-    await this.kafkaProducerService.send({
-      topic: 'messenger.send',
-      messages: [{ value: JSON.stringify(payload) }],
-    });
+    // forward the message to the meeting service via Kafka
+    this.kafkaProducerService.send('messenger.send', payload);
 
-    // Echo back to the client
+    // echo back to the client
     client.send(
       JSON.stringify({
         event: 'messageReceived',
@@ -52,22 +46,16 @@ export class MessengerGateway {
   }
 
   @SubscribeMessage('message.delete')
-  async handleMessageDelete(
-    client: AuthenticatedWebSocket,
-    message: string,
-  ): Promise<void> {
+  handleMessageDelete(client: AuthenticatedWebSocket, message: string): void {
     const payload = {
       userId: client.user?.sub,
       message,
       timestamp: new Date().toISOString(),
     };
-    // Forward the message to the meeting service via Kafka
-    await this.kafkaProducerService.send({
-      topic: 'messenger.delete',
-      messages: [{ value: JSON.stringify(payload) }],
-    });
+    // forward the message to the meeting service via Kafka
+    this.kafkaProducerService.send('messenger.delete', payload);
 
-    // Echo back to the client
+    // echo back to the client
     client.send(
       JSON.stringify({
         event: 'messageReceived',
@@ -77,22 +65,16 @@ export class MessengerGateway {
   }
 
   @SubscribeMessage('message.edit')
-  async handleMessageEdit(
-    client: AuthenticatedWebSocket,
-    message: string,
-  ): Promise<void> {
+  handleMessageEdit(client: AuthenticatedWebSocket, message: string): void {
     const payload = {
       userId: client.user?.sub,
       message,
       timestamp: new Date().toISOString(),
     };
-    // Forward the message to the meeting service via Kafka
-    await this.kafkaProducerService.send({
-      topic: 'messenger.edit',
-      messages: [{ value: JSON.stringify(payload) }],
-    });
+    // forward the message to the meeting service via Kafka
+    this.kafkaProducerService.send('messenger.edit', payload);
 
-    // Echo back to the client
+    // echo back to the client
     client.send(
       JSON.stringify({
         event: 'messageReceived',
@@ -102,26 +84,20 @@ export class MessengerGateway {
   }
 
   @SubscribeMessage('message.writing')
-  async handleMessageWriting(
-    client: AuthenticatedWebSocket,
-    message: string,
-  ): Promise<void> {
+  handleMessageWriting(client: AuthenticatedWebSocket, message: string): void {
     const payload = {
       userId: client.user?.sub,
       message,
       timestamp: new Date().toISOString(),
     };
-    // Forward the message to the meeting service via Kafka
-    // For 'send' type events in Kafka (request-response), you typically don't get a direct response like with RPC.
-    // The microservice consuming this Kafka event would handle the logic and potentially send a WebSocket message back to the client if needed,
+    // forward the message to the meeting service via Kafka
+    // for 'send' type events in Kafka (request-response), you typically don't get a direct response like with RPC.
+    // the microservice consuming this Kafka event would handle the logic and potentially send a WebSocket message back to the client if needed,
     // or the client might listen on a specific Kafka topic for responses if your architecture dictates.
-    // Here, we'll just send to Kafka and echo back a confirmation.
+    // here, we'll just send to Kafka and echo back a confirmation.
     try {
-      await this.kafkaProducerService.send({
-        topic: 'messenger.writing',
-        messages: [{ value: JSON.stringify(payload) }],
-      });
-      // Echo back to the client - adjust response as needed
+      this.kafkaProducerService.send('messenger.writing', payload);
+      // echo back to the client - adjust response as needed
       client.send(
         JSON.stringify({
           event: 'writingResponse',
@@ -143,22 +119,19 @@ export class MessengerGateway {
   }
 
   @SubscribeMessage('message.stopWriting')
-  async handleMessageStopWriting(
+  handleMessageStopWriting(
     client: AuthenticatedWebSocket,
     message: string,
-  ): Promise<void> {
+  ): void {
     const payload = {
       userId: client.user?.sub,
       message,
       timestamp: new Date().toISOString(),
     };
-    // Forward the message to the meeting service via Kafka
+    // forward the message to the meeting service via Kafka
     try {
-      await this.kafkaProducerService.send({
-        topic: 'messenger.stopWriting',
-        messages: [{ value: JSON.stringify(payload) }],
-      });
-      // Echo back to the client - adjust response as needed
+      this.kafkaProducerService.send('messenger.stopWriting', payload);
+      // echo back to the client - adjust response as needed
       client.send(
         JSON.stringify({
           event: 'stopWritingResponse',
