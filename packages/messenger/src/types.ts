@@ -6,5 +6,5 @@ export type Conversation = conversations;
 // API response types
 export type ApiResponses = {
   'GET /api/conversations/:id/messages': MessageWithUser[];
-  'GET api/conversations': Conversation;
+  'GET api/conversations': Conversation[];
 };
