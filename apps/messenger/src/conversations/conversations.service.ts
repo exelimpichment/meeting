@@ -18,6 +18,6 @@ export class ConversationsService {
       },
     });
 
-    return { conversations };
+    return conversations;
   }
 }
