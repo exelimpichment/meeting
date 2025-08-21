@@ -1,7 +1,7 @@
-import { NestFactory } from '@nestjs/core';
-import { MessengerModule } from './messenger.module';
+import { MESSENGER_ENV, MessengerEnv } from '@/apps/messenger/env.schema';
+import { MessengerModule } from '@/apps/messenger/src/messenger.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { MESSENGER_ENV, MessengerEnv } from '../env.schema';
+import { NestFactory } from '@nestjs/core';
 
 async function bootstrap() {
   const app = await NestFactory.create(MessengerModule);

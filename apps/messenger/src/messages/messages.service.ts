@@ -1,10 +1,9 @@
-import {
-  DeleteMessageDto,
-  GetMessagesDto,
-  SendMessageDto,
-} from '@app/contracts/messenger';
-import { EditMessageDto } from '@app/contracts/messenger/edit-message-dto';
 import { MessengerPrismaService } from '../prisma/messenger-prisma.service';
+import { DeleteMessageDto } from '../../../../libs/contracts/src/messenger/delete-message-dto';
+import { EditMessageDto } from '../../../../libs/contracts/src/messenger/edit-message-dto';
+import { SendMessageDto } from '../../../../libs/contracts/src/messenger/send-message-dto';
+import { GetMessagesDto } from '../../../../libs/contracts/src/messenger/get-messages-dto';
+
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

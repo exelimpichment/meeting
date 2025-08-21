@@ -1,20 +1,20 @@
-import { MeetingApiGatewayController } from '@apps/meeting-api-gateway/src/meeting-api-gateway.controller';
-import { MeetingApiGatewayService } from '@apps/meeting-api-gateway/src/meeting-api-gateway.service';
-import { NatsModule } from '@apps/meeting-api-gateway/src/nats/nats.module';
-import { WebsocketModule } from '@apps/meeting-api-gateway/src/websocket/websocket.module';
-import { RequestLoggerMiddleware } from '@apps/meeting-api-gateway/src/common';
-import { UsersModule } from '@apps/meeting-api-gateway/src/users/users.module';
-import { IAmModule } from 'apps/meeting-api-gateway/src/iam/src/iam.module';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { jwtConfig } from 'apps/meeting-api-gateway/src/iam/jwt.config';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
+import { MeetingApiGatewayService } from './meeting-api-gateway.service';
+import { NatsModule } from './nats/nats.module';
+import { WebsocketModule } from './websocket/websocket.module';
+import { RequestLoggerMiddleware } from './common';
+import { UsersModule } from './users/users.module';
+import { IAmModule } from './iam/src/iam.module';
+import { jwtConfig } from './iam/jwt.config';
 import { ConfigModule as LibsConfigModule } from '@libs/config';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import {
   AccessTokenGuard,
   AuthenticationGuard,
-} from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
+} from './iam/src/authentication/guards';
 import { MessengerModule } from './messenger/messenger.module';
 import { meetingApiGatewayEnvSchema } from '../meeting-api-gateway.schema';
 import { KafkaModule } from './kafka/kafka.module';

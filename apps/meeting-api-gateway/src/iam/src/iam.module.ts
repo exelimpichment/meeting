@@ -1,9 +1,9 @@
-import { AuthenticationModule } from '@apps/meeting-api-gateway/src/iam/src/authentication';
-import { IAmPrismaModule } from '@apps/meeting-api-gateway/src/iam/src/prisma';
-import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
+import { AuthenticationModule } from './authentication';
+import { IAmPrismaModule } from './prisma';
+import { jwtConfig } from '../jwt.config';
 import { BcryptService } from '@libs/hashing/src/bcrypt.service';
 import { HashingService } from '@libs/hashing/src';
-import { ConfigModule } from '@libs/config';
+import { ConfigModule } from '@libs/config/src/config.module';
 import { Module } from '@nestjs/common';
 
 @Module({

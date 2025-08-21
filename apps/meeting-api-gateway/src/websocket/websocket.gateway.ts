@@ -9,12 +9,12 @@ import {
 import { ClientProxy } from '@nestjs/microservices';
 import { Server, WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
-import { AccessTokenGuard } from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
+import { AccessTokenGuard } from '@/apps/meeting-api-gateway/src/iam/src/authentication/guards';
 
 import { ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
-import { MEETING_API_NATS_CLIENT } from '@apps/meeting-api-gateway/src/consts';
-import { REQUEST_USER_KEY } from '../constants';
+import { MEETING_API_NATS_CLIENT } from '@/apps/meeting-api-gateway/src/consts';
+import { REQUEST_USER_KEY } from '@/apps/meeting-api-gateway/src/constants';
 
 // Define interface for WebSocket with user data
 interface AuthenticatedWebSocket extends WebSocket {

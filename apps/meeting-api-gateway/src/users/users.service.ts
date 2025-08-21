@@ -1,8 +1,8 @@
+import { MEETING_API_NATS_CLIENT } from '@/apps/meeting-api-gateway/src/consts';
+import { UserDto } from '@/apps/meeting-api-gateway/src/dto/user.dto';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { UserDto } from '../dto/user.dto';
-import { MEETING_API_NATS_CLIENT } from '@apps/meeting-api-gateway/src/consts';
 
 @Injectable()
 export class UsersService {

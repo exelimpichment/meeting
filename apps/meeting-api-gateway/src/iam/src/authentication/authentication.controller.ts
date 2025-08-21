@@ -1,7 +1,10 @@
-import { AuthenticationService } from '@apps/meeting-api-gateway/src/iam/src/authentication/authentication.service';
-import { AuthType } from '@apps/meeting-api-gateway/src/iam/src/authentication/enums';
-import { Auth } from '@apps/meeting-api-gateway/src/iam/src/authentication/decorators/auth.decorator';
-import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
+import { AuthenticationService } from './authentication.service';
+import { Auth } from './decorators/auth.decorator';
+import { MeetingApiGatewayEnv } from '../../../../meeting-api-gateway.schema';
+import { AuthType } from './enums';
+import { jwtConfig } from '../../jwt.config';
+import { ConfigService } from '@libs/config/src/config.service';
+import { ConfigType } from '@nestjs/config';
 import { Response } from 'express';
 import {
   Body,
@@ -12,13 +15,8 @@ import {
   Res,
   Inject,
 } from '@nestjs/common';
-import {
-  SignInDto,
-  SignUpDto,
-} from '@apps/meeting-api-gateway/src/iam/src/authentication/dto';
-import { ConfigType } from '@nestjs/config';
-import { ConfigService } from '@nestjs/config';
-import { MeetingApiGatewayEnv } from '@apps/meeting-api-gateway/meeting-api-gateway.schema';
+import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
 
 @Auth(AuthType.None)
 @Controller('auth')

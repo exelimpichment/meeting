@@ -1,4 +1,4 @@
-import { ConversationsService } from '@apps/messenger/src/conversations/conversations.service';
+import { ConversationsService } from '@/apps/messenger/src/conversations/conversations.service';
 import { MessagePattern } from '@nestjs/microservices';
 import { Controller } from '@nestjs/common';
 

@@ -1,9 +1,10 @@
-import { MessagesService } from '@apps/messenger/src/messages/messages.service';
-import { DeleteMessageDto, SendMessageDto } from '@app/contracts/messenger';
-import { EditMessageDto } from '@app/contracts/messenger/edit-message-dto';
+import { DeleteMessageDto } from '@/libs/contracts/src/messenger/delete-message-dto';
+import { SendMessageDto } from '@/libs/contracts/src/messenger/send-message-dto';
+import { GetMessagesDto } from '@/libs/contracts/src/messenger/get-messages-dto';
+import { EditMessageDto } from '@/libs/contracts/src/messenger/edit-message-dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagesService } from './messages.service';
 import { Controller } from '@nestjs/common';
-import { GetMessagesDto } from '@app/contracts/messenger/get-messages-dto';
 
 @Controller()
 export class MessagesController {

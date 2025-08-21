@@ -1,9 +1,9 @@
-import { Module } from '@nestjs/common';
-import { WebsocketGateway } from './websocket.gateway';
-import { JwtModule } from '@nestjs/jwt';
+import { AccessTokenGuard } from '@/apps/meeting-api-gateway/src/iam/src/authentication/guards';
 import { jwtConfig } from 'apps/meeting-api-gateway/src/iam/jwt.config';
-import { AccessTokenGuard } from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
+import { WebsocketGateway } from './websocket.gateway';
 import { ConfigModule } from '@nestjs/config';
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [

@@ -1,5 +1,5 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { REQUEST_USER_KEY } from '@apps/meeting-api-gateway/src/constants';
+import { ExecutionContext, createParamDecorator } from '@nestjs/common';
+import { REQUEST_USER_KEY } from '../../../../constants';
 
 export const User = createParamDecorator(
   (

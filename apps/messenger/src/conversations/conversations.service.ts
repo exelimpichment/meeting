@@ -1,4 +1,4 @@
-import { MessengerPrismaService } from '@apps/messenger/src/prisma/messenger-prisma.service';
+import { MessengerPrismaService } from '@/apps/messenger/src/prisma/messenger-prisma.service';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

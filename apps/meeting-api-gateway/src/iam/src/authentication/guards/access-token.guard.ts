@@ -9,8 +9,8 @@ import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { TokenExpiredError } from 'jsonwebtoken';
-import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
-import { REQUEST_USER_KEY } from '@apps/meeting-api-gateway/src/constants';
+import { jwtConfig } from '@/apps/meeting-api-gateway/src/iam/jwt.config';
+import { REQUEST_USER_KEY } from '@/apps/meeting-api-gateway/src/constants';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {

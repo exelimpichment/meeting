@@ -1,15 +1,17 @@
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 import { UsersModule } from '../users/users.module';
-import { HashingModule } from '@libs/hashing/src';
+import { jwtConfig } from '../../jwt.config';
+import { HashingModule } from '@libs/hashing/src/hashing.module';
+import { ConfigModule } from '@libs/config';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
 
 @Module({
   imports: [
     UsersModule,
     HashingModule,
+    ConfigModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
   controllers: [AuthenticationController],

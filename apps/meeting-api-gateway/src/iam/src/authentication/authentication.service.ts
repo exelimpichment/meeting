@@ -1,10 +1,10 @@
-import { UsersRepository } from '@apps/meeting-api-gateway/src/iam/src/users/repositories';
-import { handlePrismaError } from '@apps/meeting-api-gateway/src/iam/src/common/utils';
-import { SignInDto } from '@apps/meeting-api-gateway/src/iam/src/authentication/dto';
+import { handlePrismaError } from '../common/utils/prisma-error.util';
+import { SignInDto } from './dto/sign-in.dto';
+import { UsersRepository } from '../users/repositories';
 import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
-import { HashingService } from '@libs/hashing/src';
+import { HashingService } from '@libs/hashing/src/hashing.service';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConfig } from '@apps/meeting-api-gateway/src/iam/jwt.config';
+import { jwtConfig } from '../../jwt.config';
 import { ConfigType } from '@nestjs/config';
 
 @Injectable()

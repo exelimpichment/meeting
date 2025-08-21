@@ -1,9 +1,8 @@
-import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-
+import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@libs/config';
 import { envSchema } from '../env.schema';
-import { UsersModule } from './users/users.module';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [

@@ -1,7 +1,7 @@
-import { MEETING_API_NATS_CLIENT } from '@apps/meeting-api-gateway/src/consts';
-import { AuthType } from '@apps/iam/src/authentication/enums/auth-type.enums';
-import { Auth } from '@apps/meeting-api-gateway/src/iam/src/authentication/decorators/auth.decorator';
-import { User } from '@apps/meeting-api-gateway/src/iam/src/authentication/decorators/user.decorator';
+import { MEETING_API_NATS_CLIENT } from '@/apps/meeting-api-gateway/src/consts';
+import { AuthType } from '@/apps/meeting-api-gateway/src/iam/src/authentication/enums/auth-type.enums';
+import { Auth } from '@/apps/meeting-api-gateway/src/iam/src/authentication/decorators/auth.decorator';
+import { User } from '@/apps/meeting-api-gateway/src/iam/src/authentication/decorators/user.decorator';
 import { Controller, Get, Inject } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';

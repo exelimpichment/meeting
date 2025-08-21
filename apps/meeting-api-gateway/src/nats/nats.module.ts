@@ -1,6 +1,6 @@
-import { Global, Module } from '@nestjs/common';
+import { MEETING_API_NATS_CLIENT } from '@/apps/meeting-api-gateway/src/consts';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
-import { MEETING_API_NATS_CLIENT } from '@apps/meeting-api-gateway/src/consts';
+import { Global, Module } from '@nestjs/common';
 
 @Global()
 @Module({

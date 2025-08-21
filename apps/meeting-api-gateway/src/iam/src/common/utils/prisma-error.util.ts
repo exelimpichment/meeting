@@ -1,9 +1,9 @@
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import {
   ConflictException,
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaClientKnownRequestError } from '../../../generated/iam-client/runtime/library';
 
 export function handlePrismaError(error: unknown): never {
   if (error instanceof PrismaClientKnownRequestError) {
