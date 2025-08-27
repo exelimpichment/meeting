@@ -26,7 +26,6 @@ export class ConversationsController {
   @Get('/')
   async getConversationDetails(@User() user: Record<string, unknown>) {
     const userId = user?.sub as string;
-    console.log({ userId });
 
     const response = await firstValueFrom(
       this.natsClient.send<ConversationResponse, GetConversationsPayload>(

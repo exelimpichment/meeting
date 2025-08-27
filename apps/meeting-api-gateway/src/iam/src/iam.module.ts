@@ -15,5 +15,6 @@ import { Module } from '@nestjs/common';
   ],
   providers: [{ provide: HashingService, useClass: BcryptService }],
   controllers: [],
+  exports: [AuthenticationModule],
 })
 export class IAmModule {}

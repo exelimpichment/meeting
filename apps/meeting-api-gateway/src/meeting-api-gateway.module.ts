@@ -1,7 +1,6 @@
 import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
 import { MeetingApiGatewayService } from './meeting-api-gateway.service';
 import { NatsModule } from './nats/nats.module';
-import { WebsocketModule } from './websocket/websocket.module';
 import { RequestLoggerMiddleware } from './common';
 import { UsersModule } from './users/users.module';
 import { IAmModule } from './iam/src/iam.module';
@@ -11,10 +10,8 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
-import {
-  AccessTokenGuard,
-  AuthenticationGuard,
-} from './iam/src/authentication/guards';
+import { AccessTokenGuard } from './iam/src/authentication/guards/access-token.guard';
+import { AuthenticationGuard } from './iam/src/authentication/guards/authentication.guard';
 import { MessengerModule } from './messenger/messenger.module';
 import { meetingApiGatewayEnvSchema } from '../meeting-api-gateway.schema';
 import { KafkaModule } from './kafka/kafka.module';
@@ -44,7 +41,7 @@ import { KafkaModule } from './kafka/kafka.module';
     IAmModule,
     NatsModule,
     UsersModule,
-    WebsocketModule,
+
     MessengerModule,
     KafkaModule,
     JwtModule.registerAsync(jwtConfig.asProvider()),

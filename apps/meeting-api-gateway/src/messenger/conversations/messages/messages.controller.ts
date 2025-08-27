@@ -30,7 +30,6 @@ export class MessagesController {
     @User() user: Record<string, unknown>,
   ) {
     const userId = user?.sub as string;
-    console.log({ conversationId, userId });
 
     const response = await firstValueFrom(
       this.natsClient.send<MessageResponse[], GetMessagesPayload>(

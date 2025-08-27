@@ -1,3 +1,4 @@
+import { AccessTokenGuard } from './guards/access-token.guard';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 import { UsersModule } from '../users/users.module';
@@ -15,7 +16,7 @@ import { JwtModule } from '@nestjs/jwt';
     JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService],
-  exports: [JwtModule],
+  providers: [AuthenticationService, AccessTokenGuard],
+  exports: [JwtModule, AccessTokenGuard],
 })
 export class AuthenticationModule {}

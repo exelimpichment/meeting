@@ -1,3 +1,9 @@
+import { REQUEST_USER_KEY } from '@/apps/meeting-api-gateway/src/constants';
+import { jwtConfig } from '@/apps/meeting-api-gateway/src/iam/jwt.config';
+import { TokenExpiredError } from 'jsonwebtoken';
+import { ConfigType } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { Request } from 'express';
 import {
   CanActivate,
   ExecutionContext,
@@ -5,12 +11,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigType } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
-import { TokenExpiredError } from 'jsonwebtoken';
-import { jwtConfig } from '@/apps/meeting-api-gateway/src/iam/jwt.config';
-import { REQUEST_USER_KEY } from '@/apps/meeting-api-gateway/src/constants';
 
 @Injectable()
 export class AccessTokenGuard implements CanActivate {
@@ -34,7 +34,6 @@ export class AccessTokenGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync<
         Record<string, unknown>
       >(token, this.jwtConfiguration);
-      console.log(payload);
 
       request[REQUEST_USER_KEY] = payload;
     } catch (error) {
@@ -50,5 +49,30 @@ export class AccessTokenGuard implements CanActivate {
 
   private extractTokenFromCookie(request: Request): string | undefined {
     return request.cookies?.['access_token'] as string | undefined;
+  }
+
+  /**
+   * Direct method to authenticate a token without execution context
+   * Returns the user payload if authentication is successful
+   */
+  async authenticateToken(token: string): Promise<Record<string, unknown>> {
+    if (!token) {
+      throw new UnauthorizedException('No token provided');
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync<
+        Record<string, unknown>
+      >(token, this.jwtConfiguration);
+
+      return payload;
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new UnauthorizedException(
+          'Your session has expired. Please sign in again.',
+        );
+      }
+      throw new UnauthorizedException('Invalid authentication token');
+    }
   }
 }

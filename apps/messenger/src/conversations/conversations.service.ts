@@ -6,8 +6,6 @@ export class ConversationsService {
   constructor(private readonly prisma: MessengerPrismaService) {}
 
   async getConversations(userId: string) {
-    console.log('getConversations', userId);
-
     const conversations = await this.prisma.conversations.findMany({
       where: {
         users_conversations: {
