@@ -13,7 +13,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/meeting/main",
-    "start:all:dev": "concurrently \"npm run start:dev meeting-api-gateway\" \"npm run start:dev meeting\" \"npm run start:dev messenger\"",
+    "start:all:dev": "concurrently \"pnpm run start:dev meeting-api-gateway\" \"pnpm run start:dev meeting\" \"pnpm run start:dev messenger\" \"pnpm run start:dev messenger-ws-gateway\"",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -106,7 +106,8 @@
     "moduleNameMapper": {
       "@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
       "^@app/auth(|/.*)$": "<rootDir>/libs/auth/src/$1",
-      "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1"
+      "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
+      "^@app/shared-authentication(|/.*)$": "<rootDir>/libs/shared-authentication/src/$1"
     }
   }
 }

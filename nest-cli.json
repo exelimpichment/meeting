@@ -90,6 +90,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/presence/tsconfig.app.json"
       }
+    },
+    "shared-authentication": {
+      "type": "library",
+      "root": "libs/shared-authentication",
+      "entryFile": "index",
+      "sourceRoot": "libs/shared-authentication/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/shared-authentication/tsconfig.lib.json"
+      }
     }
   }
 }

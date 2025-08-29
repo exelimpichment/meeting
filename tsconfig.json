@@ -19,14 +19,25 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@/*": ["./*"],
-      "@libs/*": ["./libs/*"],
+      "@app/shared-authentication": ["libs/shared-authentication/src"],
+      "@app/shared-authentication/*": ["libs/shared-authentication/src/*"],
+      "@app/config": ["libs/config/src"],
+      "@app/config/*": ["libs/config/src/*"],
+      "@app/hashing": ["libs/hashing/src"],
+      "@app/hashing/*": ["libs/hashing/src/*"],
+
       "@apps/*": ["./apps/*"],
+      "@libs/*": ["./libs/*"],
       "@packages/*": ["./packages/*"]
     }
   },
   "include": ["apps/**/*", "libs/**/*", "packages/**/*"],
   "references": [
-    { "path": "./packages/meeting-api-gateway" },
-    { "path": "./packages/messenger" }
+    {
+      "path": "./packages/meeting-api-gateway"
+    },
+    {
+      "path": "./packages/messenger"
+    }
   ]
 }
