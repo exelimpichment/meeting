@@ -99,6 +99,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/shared-authentication/tsconfig.lib.json"
       }
+    },
+    "messenger-ws-gateway": {
+      "type": "application",
+      "root": "apps/messenger-ws-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/messenger-ws-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/messenger-ws-gateway/tsconfig.app.json"
+      }
     }
   }
 }
