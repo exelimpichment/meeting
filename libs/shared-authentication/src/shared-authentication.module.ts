@@ -1,15 +1,15 @@
+import { ConfigModule as LibsConfigModule } from '@/libs/config/src/config.module';
 import { HttpAccessTokenGuard } from './guards/http-access-token.guard';
 import { WsAccessTokenGuard } from './guards/ws-access-token.guard';
 import { AuthenticationGuard } from './guards/authentication.guard';
+import { ConfigService as NestConfigService } from '@nestjs/config';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { DynamicModule, Module } from '@nestjs/common';
+import { jwtEnvSchema } from './configs/jwt-env.schema';
 import { REQUEST_USER_KEY } from './constants';
 import { jwtConfig } from './configs/jwt-config';
-import { jwtEnvSchema } from './configs/jwt-env.schema';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { ConfigModule as LibsConfigModule } from '@/libs/config/src/config.module';
-
-import { ConfigService as NestConfigService } from '@nestjs/config';
-import { DynamicModule, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { JwtEnvSchema } from './types';
 
 @Module({})
 export class SharedAuthenticationModule {
@@ -20,44 +20,21 @@ export class SharedAuthenticationModule {
       module: SharedAuthenticationModule,
       imports: [
         LibsConfigModule,
-        // provide jwt configuration for guards injection
+
         NestConfigModule.forFeature(jwtConfig),
         JwtModule.registerAsync({
           useFactory: (nestConfigService: NestConfigService) => {
-            // validate JWT environment variables here using NestJS ConfigService
-            const rawJwtConfig = {
-              JWT_ACCESS_TOKEN_SECRET: nestConfigService.get(
-                'JWT_ACCESS_TOKEN_SECRET',
-              ),
-              JWT_ACCESS_TOKEN_AUDIENCE: nestConfigService.get(
-                'JWT_ACCESS_TOKEN_AUDIENCE',
-              ),
-              JWT_ACCESS_TOKEN_ISSUER: nestConfigService.get(
-                'JWT_ACCESS_TOKEN_ISSUER',
-              ),
-              JWT_ACCESS_TOKEN_TTL: nestConfigService.get(
-                'JWT_ACCESS_TOKEN_TTL',
-              ),
-            };
+            const jwtConfigValues = nestConfigService.get<JwtEnvSchema>('jwt');
 
-            const validationResult = jwtEnvSchema.safeParse(rawJwtConfig);
-
-            if (!validationResult.success) {
-              console.error(
-                'JWT Environment validation error:',
-                validationResult.error.flatten().fieldErrors,
-              );
-              throw new Error('Invalid JWT environment variables');
-            }
+            const validatedJwtConfigValues =
+              jwtEnvSchema.parse(jwtConfigValues);
 
             return {
-              secret: rawJwtConfig.JWT_ACCESS_TOKEN_SECRET,
+              secret: validatedJwtConfigValues.JWT_ACCESS_TOKEN_SECRET,
               signOptions: {
-                audience: rawJwtConfig.JWT_ACCESS_TOKEN_AUDIENCE,
-                issuer: rawJwtConfig.JWT_ACCESS_TOKEN_ISSUER,
-                expiresIn: parseInt(
-                  rawJwtConfig.JWT_ACCESS_TOKEN_TTL || '3600',
-                ),
+                audience: validatedJwtConfigValues.JWT_ACCESS_TOKEN_AUDIENCE,
+                issuer: validatedJwtConfigValues.JWT_ACCESS_TOKEN_ISSUER,
+                expiresIn: validatedJwtConfigValues.JWT_ACCESS_TOKEN_TTL,
               },
             };
           },

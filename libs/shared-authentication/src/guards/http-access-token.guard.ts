@@ -1,6 +1,6 @@
 import { REQUEST_USER_KEY } from '@/apps/meeting-api-gateway/src/constants';
-import { jwtConfig } from '@/apps/meeting-api-gateway/src/iam/jwt.config';
 import { TokenExpiredError } from 'jsonwebtoken';
+import { jwtConfig } from '../configs/jwt-config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -33,7 +33,11 @@ export class HttpAccessTokenGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync<
         Record<string, unknown>
-      >(token, this.jwtConfiguration);
+      >(token, {
+        secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
+        audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
+        issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
+      });
 
       request[REQUEST_USER_KEY] = payload;
     } catch (error) {
@@ -63,7 +67,11 @@ export class HttpAccessTokenGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync<
         Record<string, unknown>
-      >(token, this.jwtConfiguration);
+      >(token, {
+        secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
+        audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
+        issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
+      });
 
       return payload;
     } catch (error) {

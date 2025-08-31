@@ -41,7 +41,11 @@ export class WsAccessTokenGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync<
         Record<string, unknown>
-      >(token, this.jwtConfiguration);
+      >(token, {
+        secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
+        audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
+        issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
+      });
 
       // Attach user payload to client for use in handlers (similar to request.user)
       client[REQUEST_USER_KEY] = payload;
@@ -98,7 +102,11 @@ export class WsAccessTokenGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync<
         Record<string, unknown>
-      >(token, this.jwtConfiguration);
+      >(token, {
+        secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
+        audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
+        issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
+      });
 
       return payload;
     } catch (error) {
