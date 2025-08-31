@@ -1,14 +1,15 @@
 import { HttpAccessTokenGuard } from './http-access-token.guard';
-import { AuthType, AUTH_TYPE_KEY } from '../constants';
+import { WsAccessTokenGuard } from './ws-access-token.guard';
+import { WsException } from '@nestjs/websockets';
+import { AUTH_TYPE_KEY } from '../constants';
 import { Reflector } from '@nestjs/core';
+import { AuthType } from '../types';
 import {
   CanActivate,
   ExecutionContext,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
-import { WsAccessTokenGuard } from './ws-access-token.guard';
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
