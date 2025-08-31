@@ -1,4 +1,4 @@
-import { REQUEST_USER_KEY } from '../constants';
+import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 import { WebSocket } from 'ws';
 
 export interface ActiveUserData {

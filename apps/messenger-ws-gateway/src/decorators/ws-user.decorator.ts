@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { REQUEST_USER_KEY } from '../constants';
+import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 import { AuthenticatedWebSocket } from '../types';
 
 export const WsUser = createParamDecorator(

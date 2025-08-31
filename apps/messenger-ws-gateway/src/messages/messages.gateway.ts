@@ -10,13 +10,12 @@ import {
 } from '@nestjs/websockets';
 
 import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
-import { WsUser } from '@/apps/meeting-api-gateway/src/common/decorators/ws-user.decorator';
-import { WsAuthService } from '@/libs/shared-authentication/src/services/ws-auth.service';
 import { MessageDeleteHandler } from './handlers/message-delete-handler';
 import { MessageEditHandler } from './handlers/message-edit.handler';
 import { MessageSendHandler } from './handlers/message-send.handler';
 import { AuthenticatedWebSocket } from '../types';
 import { MessageEventType } from '../constants';
+import { WsUser } from '../decorators/ws-user.decorator';
 
 @WebSocketGateway({
   path: '/ws/messages',
@@ -27,21 +26,23 @@ export class MessagesGateway
   private readonly logger = new Logger(MessagesGateway.name);
 
   constructor(
-    private readonly wsAuthService: WsAuthService,
     private messageSendHandler: MessageSendHandler,
     private messageEditHandler: MessageEditHandler,
     private messageDeleteHandler: MessageDeleteHandler,
+    // Uncomment next line if you want connection-level auth:
+    // private readonly wsAuthService: WsAuthService,
   ) {}
 
   @WebSocketServer()
   server: Server;
 
-  @UseGuards(AuthenticationGuard)
-  async handleConnection(
+  handleConnection(
     client: AuthenticatedWebSocket,
     request: IncomingMessage,
-  ): Promise<void> {
-    await this.wsAuthService.authenticate(client, request);
+  ): void {
+    void client;
+    void request;
+    this.logger.log('client connected!');
   }
 
   handleDisconnect(client: AuthenticatedWebSocket): void {
@@ -50,16 +51,20 @@ export class MessagesGateway
     );
   }
 
+  @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.SEND)
   handleMessage(@WsUser() user: any, message: string) {
+    console.log('Message handler called with user:', user);
     return this.messageSendHandler.handle(user, message);
   }
 
+  @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.EDIT)
   handleMessageEdit(@WsUser() user: any, message: string) {
     return this.messageEditHandler.handle(user, message);
   }
 
+  @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.DELETE)
   handleMessageDelete(@WsUser() user: any, message: string) {
     return this.messageDeleteHandler.handle(user, message);

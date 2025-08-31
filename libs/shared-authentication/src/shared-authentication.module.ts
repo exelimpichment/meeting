@@ -1,9 +1,9 @@
-import { ConfigModule as LibsConfigModule } from '@/libs/config/src/config.module';
+import { ConfigModule as CustomConfigModule } from '@/libs/config/src/config.module';
 import { HttpAccessTokenGuard } from './guards/http-access-token.guard';
 import { WsAccessTokenGuard } from './guards/ws-access-token.guard';
 import { AuthenticationGuard } from './guards/authentication.guard';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { ConfigModule } from '@nestjs/config';
 import { DynamicModule, Module } from '@nestjs/common';
 import { jwtEnvSchema } from './configs/jwt-env.schema';
 import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
@@ -19,9 +19,9 @@ export class SharedAuthenticationModule {
     return {
       module: SharedAuthenticationModule,
       imports: [
-        LibsConfigModule,
+        CustomConfigModule,
 
-        NestConfigModule.forFeature(jwtConfig),
+        ConfigModule.forFeature(jwtConfig),
         JwtModule.registerAsync({
           useFactory: (nestConfigService: NestConfigService) => {
             const jwtConfigValues = nestConfigService.get<JwtEnvSchema>('jwt');
