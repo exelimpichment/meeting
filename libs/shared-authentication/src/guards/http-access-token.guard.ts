@@ -1,4 +1,3 @@
-import { REQUEST_USER_KEY } from '@/apps/meeting-api-gateway/src/constants';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { jwtConfig } from '../configs/jwt-config';
 import { ConfigType } from '@nestjs/config';
@@ -11,7 +10,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-
+import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 @Injectable()
 export class HttpAccessTokenGuard implements CanActivate {
   constructor(

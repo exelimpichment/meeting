@@ -6,7 +6,7 @@ import { ConfigService as NestConfigService } from '@nestjs/config';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { DynamicModule, Module } from '@nestjs/common';
 import { jwtEnvSchema } from './configs/jwt-env.schema';
-import { REQUEST_USER_KEY } from './constants';
+import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 import { jwtConfig } from './configs/jwt-config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtEnvSchema } from './types';

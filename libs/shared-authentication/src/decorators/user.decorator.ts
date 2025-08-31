@@ -1,4 +1,4 @@
-import { REQUEST_USER_KEY } from '../constants';
+import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 import { ExecutionContext, createParamDecorator } from '@nestjs/common';
 
 export const User = createParamDecorator(

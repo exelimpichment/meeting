@@ -1,5 +1,5 @@
 import { jwtConfig } from '../configs/jwt-config';
-import { REQUEST_USER_KEY } from '../constants';
+import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 import { TokenExpiredError } from 'jsonwebtoken';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
