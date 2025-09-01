@@ -1,15 +1,28 @@
 import { ConfigModule as CustomConfigModule } from '@/libs/config/src/config.module';
+import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 import { HttpAccessTokenGuard } from './guards/http-access-token.guard';
 import { WsAccessTokenGuard } from './guards/ws-access-token.guard';
 import { AuthenticationGuard } from './guards/authentication.guard';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { ConfigModule } from '@nestjs/config';
 import { DynamicModule, Module } from '@nestjs/common';
-import { jwtEnvSchema } from './configs/jwt-env.schema';
-import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
+import { ConfigModule } from '@nestjs/config';
 import { jwtConfig } from './configs/jwt-config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtEnvSchema } from './types';
+
+/*
+ * Modules that import SharedAuthenticationModule must provide the following environment variables with validation:
+ *
+ * Required Environment Variables:
+ * - JWT_ACCESS_TOKEN_SECRET: Secret key for signing JWT access tokens
+ * - JWT_ACCESS_TOKEN_AUDIENCE: Intended audience for the JWT tokens
+ * - JWT_ACCESS_TOKEN_ISSUER: Issuer identifier for the JWT tokens
+ * - JWT_ACCESS_TOKEN_TTL: Time-to-live for access tokens
+ *
+ * Ensure these variables are present and validated in your config schema in the importing module.
+ *
+ * Also use jwt-env.schema in the importing module to validate the environment variables.
+ */
 
 @Module({})
 export class SharedAuthenticationModule {
@@ -26,15 +39,18 @@ export class SharedAuthenticationModule {
           useFactory: (nestConfigService: NestConfigService) => {
             const jwtConfigValues = nestConfigService.get<JwtEnvSchema>('jwt');
 
-            const validatedJwtConfigValues =
-              jwtEnvSchema.parse(jwtConfigValues);
+            if (!jwtConfigValues) {
+              throw new Error(
+                'JWT configuration not found. Ensure environment variables are properly validated.',
+              );
+            }
 
             return {
-              secret: validatedJwtConfigValues.JWT_ACCESS_TOKEN_SECRET,
+              secret: jwtConfigValues.JWT_ACCESS_TOKEN_SECRET,
               signOptions: {
-                audience: validatedJwtConfigValues.JWT_ACCESS_TOKEN_AUDIENCE,
-                issuer: validatedJwtConfigValues.JWT_ACCESS_TOKEN_ISSUER,
-                expiresIn: validatedJwtConfigValues.JWT_ACCESS_TOKEN_TTL,
+                audience: jwtConfigValues.JWT_ACCESS_TOKEN_AUDIENCE,
+                issuer: jwtConfigValues.JWT_ACCESS_TOKEN_ISSUER,
+                expiresIn: jwtConfigValues.JWT_ACCESS_TOKEN_TTL,
               },
             };
           },

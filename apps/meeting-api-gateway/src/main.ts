@@ -13,7 +13,7 @@ async function bootstrap() {
   const configService =
     app.get<ConfigService<MeetingApiGatewayEnv>>(ConfigService);
 
-  const port = configService.get('PORT');
+  const PORT = configService.get('PORT');
   const WEB_APP_URL = configService.get('WEB_APP_URL');
 
   // enable CORS with credentials support
@@ -37,7 +37,7 @@ async function bootstrap() {
 
   // Start both HTTP and microservice
   await app.startAllMicroservices();
-  await app.listen(port ?? 3000);
+  await app.listen(PORT ?? 3000);
 }
 
 void bootstrap();

@@ -4,7 +4,7 @@ import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { MeetingApiGatewayService } from './meeting-api-gateway.service';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-// import { UsersModule } from './users/users.module';
+import { UsersModule } from './users/users.module';
 import { KafkaModule } from './kafka/kafka.module';
 // import { IAmModule } from './iam/src/iam.module';
 import { NatsModule } from './nats/nats.module';
@@ -12,7 +12,8 @@ import { APP_GUARD } from '@nestjs/core';
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
 import { LoggingModule } from '@app/logging/logging.module';
-import { RequestLoggerMiddleware } from '@app/logging/middleware/request-logger.middleware';
+import { RequestLoggerMiddleware } from '../../../libs/logging/src/middleware/request-logger.middleware';
+import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
 
 @Module({
   imports: [
@@ -21,7 +22,9 @@ import { RequestLoggerMiddleware } from '@app/logging/middleware/request-logger.
       envFilePath:
         process.cwd() + '/apps/meeting-api-gateway/.env.meeting-api-gateway',
       validate: (config) => {
-        const result = meetingApiGatewayEnvSchema.safeParse(config);
+        const mergedSchemas = meetingApiGatewayEnvSchema.merge(jwtEnvSchema);
+
+        const result = mergedSchemas.safeParse(config);
 
         if (!result.success) {
           console.error(
@@ -40,7 +43,7 @@ import { RequestLoggerMiddleware } from '@app/logging/middleware/request-logger.
     LoggingModule,
     // IAmModule,
     NatsModule,
-    // UsersModule,
+    UsersModule,
     KafkaModule,
   ],
 
