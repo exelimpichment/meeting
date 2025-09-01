@@ -1,7 +1,7 @@
 // import { ConfigModule as CustomConfigModule } from '@libs/config/src/config.module';
 import { meetingApiGatewayEnvSchema } from '../meeting-api-gateway.schema';
 import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
-import { Module, NestModule } from '@nestjs/common';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { MeetingApiGatewayService } from './meeting-api-gateway.service';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 // import { UsersModule } from './users/users.module';
@@ -11,6 +11,8 @@ import { NatsModule } from './nats/nats.module';
 import { APP_GUARD } from '@nestjs/core';
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
+import { LoggingModule } from '@app/logging/logging.module';
+import { RequestLoggerMiddleware } from '@app/logging/middleware/request-logger.middleware';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/aut
     }),
     // CustomConfigModule,
     SharedAuthenticationModule.forRoot(),
+    LoggingModule,
     // IAmModule,
     NatsModule,
     // UsersModule,
@@ -52,7 +55,7 @@ import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/aut
   ],
 })
 export class MeetingApiGatewayModule implements NestModule {
-  configure() {
-    // consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
   }
 }

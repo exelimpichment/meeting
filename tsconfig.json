@@ -19,16 +19,17 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@/*": ["./*"],
-      "@app/shared-authentication": ["libs/shared-authentication/src"],
-      "@app/shared-authentication/*": ["libs/shared-authentication/src/*"],
       "@app/config": ["libs/config/src"],
       "@app/config/*": ["libs/config/src/*"],
-      "@config": ["libs/config/src"],
-      "@config/*": ["libs/config/src/*"],
       "@app/hashing": ["libs/hashing/src"],
       "@app/hashing/*": ["libs/hashing/src/*"],
-
+      "@app/logging": ["libs/logging/src"],
+      "@app/logging/*": ["libs/logging/src/*"],
+      "@app/shared-authentication": ["libs/shared-authentication/src"],
+      "@app/shared-authentication/*": ["libs/shared-authentication/src/*"],
       "@apps/*": ["./apps/*"],
+      "@config": ["libs/config/src"],
+      "@config/*": ["libs/config/src/*"],
       "@libs/*": ["./libs/*"],
       "@packages/*": ["./packages/*"]
     }

@@ -107,6 +107,7 @@
       "@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
       "^@app/auth(|/.*)$": "<rootDir>/libs/auth/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
+      "^@app/logging(|/.*)$": "<rootDir>/libs/logging/src/$1",
       "^@app/shared-authentication(|/.*)$": "<rootDir>/libs/shared-authentication/src/$1"
     }
   }
