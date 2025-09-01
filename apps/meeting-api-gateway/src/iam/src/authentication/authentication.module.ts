@@ -9,6 +9,5 @@ import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/sha
   imports: [UsersModule, HashingModule, SharedAuthenticationModule],
   controllers: [AuthenticationController],
   providers: [AuthenticationService],
-  exports: [AuthenticationService],
 })
 export class AuthenticationModule {}

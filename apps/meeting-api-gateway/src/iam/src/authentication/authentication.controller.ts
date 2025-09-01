@@ -1,7 +1,5 @@
 import { AuthenticationService } from './authentication.service';
 import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
-import { MeetingApiGatewayEnv } from '../../../../meeting-api-gateway.schema';
-import { ConfigService } from '@libs/config/src/config.service';
 import { ConfigType } from '@nestjs/config';
 import { Response } from 'express';
 import {
@@ -25,7 +23,6 @@ export class AuthenticationController {
     private readonly authService: AuthenticationService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
-    private readonly configService: ConfigService<MeetingApiGatewayEnv>,
   ) {}
 
   @Post('sign-up') // route: /auth/sign-up

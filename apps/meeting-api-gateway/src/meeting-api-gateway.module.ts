@@ -1,4 +1,3 @@
-// import { ConfigModule as CustomConfigModule } from '@libs/config/src/config.module';
 import { meetingApiGatewayEnvSchema } from '../meeting-api-gateway.schema';
 import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
@@ -6,7 +5,7 @@ import { MeetingApiGatewayService } from './meeting-api-gateway.service';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { KafkaModule } from './kafka/kafka.module';
-// import { IAmModule } from './iam/src/iam.module';
+import { IAmModule } from './iam/src/iam.module';
 import { NatsModule } from './nats/nats.module';
 import { APP_GUARD } from '@nestjs/core';
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
@@ -41,7 +40,7 @@ import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.s
     // CustomConfigModule,
     SharedAuthenticationModule.forRoot(),
     LoggingModule,
-    // IAmModule,
+    IAmModule,
     NatsModule,
     UsersModule,
     KafkaModule,

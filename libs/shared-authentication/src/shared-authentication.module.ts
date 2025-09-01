@@ -4,14 +4,18 @@ import { HttpAccessTokenGuard } from './guards/http-access-token.guard';
 import { WsAccessTokenGuard } from './guards/ws-access-token.guard';
 import { AuthenticationGuard } from './guards/authentication.guard';
 import { ConfigService as NestConfigService } from '@nestjs/config';
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { jwtConfig } from './configs/jwt-config';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtEnvSchema } from './types';
 
 /*
- * Modules that import SharedAuthenticationModule must provide the following environment variables with validation:
+ * Global Authentication Module - Import once in your root module and it will be available everywhere.
+ *
+ * Usage: Import SharedAuthenticationModule.forRoot() in your main application module (e.g., AppModule).
+ * Once imported, all guards (AuthenticationGuard, HttpAccessTokenGuard, WsAccessTokenGuard) and
+ * JwtModule will be available throughout your application without additional imports.
  *
  * Required Environment Variables:
  * - JWT_ACCESS_TOKEN_SECRET: Secret key for signing JWT access tokens
@@ -24,6 +28,7 @@ import { JwtEnvSchema } from './types';
  * Also use jwt-env.schema in the importing module to validate the environment variables.
  */
 
+@Global()
 @Module({})
 export class SharedAuthenticationModule {
   static REQUEST_USER_KEY = REQUEST_USER_KEY;
@@ -62,7 +67,13 @@ export class SharedAuthenticationModule {
         HttpAccessTokenGuard,
         WsAccessTokenGuard,
       ],
-      exports: [AuthenticationGuard, HttpAccessTokenGuard, WsAccessTokenGuard],
+      exports: [
+        AuthenticationGuard,
+        HttpAccessTokenGuard,
+        WsAccessTokenGuard,
+        JwtModule,
+        ConfigModule, // export ConfigModule so JWT config is available
+      ],
     };
   }
 }
