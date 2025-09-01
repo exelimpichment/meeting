@@ -18,30 +18,29 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@app/contracts": [
-        "libs/contracts/src"
-      ],
-      "@app/contracts/*": [
-        "libs/contracts/src/*"
-      ],
-      "@apps/iam/*": [
-        "apps/meeting-api-gateway/src/iam/*"
-      ],
-      "@apps/meeting-api-gateway/*": [
-        "apps/meeting-api-gateway/*"
-      ],
-      "@apps/meeting/*": [
-        "apps/meeting/*"
-      ],
-      "@libs/*": [
-        "libs/*"
-      ],
-      "@apps/messenger": [
-        "apps/messenger/src"
-      ],
-      "@apps/messenger/*": [
-        "apps/messenger/*"
-      ]
+      "@/*": ["./*"],
+      "@app/config": ["libs/config/src"],
+      "@app/config/*": ["libs/config/src/*"],
+      "@app/hashing": ["libs/hashing/src"],
+      "@app/hashing/*": ["libs/hashing/src/*"],
+      "@app/logging": ["libs/logging/src"],
+      "@app/logging/*": ["libs/logging/src/*"],
+      "@app/shared-authentication": ["libs/shared-authentication/src"],
+      "@app/shared-authentication/*": ["libs/shared-authentication/src/*"],
+      "@apps/*": ["./apps/*"],
+      "@config": ["libs/config/src"],
+      "@config/*": ["libs/config/src/*"],
+      "@libs/*": ["./libs/*"],
+      "@packages/*": ["./packages/*"]
     }
-  }
+  },
+  "include": ["apps/**/*", "libs/**/*", "packages/**/*"],
+  "references": [
+    {
+      "path": "./packages/meeting-api-gateway"
+    },
+    {
+      "path": "./packages/messenger"
+    }
+  ]
 }

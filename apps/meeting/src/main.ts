@@ -1,5 +1,5 @@
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
-import { AppModule } from '@apps/meeting/src/app.module';
+import { AppModule } from './app.module';
 import { NestFactory } from '@nestjs/core';
 
 async function bootstrap() {

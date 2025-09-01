@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from '../../generated/iam-client';
+import { PrismaClient } from '@/apps/meeting-api-gateway/src/iam/generated/iam-client';
 
 @Injectable()
 export class IAmPrismaService

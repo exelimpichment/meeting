@@ -1,23 +1,18 @@
-import { MeetingApiGatewayController } from '@apps/meeting-api-gateway/src/meeting-api-gateway.controller';
-import { MeetingApiGatewayService } from '@apps/meeting-api-gateway/src/meeting-api-gateway.service';
-import { NatsModule } from '@apps/meeting-api-gateway/src/nats/nats.module';
-import { WebsocketModule } from '@apps/meeting-api-gateway/src/websocket/websocket.module';
-import { RequestLoggerMiddleware } from '@apps/meeting-api-gateway/src/common';
-import { UsersModule } from '@apps/meeting-api-gateway/src/users/users.module';
-import { IAmModule } from 'apps/meeting-api-gateway/src/iam/src/iam.module';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { jwtConfig } from 'apps/meeting-api-gateway/src/iam/jwt.config';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { ConfigModule as LibsConfigModule } from '@libs/config';
-import { APP_GUARD } from '@nestjs/core';
-import { JwtModule } from '@nestjs/jwt';
-import {
-  AccessTokenGuard,
-  AuthenticationGuard,
-} from '@apps/meeting-api-gateway/src/iam/src/authentication/guards';
-import { MessengerModule } from './messenger/messenger.module';
 import { meetingApiGatewayEnvSchema } from '../meeting-api-gateway.schema';
+import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import { MeetingApiGatewayService } from './meeting-api-gateway.service';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { UsersModule } from './users/users.module';
 import { KafkaModule } from './kafka/kafka.module';
+import { IAmModule } from './iam/src/iam.module';
+import { NatsModule } from './nats/nats.module';
+import { APP_GUARD } from '@nestjs/core';
+import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
+import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
+import { LoggingModule } from '@app/logging/logging.module';
+import { RequestLoggerMiddleware } from '../../../libs/logging/src/middleware/request-logger.middleware';
+import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
 
 @Module({
   imports: [
@@ -26,7 +21,10 @@ import { KafkaModule } from './kafka/kafka.module';
       envFilePath:
         process.cwd() + '/apps/meeting-api-gateway/.env.meeting-api-gateway',
       validate: (config) => {
-        const result = meetingApiGatewayEnvSchema.safeParse(config);
+        const mergedSchemas = meetingApiGatewayEnvSchema.merge(jwtEnvSchema);
+
+        const result = mergedSchemas.safeParse(config);
+
         if (!result.success) {
           console.error(
             'Environment validation error:',
@@ -36,19 +34,19 @@ import { KafkaModule } from './kafka/kafka.module';
             'Invalid environment variables for meeting-api-gateway',
           );
         }
-        return result.data;
+        return { ...config, ...result.data };
       },
-      load: [jwtConfig],
     }),
-    LibsConfigModule,
+    // CustomConfigModule,
+    SharedAuthenticationModule.forRoot(),
+    LoggingModule,
     IAmModule,
     NatsModule,
     UsersModule,
-    WebsocketModule,
-    MessengerModule,
     KafkaModule,
-    JwtModule.registerAsync(jwtConfig.asProvider()),
   ],
+
+  // TODO: remove this MeetingApiGatewayController after testing
   controllers: [MeetingApiGatewayController],
   providers: [
     MeetingApiGatewayService,
@@ -56,7 +54,6 @@ import { KafkaModule } from './kafka/kafka.module';
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
     },
-    AccessTokenGuard,
   ],
 })
 export class MeetingApiGatewayModule implements NestModule {

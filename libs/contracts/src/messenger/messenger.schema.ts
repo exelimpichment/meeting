@@ -23,3 +23,7 @@ export const editMessageSchema = z.object({
   messageId: z.string().uuid(),
   message: z.string(),
 });
+
+export const getMessagesSchema = z.object({
+  conversationId: z.string().uuid(),
+});

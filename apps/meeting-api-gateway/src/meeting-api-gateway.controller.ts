@@ -1,7 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Auth } from '@/libs/shared-authentication/src/decorators/auth.decorator';
 import { MeetingApiGatewayService } from './meeting-api-gateway.service';
-import { Auth } from './iam/src/authentication/decorators';
-import { AuthType } from './iam/src/authentication/enums';
+import { AuthType } from '@app/shared-authentication/types';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class MeetingApiGatewayController {

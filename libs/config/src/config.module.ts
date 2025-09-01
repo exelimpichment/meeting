@@ -1,5 +1,5 @@
+import { ConfigService } from '@/libs/config/src/config.service';
 import { Module, DynamicModule } from '@nestjs/common';
-import { ConfigService } from './config.service';
 import { ConfigFactoryKeyHost } from '@nestjs/config';
 
 @Module({

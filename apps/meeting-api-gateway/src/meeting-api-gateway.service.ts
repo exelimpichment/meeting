@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { MEETING_API_NATS_CLIENT } from '@apps/meeting-api-gateway/src/consts';
+import { MEETING_API_NATS_CLIENT } from './constants';
 
 @Injectable()
 export class MeetingApiGatewayService {
@@ -9,6 +9,6 @@ export class MeetingApiGatewayService {
   ) {}
 
   getHello(): string {
-    return 'Hello World!';
+    return 'Hello World!!';
   }
 }

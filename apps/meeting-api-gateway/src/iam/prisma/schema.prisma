@@ -3,6 +3,11 @@ generator client {
   output   = "../generated/iam-client"
 }
 
+generator packageClient {
+  provider = "prisma-client-js"
+  output   = "../../../../../packages/meeting-api-gateway/generated"
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
