@@ -3,7 +3,7 @@ import { ConversationsModule } from '@/apps/messenger/src/conversations/conversa
 import { MESSENGER_ENV, MessengerEnvSchema } from '@/apps/messenger/env.schema';
 import { MessagesModule } from '@/apps/messenger/src/messages/messages.module';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { ConfigModule } from '@/libs/config/src/config.module';
+import { ConfigModule as CustomConfigModule } from '@/libs/config/src/config.module';
 import { Module } from '@nestjs/common';
 import { join } from 'path';
 
@@ -14,7 +14,7 @@ import { join } from 'path';
       envFilePath: join(process.cwd(), 'apps/messenger/.env.messenger'),
       validate: (env) => MessengerEnvSchema.parse(env),
     }),
-    ConfigModule,
+    CustomConfigModule,
     MessengerPrismaModule,
     MessagesModule,
     ConversationsModule,

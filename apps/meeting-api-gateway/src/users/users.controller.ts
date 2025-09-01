@@ -1,8 +1,8 @@
-import { Auth } from '@/apps/meeting-api-gateway/src/iam/src/authentication/decorators/auth.decorator';
-import { AuthType } from '@/apps/meeting-api-gateway/src/iam/src/authentication/enums';
 import { Controller, Get, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UserDto } from '../dto/user.dto';
+import { AuthType } from '@/libs/shared-authentication/src/types';
+import { Auth } from '@/libs/shared-authentication/src/decorators/auth.decorator';
 
 @Controller('users')
 export class UsersController {

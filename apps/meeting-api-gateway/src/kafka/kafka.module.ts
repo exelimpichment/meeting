@@ -1,5 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import {
+  ConfigModule as CustomConfigModule,
+  ConfigService as CustomConfigService,
+} from '@nestjs/config';
 import { ClientsModule, Transport, KafkaOptions } from '@nestjs/microservices';
 import { KafkaProducerService } from './kafka.producer.service';
 import { MeetingApiGatewayEnv } from '../../meeting-api-gateway.schema';
@@ -10,9 +13,9 @@ import { MEETING_API_SERVICE_CLIENT } from '../constants';
     ClientsModule.registerAsync([
       {
         name: MEETING_API_SERVICE_CLIENT,
-        imports: [ConfigModule],
+        imports: [CustomConfigModule],
         useFactory: (
-          configService: ConfigService<MeetingApiGatewayEnv>,
+          configService: CustomConfigService<MeetingApiGatewayEnv>,
         ): KafkaOptions => ({
           transport: Transport.KAFKA,
           options: {
@@ -25,7 +28,7 @@ import { MEETING_API_SERVICE_CLIENT } from '../constants';
             },
           },
         }),
-        inject: [ConfigService],
+        inject: [CustomConfigService],
       },
     ]),
   ],

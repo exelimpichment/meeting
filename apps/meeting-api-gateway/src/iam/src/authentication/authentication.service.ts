@@ -4,7 +4,7 @@ import { UsersRepository } from '../users/repositories';
 import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import { HashingService } from '@libs/hashing/src/hashing.service';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConfig } from '../../jwt.config';
+import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
 import { ConfigType } from '@nestjs/config';
 
 @Injectable()
@@ -57,10 +57,10 @@ export class AuthenticationService {
         email: user.email,
       },
       {
-        audience: this.jwtConfiguration.audience,
-        issuer: this.jwtConfiguration.issuer,
-        secret: this.jwtConfiguration.secret,
-        expiresIn: `${this.jwtConfiguration.accessTokenTtl}s`,
+        audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
+        issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
+        secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
+        expiresIn: `${this.jwtConfiguration.JWT_ACCESS_TOKEN_TTL}s`,
       },
     );
 

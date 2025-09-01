@@ -1,8 +1,6 @@
 import { AuthenticationService } from './authentication.service';
-import { Auth } from './decorators/auth.decorator';
+import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
 import { MeetingApiGatewayEnv } from '../../../../meeting-api-gateway.schema';
-import { AuthType } from './enums';
-import { jwtConfig } from '../../jwt.config';
 import { ConfigService } from '@libs/config/src/config.service';
 import { ConfigType } from '@nestjs/config';
 import { Response } from 'express';
@@ -17,6 +15,8 @@ import {
 } from '@nestjs/common';
 import { SignInDto } from './dto/sign-in.dto';
 import { SignUpDto } from './dto/sign-up.dto';
+import { Auth } from '@/libs/shared-authentication/src/decorators/auth.decorator';
+import { AuthType } from '@/libs/shared-authentication/src/types';
 
 @Auth(AuthType.None)
 @Controller('auth')
@@ -41,14 +41,14 @@ export class AuthenticationController {
   ) {
     const token = await this.authService.signIn(signInDto);
 
-    const accessTokenTtl = this.jwtConfiguration.accessTokenTtl;
+    const accessTokenTtl = this.jwtConfiguration.JWT_ACCESS_TOKEN_TTL;
     const maxAge = accessTokenTtl ? Number(accessTokenTtl) * 1000 : 3600 * 1000;
 
-    const nodeEnv = this.configService.get('NODE_ENV');
+    const environment = process.env.NODE_ENV || 'development';
 
     response.cookie('access_token', token, {
       httpOnly: true,
-      secure: nodeEnv !== 'development',
+      secure: environment !== 'development',
       sameSite: 'strict',
       maxAge,
     });

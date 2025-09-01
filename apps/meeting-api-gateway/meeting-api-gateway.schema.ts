@@ -2,14 +2,10 @@ import { z } from 'zod';
 
 export const meetingApiGatewayEnvSchema = z.object({
   // ======= Environment =======
-  NODE_ENV: z
-    .enum(['development', 'production', 'test'])
-    .default('development'),
 
-  PORT: z
-    .string()
-    .default('3000')
-    .transform((val) => parseInt(val, 10)),
+  PORT: z.string(),
+  BASE_URL: z.string(),
+  WEB_APP_URL: z.string(),
 
   //  ======= Database =========
   DATABASE_URL: z.string(),
