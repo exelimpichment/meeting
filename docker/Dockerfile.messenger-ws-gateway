@@ -1,0 +1,66 @@
+# multi-stage build for production-optimized image
+FROM node:20-alpine AS base
+
+# enable corepack for pnpm
+RUN corepack enable
+
+# create app directory
+WORKDIR /usr/src/app
+
+# copy package files for dependency resolution
+COPY package.json pnpm-lock.yaml ./
+COPY apps/messenger-ws-gateway/package.json ./apps/messenger-ws-gateway/ 2>/dev/null || true
+COPY libs/config/package.json ./libs/config/ 2>/dev/null || true
+COPY libs/contracts/package.json ./libs/contracts/ 2>/dev/null || true
+COPY libs/logging/package.json ./libs/logging/ 2>/dev/null || true
+COPY libs/shared-authentication/package.json ./libs/shared-authentication/ 2>/dev/null || true
+
+# ================================
+# build stage
+# ================================
+FROM base AS build
+
+# install all dependencies (including dev dependencies)
+RUN pnpm install --frozen-lockfile
+
+# copy source code and configuration files
+COPY . .
+
+# build the application
+RUN pnpm run build messenger-ws-gateway
+
+# ================================
+# production stage
+# ================================
+FROM node:20-alpine AS production
+
+# enable corepack for pnpm
+RUN corepack enable
+
+# use pre-existing node user for security
+
+# create app directory
+WORKDIR /usr/src/app
+
+# copy package files and install only production dependencies
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
+
+# copy built application from build stage
+COPY --from=build --chown=node:node /usr/src/app/dist ./dist
+
+# copy any additional required files
+COPY --chown=node:node nest-cli.json ./
+COPY --chown=node:node tsconfig.json ./
+COPY --chown=node:node apps/messenger-ws-gateway/tsconfig.app.json ./apps/messenger-ws-gateway/
+
+# switch to non-root user
+USER node
+
+# expose port (default 3001 for WebSocket gateway)
+EXPOSE 3001
+
+
+
+# start the application
+CMD ["node", "dist/apps/messenger-ws-gateway/main.js"]
