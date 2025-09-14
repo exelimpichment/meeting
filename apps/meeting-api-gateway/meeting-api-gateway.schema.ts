@@ -12,6 +12,7 @@ export const meetingApiGatewayEnvSchema = z
     //  ======= Database =========
     DATABASE_URL: z.string(),
     KAFKA_BROKER: z.string({ required_error: 'KAFKA_BROKER is required' }),
+    NATS_URL: z.string({ required_error: 'NATS_URL is required' }),
 
     // ======= Refresh Token =======
     JWT_REFRESH_SECRET: z.string(),

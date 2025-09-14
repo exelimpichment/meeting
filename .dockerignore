@@ -1,0 +1,59 @@
+# dependencies
+node_modules
+.pnpm-store
+.pnpm-debug.log*
+
+# build outputs
+dist
+*.tsbuildinfo
+
+# environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# git
+.git
+.gitignore
+
+# documentation
+README.md
+*.md
+
+# test files
+test
+*.spec.ts
+*.test.ts
+coverage
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# temporary files
+tmp
+temp
+
+# docker files
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# kubernetes files
+k8s
+
+# other
+theory.txt

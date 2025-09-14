@@ -15,6 +15,7 @@ async function bootstrap() {
 
   const PORT = configService.get('PORT');
   const WEB_APP_URL = configService.get('WEB_APP_URL');
+  const NATS_URL = configService.get('NATS_URL');
 
   // enable CORS with credentials support
   app.enableCors({
@@ -28,7 +29,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.NATS,
     options: {
-      servers: ['nats://localhost:4222'],
+      servers: [NATS_URL],
     },
   });
 

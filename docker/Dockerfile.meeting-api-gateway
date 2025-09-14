@@ -1,5 +1,5 @@
 # multi-stage build for production-optimized image
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 
 # enable corepack for pnpm
 RUN corepack enable
@@ -9,12 +9,6 @@ WORKDIR /usr/src/app
 
 # copy package files for dependency resolution
 COPY package.json pnpm-lock.yaml ./
-COPY apps/meeting-api-gateway/package.json ./apps/meeting-api-gateway/
-COPY libs/config/package.json ./libs/config/ 2>/dev/null || true
-COPY libs/contracts/package.json ./libs/contracts/ 2>/dev/null || true
-COPY libs/hashing/package.json ./libs/hashing/ 2>/dev/null || true
-COPY libs/logging/package.json ./libs/logging/ 2>/dev/null || true
-COPY libs/shared-authentication/package.json ./libs/shared-authentication/ 2>/dev/null || true
 
 # ================================
 # build stage
@@ -27,10 +21,8 @@ RUN pnpm install --frozen-lockfile
 # copy source code and configuration files
 COPY . .
 
-# generate prisma client for auth database if it exists
-RUN if [ -f "apps/meeting-api-gateway/src/iam/prisma/schema.prisma" ]; then \
-      pnpm exec prisma generate --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma; \
-    fi
+# generate prisma client for auth database
+RUN pnpm exec prisma generate --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma
 
 # build the application
 RUN pnpm run build meeting-api-gateway
@@ -38,7 +30,7 @@ RUN pnpm run build meeting-api-gateway
 # ================================
 # production stage
 # ================================
-FROM node:20-alpine AS production
+FROM node:22-alpine AS production
 
 # enable corepack for pnpm
 RUN corepack enable
@@ -54,15 +46,18 @@ RUN pnpm install --prod --frozen-lockfile
 
 # copy built application from build stage
 COPY --from=build --chown=node:node /usr/src/app/dist ./dist
-COPY --from=build --chown=node:node /usr/src/app/node_modules/.prisma ./node_modules/.prisma 2>/dev/null || true
+
+# copy prisma generated clients from build stage
+COPY --from=build --chown=node:node /usr/src/app/apps/meeting-api-gateway/src/iam/generated ./apps/meeting-api-gateway/src/iam/generated
+COPY --from=build --chown=node:node /usr/src/app/packages/meeting-api-gateway/generated ./packages/meeting-api-gateway/generated
 
 # copy any additional required files
 COPY --chown=node:node nest-cli.json ./
 COPY --chown=node:node tsconfig.json ./
 COPY --chown=node:node apps/meeting-api-gateway/tsconfig.app.json ./apps/meeting-api-gateway/
 
-# copy prisma schema if exists (needed for runtime)
-COPY --chown=node:node apps/meeting-api-gateway/src/iam/prisma/ ./apps/meeting-api-gateway/src/iam/prisma/ 2>/dev/null || true
+# copy prisma schema (needed for runtime)
+COPY --chown=node:node apps/meeting-api-gateway/src/iam/prisma/ ./apps/meeting-api-gateway/src/iam/prisma/
 
 # switch to non-root user
 USER node

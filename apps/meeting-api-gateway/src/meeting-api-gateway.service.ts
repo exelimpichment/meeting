@@ -8,7 +8,7 @@ export class MeetingApiGatewayService {
     @Inject(MEETING_API_NATS_CLIENT) private meetingClient: ClientProxy,
   ) {}
 
-  getHello(): string {
-    return 'Hello World!!';
+  health(): { status: string } {
+    return { status: 'ok' };
   }
 }
