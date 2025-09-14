@@ -9,11 +9,15 @@ export class MeetingApiGatewayController {
     private readonly meetingApiGatewayService: MeetingApiGatewayService,
   ) {}
 
-  // Should only answer: “Is the process healthy enough to keep running?”
-  // implement some lightweight check.
   @Auth(AuthType.None)
-  @Get('health')
+  @Get('liveness')
   health() {
-    return this.meetingApiGatewayService.health();
+    return this.meetingApiGatewayService.liveness();
+  }
+
+  @Auth(AuthType.None)
+  @Get('readiness')
+  readiness() {
+    return this.meetingApiGatewayService.readiness();
   }
 }
