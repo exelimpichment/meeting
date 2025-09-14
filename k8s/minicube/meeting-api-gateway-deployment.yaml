@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meeting-api-gateway
+  namespace: meeting-app
+  labels:
+    app: meeting-api-gateway
+    version: v0.0.1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: meeting-api-gateway
+  template:
+    metadata:
+      labels:
+        app: meeting-api-gateway
+        version: v0.0.1
+    spec:
+      containers:
+        - name: meeting-api-gateway
+          image: gcr.io/YOUR_PROJECT_ID/meeting-api-gateway:latest
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: app-secrets
+          # env:
+          #   - name: NODE_ENV
+          #     value: 'production'
+          #   - name: PORT
+          #     value: '3000'
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: meeting-api-gateway-service
+  namespace: meeting-app
+  labels:
+    app: meeting-api-gateway
+spec:
+  selector:
+    app: meeting-api-gateway
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  type: ClusterIP
