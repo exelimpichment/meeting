@@ -10,7 +10,7 @@ data:
   NODE_ENV: 'development'
   PORT: '3000'
   KAFKA_BROKER: 'localhost:29092'
-  NATS_URL: ''
+  NATS_URL: 'nats://nats-service:4222'
 
   # jwt configuration (non-sensitive)
   JWT_ACCESS_TOKEN_AUDIENCE: 'meeting-api-gateway'

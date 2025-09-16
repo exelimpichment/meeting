@@ -2,39 +2,32 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: meeting-api-gateway
-
   namespace: meeting-app
-
   labels:
     app: meeting-api-gateway
     version: v0.0.1
 spec:
   replicas: 1
-
   selector:
     matchLabels:
       app: meeting-api-gateway
-
   template:
     metadata:
       labels:
         app: meeting-api-gateway
         version: v0.0.1
-
     spec:
       containers:
         - name: meeting-api-gateway
-          image: gcr.io/YOUR_PROJECT_ID/meeting-api-gateway:latest
+          image: oldestspy/meeting-api-gateway:0.0.1
           ports:
             - containerPort: 3000
               name: http
-
           envFrom:
             - configMapRef:
                 name: meeting-api-gateway-config
             - secretRef:
                 name: meeting-api-gateway-secrets
-
           resources:
             requests:
               memory: '256Mi'
@@ -42,36 +35,33 @@ spec:
             limits:
               memory: '512Mi'
               cpu: '500m'
-
           livenessProbe:
             httpGet:
-              path: /liveness
+              path: /api/liveness
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 10
-
           readinessProbe:
             httpGet:
-              path: /readiness
+              path: /api/readiness
               port: 3000
             initialDelaySeconds: 5
             periodSeconds: 5
-
       restartPolicy: Always
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: meeting-api-gateway-service
-  namespace: meeting-app
-  labels:
-    app: meeting-api-gateway
-spec:
-  selector:
-    app: meeting-api-gateway
-  ports:
-    - port: 80
-      targetPort: 3000
-      protocol: TCP
-      name: http
-  type: ClusterIP
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: meeting-api-gateway-service
+#   namespace: meeting-app
+#   labels:
+#     app: meeting-api-gateway
+# spec:
+#   selector:
+#     app: meeting-api-gateway
+#   ports:
+#     - port: 80
+#       targetPort: 3000
+#       protocol: TCP
+#       name: http
+#   type: ClusterIP

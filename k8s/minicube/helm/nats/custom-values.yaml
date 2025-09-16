@@ -1,0 +1,189 @@
+################################################################################
+# Global options
+################################################################################
+global:
+  image:
+    pullPolicy: IfNotPresent # Suitable for Minikube
+    pullSecretNames: []
+    registry: ''
+
+  labels: {} # Any global labels here will be merged with podTemplate.labels
+
+################################################################################
+# Common options
+################################################################################
+nameOverride: ''
+fullnameOverride: ''
+namespaceOverride: ''
+namespace: meeting-app
+
+tlsCA:
+  enabled: false # TLS disabled for simplicity
+
+################################################################################
+# NATS Stateful Set and associated resources
+################################################################################
+
+config:
+  cluster:
+    enabled: false # Clustering disabled as per your requirement
+    port: 6222
+    replicas: 1 # Single replica since clustering is disabled
+    routeURLs:
+      useFQDN: false
+      k8sClusterDomain: cluster.local
+
+  jetstream:
+    enabled: false # JetStream disabled as per your requirement
+    fileStore:
+      enabled: false
+      dir: /data
+      pvc:
+        enabled: false
+        size: 5Gi
+        storageClassName: standard
+        name: ''
+
+  nats:
+    port: 4222 # Matches your specified port
+
+  monitor:
+    enabled: true # Monitoring enabled for probes
+    port: 8222 # Matches your specified monitor port
+
+  # Disable other features to keep setup minimal
+  leafnodes:
+    enabled: false
+  websocket:
+    enabled: false
+  mqtt:
+    enabled: false
+  gateway:
+    enabled: false
+  resolver:
+    enabled: false
+
+container:
+  image:
+    repository: nats
+    tag: 2.11.9-alpine # Stable, lightweight image
+    pullPolicy: IfNotPresent
+
+  env: {} # Add environment variables if needed
+
+  # Resource requests and limits as per your requirement
+  resources:
+    requests:
+      cpu: '100m'
+      memory: '128Mi'
+    limits:
+      cpu: '200m'
+      memory: '256Mi'
+
+  # Liveness probe as per your requirement
+  livenessProbe:
+    httpGet:
+      path: /healthz
+      port: monitor
+      scheme: HTTP
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  # Readiness probe as per your requirement
+  readinessProbe:
+    httpGet:
+      path: /healthz
+      port: monitor
+      scheme: HTTP
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+  # Startup probe as per your requirement
+  startupProbe:
+    httpGet:
+      path: /healthz
+      port: monitor
+      scheme: HTTP
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 30
+
+reloader:
+  enabled: false # Reloader disabled as per your requirement
+  image:
+    repository: natsio/nats-server-config-reloader
+    tag: 0.19.1
+    pullPolicy: IfNotPresent
+
+promExporter:
+  enabled: false # Disabled to keep setup minimal
+
+service:
+  enabled: true
+  ports:
+    nats:
+      enabled: true
+      port: 4222
+      targetPort: 4222
+      protocol: TCP # Matches your requirement
+    monitor:
+      enabled: true
+      port: 8222
+      targetPort: 8222
+      protocol: TCP # Matches your requirement
+    cluster:
+      enabled: false
+    leafnodes:
+      enabled: false
+    websocket:
+      enabled: false
+    mqtt:
+      enabled: false
+    gateway:
+      enabled: false
+    profiling:
+      enabled: false
+
+statefulSet:
+  name: ''
+
+podTemplate:
+  configChecksumAnnotation: true
+  # Pod labels added to merge with any existing labels (e.g., from global.labels or chart defaults)
+  labels:
+    app: nats
+    version: v0.0.1
+
+headlessService:
+  name: ''
+
+configMap:
+  name: ''
+
+podDisruptionBudget:
+  enabled: false # Disabled since single replica
+
+serviceAccount:
+  enabled: false
+
+natsBox:
+  enabled: true # Kept enabled for CLI access
+  container:
+    image:
+      repository: natsio/nats-box
+      tag: 0.18.0
+      pullPolicy: IfNotPresent
+  contexts:
+    default:
+      creds:
+        contents: ''
+      nkey: {}
+      tls: {}
+  defaultContextName: default
+
+extraResources: []
