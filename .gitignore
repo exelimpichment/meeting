@@ -141,3 +141,9 @@ dist
 
 # Nest.js idiomatic rules
 nest.rules.txt
+
+
+# k8s files
+k8s/minicube/meeting-api-gateway/meeting-api-gateway-secrets.yaml
+k8s/minicube/nats-service-deployment/nats-service-secrets.yaml
+k8s/minicube/messenger-ws-gateway-deployment/messenger-ws-gateway-secrets.yaml

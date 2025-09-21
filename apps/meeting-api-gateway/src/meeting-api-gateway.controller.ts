@@ -10,8 +10,14 @@ export class MeetingApiGatewayController {
   ) {}
 
   @Auth(AuthType.None)
-  @Get()
-  getHello(): string {
-    return this.meetingApiGatewayService.getHello();
+  @Get('liveness')
+  health() {
+    return this.meetingApiGatewayService.liveness();
+  }
+
+  @Auth(AuthType.None)
+  @Get('readiness')
+  readiness() {
+    return this.meetingApiGatewayService.readiness();
   }
 }

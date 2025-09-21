@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-db
+  namespace: meeting-app
+  labels:
+    app: auth-db
+spec:
+  type: ExternalName
+  externalName: host.docker.internal # can be with host IP (e.g., 192.168.49.1) if needed
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+      name: mysql

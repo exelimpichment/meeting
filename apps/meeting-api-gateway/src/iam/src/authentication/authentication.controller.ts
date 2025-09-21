@@ -1,7 +1,7 @@
 import { AuthenticationService } from './authentication.service';
 import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
 import { ConfigType } from '@nestjs/config';
-import { Response } from 'express';
+import type { Response } from 'express';
 import {
   Body,
   Controller,
