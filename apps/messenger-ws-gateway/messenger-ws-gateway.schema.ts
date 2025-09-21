@@ -7,10 +7,14 @@ export const MessengerWsGatewayEnvSchema = z.object({
   PORT: z.coerce.number(),
 });
 
-export function getEnvConfig(configService: ConfigService) {
+export function getEnvConfig(
+  configService: ConfigService<MessengerWsGatewayEnv>,
+) {
   return {
     KAFKA_BROKER: configService.get<string>('KAFKA_BROKER'),
     NATS_SERVER: configService.get<string>('NATS_SERVER'),
     PORT: configService.get<number>('PORT') || 3001,
   };
 }
+
+export type MessengerWsGatewayEnv = z.infer<typeof MessengerWsGatewayEnvSchema>;

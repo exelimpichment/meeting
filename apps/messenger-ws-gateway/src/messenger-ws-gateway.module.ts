@@ -1,18 +1,48 @@
 import { MessengerWsGatewayController } from './messenger-ws-gateway.controller';
 import { MessengerWsGatewayService } from './messenger-ws-gateway.service';
 import { MessagesModule } from './messages/messages.module';
+
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
-import { MessengerWsGatewayEnvSchema } from '@/apps/messenger-ws-gateway/messenger-ws-gateway.schema';
+import {
+  MessengerWsGatewayEnv,
+  MessengerWsGatewayEnvSchema,
+} from '@/apps/messenger-ws-gateway/messenger-ws-gateway.schema';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { ConfigModule as CustomConfigModule } from '@config/config.module';
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@config/config.service';
+import path from 'path';
+import { KafkaModule } from '@/libs/kafka/src';
 
 @Module({
   imports: [
+    KafkaModule.forRootAsync({
+      useFactory: (configService: ConfigService<MessengerWsGatewayEnv>) => ({
+        producer: {
+          conf: {
+            'bootstrap.servers':
+              configService.get('KAFKA_BROKER') || 'localhost:9092',
+            'client.id': 'messenger-ws-gateway-producer',
+          },
+        },
+        consumer: {
+          conf: {
+            'bootstrap.servers':
+              configService.get('KAFKA_BROKER') || 'localhost:9092',
+            'group.id': 'messenger-ws-gateway-group',
+            'client.id': 'messenger-ws-gateway-consumer',
+          },
+        },
+        global: true,
+      }),
+      inject: [ConfigService],
+    }),
+
     NestConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.cwd() + '/apps/messenger-ws-gateway/.env.messenger-ws-gateway',
+
+      envFilePath: path.join(__dirname, '../../../.env.messenger-ws-gateway'),
+
       validate: (config) => {
         // apply defaults for missing environment variables
         const result = MessengerWsGatewayEnvSchema.safeParse(config);

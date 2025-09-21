@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@confluentinc/kafka-javascript": "1.4.1",
+    "@confluentinc/schemaregistry": "1.4.1",
     "@nestjs/common": "11.0.1",
     "@nestjs/config": "4.0.2",
     "@nestjs/core": "11.0.1",
@@ -35,6 +36,7 @@
     "@nestjs/microservices": "11.1.0",
     "@nestjs/platform-express": "11.0.1",
     "@nestjs/platform-ws": "11.1.0",
+    "@nestjs/terminus": "11.0.0",
     "@nestjs/websockets": "11.1.0",
     "@prisma/client": "6.6.0",
     "@types/cookie-parser": "1.4.8",

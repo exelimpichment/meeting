@@ -1,8 +1,49 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, Inject } from '@nestjs/common';
+import { KafkaJS } from '@confluentinc/kafka-javascript';
+import { KAFKA_PRODUCER_TOKEN } from '@app/kafka';
+
+interface AuthenticatedUser {
+  sub: string;
+  [key: string]: unknown;
+}
 
 @Injectable()
 export class MessageDeleteHandler {
-  handle(user: any, message: string) {
-    console.log(user, message);
+  private readonly logger = new Logger(MessageDeleteHandler.name);
+
+  constructor(
+    @Inject(KAFKA_PRODUCER_TOKEN)
+    private readonly producer: KafkaJS.Producer,
+  ) {}
+
+  async handle(user: AuthenticatedUser, message: string): Promise<unknown> {
+    console.log('MessageDeleteHandler called with user:', user);
+
+    // forward message deletion to Kafka
+    try {
+      if (!this.producer) {
+        throw new Error('Kafka producer is not available');
+      }
+
+      await this.producer.send({
+        topic: 'messenger.delete',
+        messages: [
+          {
+            value: JSON.stringify({
+              userId: user.sub,
+              message,
+              timestamp: new Date().toISOString(),
+              source: 'websocket',
+            }),
+          },
+        ],
+      });
+
+      this.logger.log(`Message deletion sent to Kafka: ${message}`);
+      return { success: true, message: 'Message deletion sent successfully' };
+    } catch (error) {
+      this.logger.error('Failed to send delete message to Kafka:', error);
+      throw error;
+    }
   }
 }
