@@ -49,19 +49,19 @@ spec:
             periodSeconds: 5
       restartPolicy: Always
 ---
-# apiVersion: v1
-# kind: Service
-# metadata:
-#   name: meeting-api-gateway-service
-#   namespace: meeting-app
-#   labels:
-#     app: meeting-api-gateway
-# spec:
-#   selector:
-#     app: meeting-api-gateway
-#   ports:
-#     - port: 80
-#       targetPort: 3000
-#       protocol: TCP
-#       name: http
-#   type: ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: meeting-api-gateway-service
+  namespace: meeting-app
+  labels:
+    app: meeting-api-gateway
+spec:
+  selector:
+    app: meeting-api-gateway
+  ports:
+    - port: 3000
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  type: ClusterIP
