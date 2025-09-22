@@ -29,7 +29,7 @@ export class KafkaModule {
       module: KafkaModule,
       providers: providers,
       exports: providers,
-      global: options.global ?? true,
+      global: options.global ?? false,
     };
   }
 
@@ -88,7 +88,7 @@ export class KafkaModule {
         // KAFKA_SCHEMA_REGISTRY_TOKEN,
         KAFKA_CONFIGURATION_TOKEN,
       ],
-      global: options.global ?? true,
+      global: options.global ?? false,
     };
   }
 

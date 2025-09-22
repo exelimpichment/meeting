@@ -12,7 +12,7 @@ import { ConfigModule as CustomConfigModule } from '@config/config.module';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@config/config.service';
 import path from 'path';
-import { KafkaModule } from '@/libs/kafka/src';
+import { KafkaModule } from './kafka';
 
 @Module({
   imports: [
@@ -33,7 +33,6 @@ import { KafkaModule } from '@/libs/kafka/src';
             'client.id': 'messenger-ws-gateway-consumer',
           },
         },
-        global: true,
       }),
       inject: [ConfigService],
     }),

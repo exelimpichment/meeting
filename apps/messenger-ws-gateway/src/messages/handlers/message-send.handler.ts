@@ -1,6 +1,6 @@
+import { KAFKA_PRODUCER_TOKEN } from '@/apps/messenger-ws-gateway/src/kafka/constants';
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
-import { KAFKA_PRODUCER_TOKEN } from '@app/kafka';
 
 interface AuthenticatedUser {
   sub: string;
