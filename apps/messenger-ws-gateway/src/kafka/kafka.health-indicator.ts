@@ -1,30 +1,35 @@
 import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { Inject } from '@nestjs/common';
-import { HealthIndicator, HealthIndicatorResult } from '@nestjs/terminus';
+import { HealthIndicatorService } from '@nestjs/terminus';
 import { KAFKA_ADMIN_CLIENT_TOKEN } from './constants';
 
-export class KafkaHealthIndicator extends HealthIndicator {
+export class KafkaHealthIndicator {
   constructor(
+    @Inject() private readonly healthIndicatorService?: HealthIndicatorService,
     @Inject(KAFKA_ADMIN_CLIENT_TOKEN)
     private readonly adminClient?: KafkaJS.Admin,
-  ) {
-    super();
-  }
+  ) {}
 
-  async isHealthy(key: string = 'kafka'): Promise<HealthIndicatorResult> {
+  async isHealty() {
+    if (!this.healthIndicatorService) {
+      throw new Error(
+        'Kafka admin client not provided. Did you forget to inject TerminusModule?',
+      );
+    }
+
     if (!this.adminClient) {
       throw new Error(
         "Kafka admin client not provided. Did you forget to provide 'adminClient' configuration in KafkaModule?",
       );
     }
 
+    const indicator = this.healthIndicatorService.check('kafka');
     try {
       await this.adminClient.fetchTopicMetadata();
-      return this.getStatus(key, true);
+      return indicator.up();
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      return this.getStatus(key, false, { message: errorMessage });
+      console.error(`Kafka health check failed: ${error}`);
+      return indicator.down();
     }
   }
 }

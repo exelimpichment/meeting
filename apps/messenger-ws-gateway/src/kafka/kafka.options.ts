@@ -1,6 +1,6 @@
-import { ModuleMetadata, InjectionToken } from '@nestjs/common';
-import { ClientConfig } from '@confluentinc/schemaregistry';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
+import { ClientConfig } from '@confluentinc/schemaregistry';
+import { ModuleMetadata } from '@nestjs/common';
 
 export interface KafkaConnectionOptions {
   consumer?: KafkaConsumerOptions;
@@ -18,9 +18,9 @@ export interface KafkaAdminClientOptions {
 export interface KafkaConnectionAsyncOptions
   extends Pick<ModuleMetadata, 'imports'> {
   useFactory: (
-    ...args: unknown[]
+    ...args: any[]
   ) => Promise<KafkaConnectionOptions> | KafkaConnectionOptions;
-  inject?: InjectionToken[];
+  inject?: any[];
   global?: boolean;
 }
 

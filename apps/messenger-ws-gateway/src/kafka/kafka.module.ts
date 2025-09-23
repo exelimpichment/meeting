@@ -1,94 +1,39 @@
-import { KafkaJS } from '@confluentinc/kafka-javascript';
-// import { SchemaRegistryClient } from '@confluentinc/schemaregistry';
+import { SchemaRegistryClient } from '@confluentinc/schemaregistry';
+import { KafkaHealthIndicator } from './kafka.health-indicator';
 import { DynamicModule, Provider } from '@nestjs/common';
+import { HealthIndicatorService } from '@nestjs/terminus';
+import { KafkaJS } from '@confluentinc/kafka-javascript';
+import { KafkaMetricsProvider } from './kafka.metrics';
 import {
   KafkaAdminClientOptions,
   KafkaConnectionOptions,
-  KafkaConnectionAsyncOptions,
   KafkaConsumerOptions,
   KafkaProducerOptions,
-  // KafkaSchemaRegistryClientOptions,
+  KafkaSchemaRegistryClientOptions,
 } from './kafka.options';
 import {
   KAFKA_ADMIN_CLIENT_TOKEN,
-  KAFKA_PRODUCER_TOKEN,
-  KAFKA_CONSUMER_TOKEN,
-  // KAFKA_SCHEMA_REGISTRY_TOKEN,
   KAFKA_CONFIGURATION_TOKEN,
+  KAFKA_HEALTH_INDICATOR_TOKEN,
+  KAFKA_METRICS_TOKEN,
+  KAFKA_CONSUMER_TOKEN,
+  KAFKA_PRODUCER_TOKEN,
 } from './constants';
 
 export class KafkaModule {
   /**
-   * creates the connection to the kafka instance.
-   * @param options the options for the kafka connection.
+   * Creates the connection to the kafka instance.
+   * @param options the options for the node-rdkafka connection.
+   * @internal
    */
+
   static forRoot(options: KafkaConnectionOptions): DynamicModule {
     const providers = this.getKafkaConnectionProviderList(options);
-
     return {
       module: KafkaModule,
       providers: providers,
       exports: providers,
-      global: options.global ?? false,
-    };
-  }
-
-  /**
-   * creates async connection to the kafka instance.
-   * @param options the async options for the kafka connection.
-   */
-  static forRootAsync(options: KafkaConnectionAsyncOptions): DynamicModule {
-    return {
-      module: KafkaModule,
-      imports: options.imports || [],
-      providers: [
-        {
-          provide: 'KAFKA_MODULE_OPTIONS',
-          useFactory: options.useFactory,
-          inject: options.inject || [],
-        },
-        {
-          provide: KAFKA_ADMIN_CLIENT_TOKEN,
-          useFactory: (moduleOptions: KafkaConnectionOptions) =>
-            moduleOptions.adminClient &&
-            this.createAdminClient(moduleOptions.adminClient),
-          inject: ['KAFKA_MODULE_OPTIONS'],
-        },
-        {
-          provide: KAFKA_CONSUMER_TOKEN,
-          useFactory: (moduleOptions: KafkaConnectionOptions) =>
-            moduleOptions.consumer &&
-            this.createConsumer(moduleOptions.consumer),
-          inject: ['KAFKA_MODULE_OPTIONS'],
-        },
-        {
-          provide: KAFKA_PRODUCER_TOKEN,
-          useFactory: (moduleOptions: KafkaConnectionOptions) =>
-            moduleOptions.producer &&
-            this.createProducer(moduleOptions.producer),
-          inject: ['KAFKA_MODULE_OPTIONS'],
-        },
-        // {
-        //   provide: KAFKA_SCHEMA_REGISTRY_TOKEN,
-        //   useFactory: (moduleOptions: KafkaConnectionOptions) =>
-        //     moduleOptions.schemaRegistry &&
-        //     this.createSchemaRegistry(moduleOptions.schemaRegistry),
-        //   inject: ['KAFKA_MODULE_OPTIONS'],
-        // },
-        {
-          provide: KAFKA_CONFIGURATION_TOKEN,
-          useFactory: (moduleOptions: KafkaConnectionOptions) => moduleOptions,
-          inject: ['KAFKA_MODULE_OPTIONS'],
-        },
-      ],
-      exports: [
-        KAFKA_ADMIN_CLIENT_TOKEN,
-        KAFKA_CONSUMER_TOKEN,
-        KAFKA_PRODUCER_TOKEN,
-        // KAFKA_SCHEMA_REGISTRY_TOKEN,
-        KAFKA_CONFIGURATION_TOKEN,
-      ],
-      global: options.global ?? false,
+      global: options.global ?? true,
     };
   }
 
@@ -106,12 +51,24 @@ export class KafkaModule {
     //   this.createSchemaRegistry(options.schemaRegistry);
 
     const providers: Provider[] = [
+      { provide: KAFKA_CONFIGURATION_TOKEN, useValue: options },
       { provide: KAFKA_ADMIN_CLIENT_TOKEN, useValue: adminClient },
       { provide: KAFKA_CONSUMER_TOKEN, useValue: consumer },
       { provide: KAFKA_PRODUCER_TOKEN, useValue: producer },
-      { provide: KAFKA_CONFIGURATION_TOKEN, useValue: options },
       // { provide: KAFKA_SCHEMA_REGISTRY_TOKEN, useValue: schemaRegistry },
+      {
+        provide: KAFKA_METRICS_TOKEN,
+        useValue: new KafkaMetricsProvider(adminClient, options, consumer),
+      },
     ];
+
+    providers.push({
+      provide: KAFKA_HEALTH_INDICATOR_TOKEN,
+      useFactory: (healthIndicatorService?: HealthIndicatorService) => {
+        return new KafkaHealthIndicator(healthIndicatorService, adminClient);
+      },
+      inject: [{ token: HealthIndicatorService, optional: true }],
+    });
 
     return providers;
   }
@@ -120,6 +77,7 @@ export class KafkaModule {
     consumerOptions: KafkaConsumerOptions,
   ): KafkaJS.Consumer {
     const consumer = new KafkaJS.Kafka({}).consumer(consumerOptions.conf);
+
     return consumer;
   }
 
@@ -136,9 +94,9 @@ export class KafkaModule {
     return new KafkaJS.Kafka({}).admin(options.conf);
   }
 
-  // private static createSchemaRegistry(
-  //   options: KafkaSchemaRegistryClientOptions,
-  // ): SchemaRegistryClient {
-  //   return new SchemaRegistryClient(options.conf);
-  // }
+  private static createSchemaRegistry(
+    options: KafkaSchemaRegistryClientOptions,
+  ): SchemaRegistryClient {
+    return new SchemaRegistryClient(options.conf);
+  }
 }

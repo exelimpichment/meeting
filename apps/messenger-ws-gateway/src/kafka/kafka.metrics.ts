@@ -1,3 +1,4 @@
+import { KafkaConnectionOptions } from './kafka.options';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { Inject } from '@nestjs/common';
 import {
@@ -5,7 +6,6 @@ import {
   KAFKA_CONFIGURATION_TOKEN,
   KAFKA_CONSUMER_TOKEN,
 } from './constants';
-import { KafkaConnectionOptions } from './kafka.options';
 
 export interface KafkaMetrics {
   lag?: number;
@@ -21,7 +21,6 @@ export class KafkaMetricsProvider {
     @Inject(KAFKA_CONSUMER_TOKEN)
     private readonly consumer?: KafkaJS.Consumer,
   ) {}
-
   private checkPrerequisites(): void {
     const consumerGroupId = this.config?.consumer?.conf['group.id'];
 
@@ -52,23 +51,23 @@ export class KafkaMetricsProvider {
       topics = (await this.admin!.fetchTopicMetadata()).topics.map(
         (topic) => topic.name,
       );
-    } catch (e) {
+    } catch (error) {
       topics = this.consumer?.assignment()?.map((topic) => topic.topic) ?? [];
     }
 
     const topicMetrics: Record<string, KafkaMetrics> = {};
 
     for (const topic of topics) {
-      // fetch producer offsets
+      //Fetch producer offsets
       const producerOffset = await this.admin!.fetchTopicOffsets(topic);
 
-      // fetch consumer offsets for the consumer group
+      //Fetch consumer offsets for the consumer group
       const consumerOffsets = await this.admin!.fetchOffsets({
         groupId: consumerGroupId,
         topics: [topic],
       });
 
-      // find the max offset for each partition
+      //Find the max offset for each partition
       consumerOffsets.forEach((offset) => {
         topicMetrics[offset.topic] = {
           consumerOffset: offset.partitions.reduce(
