@@ -13,7 +13,7 @@ export function getEnvConfig(
   return {
     KAFKA_BROKER: configService.get<string>('KAFKA_BROKER'),
     NATS_SERVER: configService.get<string>('NATS_SERVER'),
-    PORT: configService.get<number>('PORT') || 3001,
+    PORT: configService.get<number>('PORT') || 3002,
   };
 }
 

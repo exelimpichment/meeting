@@ -4,7 +4,7 @@ export const MessengerEnvSchema = z.object({
   DATABASE_URL: z.string(),
   KAFKA_BROKER: z.string(),
   KAFKA_GROUP_ID: z.string(),
-  NATS_URL: z.string().default('nats://localhost:4222'),
+  NATS_SERVER: z.string().default('nats://localhost:4222'),
 });
 
 export type MessengerEnv = z.infer<typeof MessengerEnvSchema>;

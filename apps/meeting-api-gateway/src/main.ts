@@ -38,7 +38,7 @@ async function bootstrap() {
 
   // Start both HTTP and microservice
   await app.startAllMicroservices();
-  await app.listen(PORT ?? 3000);
+  await app.listen(PORT ?? 3001);
 }
 
 void bootstrap();

@@ -13,13 +13,19 @@ import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/aut
 import { LoggingModule } from '@app/logging/logging.module';
 import { RequestLoggerMiddleware } from '../../../libs/logging/src/middleware/request-logger.middleware';
 import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
+import { join } from 'path';
+import { cwd } from 'process';
 
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.cwd() + '/apps/meeting-api-gateway/.env.meeting-api-gateway',
+
+      envFilePath: join(
+        cwd(),
+        'apps/meeting-api-gateway/.env.meeting-api-gateway',
+      ),
+
       validate: (config) => {
         const mergedSchemas = meetingApiGatewayEnvSchema.merge(jwtEnvSchema);
 

@@ -58,7 +58,7 @@ COPY --chown=node:node apps/messenger-ws-gateway/tsconfig.app.json ./apps/messen
 USER node
 
 # expose port (default 3001 for WebSocket gateway)
-EXPOSE 3001
+EXPOSE 3002
 
 
 
