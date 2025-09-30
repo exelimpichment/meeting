@@ -1,5 +1,6 @@
 import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 import { WebSocket } from 'ws';
+import { IncomingMessage } from 'http';
 
 export interface ActiveUserData {
   /**
@@ -16,4 +17,8 @@ export interface ActiveUserData {
 
 export type AuthenticatedWebSocket = WebSocket & {
   [REQUEST_USER_KEY]?: ActiveUserData;
+  // attached by the custom WebSocket adapter
+  upgradeReq?: IncomingMessage;
+  // added for compatibility with different ws library versions
+  user?: ActiveUserData;
 };

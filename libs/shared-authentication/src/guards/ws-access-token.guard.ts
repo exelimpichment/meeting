@@ -4,6 +4,7 @@ import { TokenExpiredError } from 'jsonwebtoken';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { WebSocket } from 'ws';
+import { IncomingMessage } from 'http';
 import {
   CanActivate,
   ExecutionContext,
@@ -14,6 +15,8 @@ import { WsException } from '@nestjs/websockets';
 
 type AuthenticatedWebSocket = WebSocket & {
   [REQUEST_USER_KEY]?: Record<string, unknown>;
+  // attached by custom WebSocket adapter for accessing cookies/headers
+  upgradeReq?: IncomingMessage;
 };
 
 @Injectable()
@@ -35,8 +38,10 @@ export class WsAccessTokenGuard implements CanActivate {
     const token = this.extractTokenFromCookie(client);
 
     if (!token) {
-      throw new WsException('Authentication token not found');
+      this.closeConnectionWithError(client, 'Authentication token not found');
+      return false;
     }
+    console.log('token', token);
 
     try {
       const payload = await this.jwtService.verifyAsync<
@@ -46,39 +51,66 @@ export class WsAccessTokenGuard implements CanActivate {
         audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
         issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
       });
-
-      // Attach user payload to client for use in handlers (similar to request.user)
+      console.log('payload', payload);
+      // attach user payload to client for use in handlers (similar to request.user)
       client[REQUEST_USER_KEY] = payload;
+      return true;
     } catch (error) {
+      console.log('error', error);
+      let errorMessage = 'Invalid authentication token';
+
       if (error instanceof TokenExpiredError) {
-        throw new WsException(
-          'Your session has expired. Please sign in again.',
-        );
+        errorMessage = 'Your session has expired. Please sign in again.';
       }
-      throw new WsException('Invalid authentication token');
+
+      this.closeConnectionWithError(client, errorMessage);
+      return false;
     }
-    return true;
+  }
+
+  private closeConnectionWithError(
+    client: AuthenticatedWebSocket,
+    message: string,
+  ): void {
+    // send error message to client before closing
+    try {
+      client.send(
+        JSON.stringify({
+          event: 'error',
+          data: {
+            message,
+            code: 'AUTHENTICATION_FAILED',
+          },
+        }),
+      );
+    } catch {
+      // ignore send errors
+    }
+
+    // close the connection with a specific code for auth failure
+    client.close(4401, message);
   }
 
   private extractTokenFromCookie(
     client: AuthenticatedWebSocket,
   ): string | undefined {
-    // Access the request information through the client's upgrade request
-    const clientWithRequest = client as AuthenticatedWebSocket & {
-      upgradeReq?: { headers: { cookie?: string } };
-      request?: { headers: { cookie?: string } };
-    };
+    // access the upgrade request that was attached by the custom adapter
+    const request = client.upgradeReq;
 
-    const request = clientWithRequest.upgradeReq || clientWithRequest.request;
-
-    if (!request?.headers?.cookie) {
+    if (!request) {
+      console.error('No upgrade request found on WebSocket client');
       return undefined;
     }
 
-    const cookies = request.headers.cookie;
+    const cookieHeader = request.headers.cookie;
 
-    // Simple cookie parser for the specific token
-    const cookieMap: Record<string, string> = cookies
+    if (!cookieHeader) {
+      console.log('No cookie header found');
+      return undefined;
+    }
+
+    // simple cookie parser for the specific token
+    const cookieMap: Record<string, string> = cookieHeader
       .split('; ')
       .reduce((acc, cur) => {
         const [key, ...valParts] = cur.split('=');
@@ -91,8 +123,9 @@ export class WsAccessTokenGuard implements CanActivate {
   }
 
   /**
-   * Direct method to authenticate a token without execution context
-   * Returns the user payload if authentication is successful
+   * direct method to authenticate a token without execution context
+   * returns the user payload if authentication is successful
+   * throws WsException with proper error message if authentication fails
    */
   async authenticateToken(token: string): Promise<Record<string, unknown>> {
     if (!token) {
@@ -110,6 +143,8 @@ export class WsAccessTokenGuard implements CanActivate {
 
       return payload;
     } catch (error) {
+      console.error('Token verification failed:', error);
+
       if (error instanceof TokenExpiredError) {
         throw new WsException(
           'Your session has expired. Please sign in again.',
