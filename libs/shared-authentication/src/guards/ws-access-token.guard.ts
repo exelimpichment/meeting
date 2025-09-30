@@ -56,7 +56,6 @@ export class WsAccessTokenGuard implements CanActivate {
       client[REQUEST_USER_KEY] = payload;
       return true;
     } catch (error) {
-      console.log('error', error);
       let errorMessage = 'Invalid authentication token';
 
       if (error instanceof TokenExpiredError) {
