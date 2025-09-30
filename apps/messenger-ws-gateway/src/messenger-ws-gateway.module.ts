@@ -4,20 +4,21 @@ import { KafkaModule } from '@/apps/messenger-ws-gateway/src/kafka/kafka.module'
 import { MessengerWsGatewayController } from './messenger-ws-gateway.controller';
 import { MessengerWsGatewayService } from './messenger-ws-gateway.service';
 import { ConfigModule as CustomConfigModule } from '@config/config.module';
+import { ConfigService } from '@config/config.service';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { MessagesModule } from './messages/messages.module';
 import { Module } from '@nestjs/common';
-import path from 'path';
+import { join } from 'path';
+import { cwd } from 'process';
 
 @Module({
   imports: [
-    KafkaModule.forRoot({}),
-
     NestConfigModule.forRoot({
       isGlobal: true,
-
-      envFilePath: path.join(__dirname, '../../../.env.messenger-ws-gateway'),
-
+      envFilePath: join(
+        cwd(),
+        'apps/messenger-ws-gateway/.env.messenger-ws-gateway',
+      ),
       validate: (config) => {
         // apply defaults for missing environment variables
         const result = MessengerWsGatewayEnvSchema.safeParse(config);
@@ -35,6 +36,43 @@ import path from 'path';
       },
     }),
     CustomConfigModule,
+
+    KafkaModule.forRootAsync({
+      imports: [CustomConfigModule],
+      useFactory: (configService: ConfigService) => {
+        const kafkaBroker =
+          (configService.get('KAFKA_BROKER') as string) || 'localhost:29092';
+
+        return {
+          producer: {
+            conf: {
+              acks: -1, // The producer will receive a success response from the broker once all in sync replicas receive the message.
+              'bootstrap.servers': kafkaBroker,
+              'client.id': 'messenger-ws-gateway-producer',
+              'linger.ms': 10,
+              kafkaJS: {
+                idempotent: true,
+                allowAutoTopicCreation: false,
+                // max.request.size (producer property) has to be equal to message_meta.max.bytes
+              },
+            },
+          },
+          // https://www.confluent.io/blog/how-choose-number-topics-partitions-kafka-cluster/
+          // consumer: {
+          //   conf: {
+          //     'bootstrap.servers': kafkaBroker,
+          //     // 'group.id': 'messenger-ws-gateway-group',
+          //     // 'client.id': 'messenger-ws-gateway-consumer',
+          //     kafkaJS: {
+          //       // groupId: 'messenger-ws-gateway-group',
+          //       allowAutoTopicCreation: false,
+          //     },
+          //   },
+          // },
+        };
+      },
+      inject: [ConfigService],
+    }),
     SharedAuthenticationModule.forRoot(), // handles JWT validation internally
     MessagesModule,
   ],

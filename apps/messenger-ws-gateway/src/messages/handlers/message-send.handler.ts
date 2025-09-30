@@ -19,14 +19,13 @@ export class MessageSendHandler {
   async handle(user: AuthenticatedUser, message: string): Promise<unknown> {
     console.log('MessageSendHandler called with user:', user);
 
-    // forward message to Kafka
     try {
       if (!this.producer) {
         throw new Error('Kafka producer is not available');
       }
 
       await this.producer.send({
-        topic: 'messenger.send',
+        topic: 'messenger-ws.message-events',
         messages: [
           {
             value: JSON.stringify({
@@ -38,7 +37,7 @@ export class MessageSendHandler {
           },
         ],
       });
-
+      console.log('Message sent to Kafka: ', message);
       this.logger.log(`Message sent to Kafka: ${message}`);
       return { success: true, message: 'Message sent successfully' };
     } catch (error) {

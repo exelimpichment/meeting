@@ -1,6 +1,6 @@
 import { CustomWsAdapter } from '@/apps/messenger-ws-gateway/src/adapters/custom-ws.adapter';
-import { MessengerWsGatewayModule } from './messenger-ws-gateway.module';
 import { getEnvConfig } from '@/apps/messenger-ws-gateway/messenger-ws-gateway.schema';
+import { MessengerWsGatewayModule } from './messenger-ws-gateway.module';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 
@@ -9,7 +9,6 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const env = getEnvConfig(configService);
 
-  // configure custom WebSocket adapter that attaches the upgrade request to clients
   app.useWebSocketAdapter(new CustomWsAdapter(app));
 
   app.enableCors({

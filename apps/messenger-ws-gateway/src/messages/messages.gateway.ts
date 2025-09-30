@@ -59,7 +59,6 @@ export class MessagesGateway
   async handleMessage(@WsUser() user: AuthenticatedUser, message: string) {
     console.log('Message handler called with user:', user);
 
-    // Delegate to handler which includes Kafka logic
     return await this.messageSendHandler.handle(user, message);
   }
 
@@ -69,7 +68,6 @@ export class MessagesGateway
     @WsUser() user: AuthenticatedUser,
     message: string,
   ): Promise<any> {
-    // Delegate to handler which includes Kafka logic
     return await this.messageEditHandler.handle(user, message);
   }
 
@@ -79,7 +77,6 @@ export class MessagesGateway
     @WsUser() user: AuthenticatedUser,
     message: string,
   ): Promise<any> {
-    // Delegate to handler which includes Kafka logic
     return await this.messageDeleteHandler.handle(user, message);
   }
 }

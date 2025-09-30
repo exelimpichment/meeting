@@ -1,6 +1,6 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
-import { KAFKA_PRODUCER_TOKEN } from '@app/kafka';
+import { KAFKA_PRODUCER_TOKEN } from '@/apps/messenger-ws-gateway/src/kafka/constants';
 
 interface AuthenticatedUser {
   sub: string;
@@ -26,7 +26,7 @@ export class MessageDeleteHandler {
       }
 
       await this.producer.send({
-        topic: 'messenger.delete',
+        topic: 'messenger-ws.message-events',
         messages: [
           {
             value: JSON.stringify({

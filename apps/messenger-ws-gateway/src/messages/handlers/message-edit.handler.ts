@@ -26,7 +26,7 @@ export class MessageEditHandler {
       }
 
       await this.producer.send({
-        topic: 'messenger.edit',
+        topic: 'messenger-ws.message-events',
         messages: [
           {
             value: JSON.stringify({
