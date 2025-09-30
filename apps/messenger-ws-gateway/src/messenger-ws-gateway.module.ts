@@ -1,15 +1,19 @@
-import { MessengerWsGatewayEnvSchema } from '@/apps/messenger-ws-gateway/messenger-ws-gateway.schema';
+import {
+  MessengerWsGatewayEnv,
+  MessengerWsGatewayEnvSchema,
+} from '@/apps/messenger-ws-gateway/messenger-ws-gateway.schema';
+import { TopicManagementService } from '@/apps/messenger-ws-gateway/src/kafka/topic-management.service';
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { KafkaModule } from '@/apps/messenger-ws-gateway/src/kafka/kafka.module';
 import { MessengerWsGatewayController } from './messenger-ws-gateway.controller';
 import { MessengerWsGatewayService } from './messenger-ws-gateway.service';
 import { ConfigModule as CustomConfigModule } from '@config/config.module';
-import { ConfigService } from '@config/config.service';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { MessagesModule } from './messages/messages.module';
+import { ConfigService } from '@config/config.service';
 import { Module } from '@nestjs/common';
-import { join } from 'path';
 import { cwd } from 'process';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -39,9 +43,10 @@ import { cwd } from 'process';
 
     KafkaModule.forRootAsync({
       imports: [CustomConfigModule],
-      useFactory: (configService: ConfigService) => {
+      useFactory: (configService: ConfigService<MessengerWsGatewayEnv>) => {
         const kafkaBroker =
-          (configService.get('KAFKA_BROKER') as string) || 'localhost:29092';
+          configService.get('KAFKA_BROKER') || 'localhost:29092';
+        const isDevelopment = configService.get('NODE_ENV') === 'development';
 
         return {
           producer: {
@@ -57,6 +62,16 @@ import { cwd } from 'process';
               },
             },
           },
+
+          ...(isDevelopment && {
+            adminClient: {
+              conf: {
+                'bootstrap.servers': kafkaBroker,
+                'client.id': 'messenger-ws-gateway-admin',
+                kafkaJS: {},
+              },
+            },
+          }),
           // https://www.confluent.io/blog/how-choose-number-topics-partitions-kafka-cluster/
           // consumer: {
           //   conf: {
@@ -77,6 +92,6 @@ import { cwd } from 'process';
     MessagesModule,
   ],
   controllers: [MessengerWsGatewayController],
-  providers: [MessengerWsGatewayService],
+  providers: [MessengerWsGatewayService, TopicManagementService],
 })
 export class MessengerWsGatewayModule {}
