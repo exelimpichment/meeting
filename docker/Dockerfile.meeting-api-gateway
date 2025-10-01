@@ -63,7 +63,7 @@ COPY --chown=node:node apps/meeting-api-gateway/src/iam/prisma/ ./apps/meeting-a
 USER node
 
 # expose port
-EXPOSE 3000
+EXPOSE 3001
 
 # start the application
 CMD ["node", "dist/apps/meeting-api-gateway/main.js"]

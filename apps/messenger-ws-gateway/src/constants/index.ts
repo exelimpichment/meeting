@@ -1,5 +1,5 @@
 // ===== Kafka module =====
-export const MEETING_API_SERVICE_CLIENT = 'MEETING_API_SERVICE_CLIENT';
+export const MESSENGER_WS_GATEWAY_CLIENT = 'MESSENGER_WS_GATEWAY_CLIENT';
 
 // ===== Messages module =====
 export const MessageEventType = {

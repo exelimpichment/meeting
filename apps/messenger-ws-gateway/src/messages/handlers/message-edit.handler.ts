@@ -1,8 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import { KAFKA_PRODUCER_TOKEN } from '@/apps/messenger-ws-gateway/src/kafka/constants';
+import { KAFKA_TOPICS } from '@/apps/messenger-ws-gateway/src/kafka/topics.constants';
+import { MessageEditDto } from '../dto/message-edit.dto';
+import { Injectable, Logger, Inject } from '@nestjs/common';
+import { KafkaJS } from '@confluentinc/kafka-javascript';
+
+interface AuthenticatedUser {
+  sub: string;
+  [key: string]: unknown;
+}
 
 @Injectable()
 export class MessageEditHandler {
-  handle(user: any, message: string) {
-    console.log(user, message);
+  private readonly logger = new Logger(MessageEditHandler.name);
+
+  constructor(
+    @Inject(KAFKA_PRODUCER_TOKEN)
+    private readonly producer: KafkaJS.Producer,
+  ) {}
+
+  async handle(
+    user: AuthenticatedUser,
+    data: MessageEditDto,
+  ): Promise<unknown> {
+    console.log('MessageEditHandler called with user:', user);
+
+    // forward message edit to Kafka
+    try {
+      if (!this.producer) {
+        throw new Error('Kafka producer is not available');
+      }
+
+      await this.producer.send({
+        topic: KAFKA_TOPICS.MESSAGE_EDIT,
+        messages: [
+          {
+            value: JSON.stringify({
+              userId: user.sub,
+              groupId: data.groupId,
+              messageId: data.messageId,
+              message: data.message,
+              timestamp: new Date().toISOString(),
+              source: 'websocket',
+            }),
+          },
+        ],
+      });
+
+      this.logger.log(`Message edit sent to Kafka: ${data.message}`);
+      return { success: true, message: 'Message edit sent successfully' };
+    } catch (error) {
+      this.logger.error('Failed to send edit message to Kafka:', error);
+      throw error;
+    }
   }
 }

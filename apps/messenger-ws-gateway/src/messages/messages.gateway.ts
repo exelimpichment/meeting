@@ -7,15 +7,24 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  MessageBody,
 } from '@nestjs/websockets';
 
 import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
 import { MessageDeleteHandler } from './handlers/message-delete-handler';
 import { MessageEditHandler } from './handlers/message-edit.handler';
 import { MessageSendHandler } from './handlers/message-send.handler';
+import { MessageSendDto } from './dto/message-send.dto';
+import { MessageEditDto } from './dto/message-edit.dto';
+import { MessageDeleteDto } from './dto/message-delete.dto';
 import { AuthenticatedWebSocket } from '../types';
 import { MessageEventType } from '../constants';
 import { WsUser } from '../decorators/ws-user.decorator';
+
+interface AuthenticatedUser {
+  sub: string;
+  [key: string]: unknown;
+}
 
 @WebSocketGateway({
   path: '/ws/messages',
@@ -29,8 +38,6 @@ export class MessagesGateway
     private messageSendHandler: MessageSendHandler,
     private messageEditHandler: MessageEditHandler,
     private messageDeleteHandler: MessageDeleteHandler,
-    // Uncomment next line if you want connection-level auth:
-    // private readonly wsAuthService: WsAuthService,
   ) {}
 
   @WebSocketServer()
@@ -53,78 +60,28 @@ export class MessagesGateway
 
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.SEND)
-  handleMessage(@WsUser() user: any, message: string) {
-    console.log('Message handler called with user:', user);
-    return this.messageSendHandler.handle(user, message);
+  async handleMessage(
+    @WsUser() user: AuthenticatedUser,
+    @MessageBody() data: MessageSendDto,
+  ) {
+    return await this.messageSendHandler.handle(user, data);
   }
 
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.EDIT)
-  handleMessageEdit(@WsUser() user: any, message: string) {
-    return this.messageEditHandler.handle(user, message);
+  async handleMessageEdit(
+    @WsUser() user: AuthenticatedUser,
+    @MessageBody() data: MessageEditDto,
+  ): Promise<unknown> {
+    return await this.messageEditHandler.handle(user, data);
   }
 
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.DELETE)
-  handleMessageDelete(@WsUser() user: any, message: string) {
-    return this.messageDeleteHandler.handle(user, message);
+  async handleMessageDelete(
+    @WsUser() user: AuthenticatedUser,
+    @MessageBody() data: MessageDeleteDto,
+  ): Promise<unknown> {
+    return await this.messageDeleteHandler.handle(user, data);
   }
-
-  // @SubscribeMessage(MessageEventType.SEND)
-  // handleMessage(@WsUser() user: ActiveUserData, message: string): void {
-  //   const payload = {
-  //     userId: user.sub,
-  //     message,
-  //     timestamp: new Date().toISOString(),
-  //   };
-  //   console.log('payload', payload);
-  //   // forward the message to the meeting service via Kafka
-  //   this.kafkaProducerService.send('messenger.send', payload);
-
-  //   // echo back to the client
-  //   client.send(
-  //     JSON.stringify({
-  //       event: 'messageReceived',
-  //       data: message,
-  //     }),
-  //   );
-  // }
-
-  // @SubscribeMessage(MessageEventType.DELETE)
-  // handleMessageDelete(@WsUser() user: ActiveUserData, message: string): void {
-  //   const payload = {
-  //     userId: user.sub,
-  //     message,
-  //     timestamp: new Date().toISOString(),
-  //   };
-  //   // forward the message to the meeting service via Kafka
-  //   this.kafkaProducerService.send('messenger.delete', payload);
-
-  //   // echo back to the client
-  //   client.send(
-  //     JSON.stringify({
-  //       event: 'messageReceived',
-  //       data: message,
-  //     }),
-  //   );
-  // }
-
-  // @SubscribeMessage(MessageEventType.EDIT)
-  // handleMessageEdit(@WsUser() user: ActiveUserData, message: string): void {
-  //   const payload = {
-  //     userId: user.sub,
-  //     message,
-  //     timestamp: new Date().toISOString(),
-  //   };
-  //   // forward the message to the meeting service via Kafka
-  //   this.kafkaProducerService.send('messenger.edit', payload);
-
-  //   // echo back to the client
-  //   client.send(
-  //     JSON.stringify({
-  //       event: 'messageReceived',
-  //       data: message,
-  //     }),
-  //   );
-  // }
 }

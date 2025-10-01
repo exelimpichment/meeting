@@ -1,16 +1,15 @@
-import { MessengerWsGatewayModule } from './messenger-ws-gateway.module';
+import { CustomWsAdapter } from '@/apps/messenger-ws-gateway/src/adapters/custom-ws.adapter';
 import { getEnvConfig } from '@/apps/messenger-ws-gateway/messenger-ws-gateway.schema';
+import { MessengerWsGatewayModule } from './messenger-ws-gateway.module';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { WsAdapter } from '@nestjs/platform-ws';
 
 async function bootstrap() {
   const app = await NestFactory.create(MessengerWsGatewayModule);
   const configService = app.get(ConfigService);
   const env = getEnvConfig(configService);
 
-  // configure WebSocket adapter to use ws driver
-  app.useWebSocketAdapter(new WsAdapter(app));
+  app.useWebSocketAdapter(new CustomWsAdapter(app));
 
   app.enableCors({
     origin: ['http://localhost:3001', 'http://localhost:3000'],

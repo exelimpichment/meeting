@@ -5,10 +5,10 @@ metadata:
   namespace: meeting-app
 data:
   # application configuration
-  BASE_URL: 'localhost:3000'
-  WEB_APP_URL: 'localhost:3001'
+  BASE_URL: 'localhost:3001'
+  WEB_APP_URL: 'localhost:3000'
   NODE_ENV: 'development'
-  PORT: '3000'
+  PORT: '3001'
   KAFKA_BROKER: 'localhost:29092'
   NATS_URL: 'nats://nats-service:4222'
 
