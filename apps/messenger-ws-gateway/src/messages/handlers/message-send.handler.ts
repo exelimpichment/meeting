@@ -3,11 +3,7 @@ import { KAFKA_TOPICS } from '@/apps/messenger-ws-gateway/src/kafka/topics.const
 import { MessageSendDto } from '../dto/message-send.dto';
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
-
-interface AuthenticatedUser {
-  sub: string;
-  [key: string]: unknown;
-}
+import { JwtPayload } from '@/libs/shared-authentication/src/types';
 
 @Injectable()
 export class MessageSendHandler {
@@ -18,10 +14,7 @@ export class MessageSendHandler {
     private readonly producer: KafkaJS.Producer,
   ) {}
 
-  async handle(
-    user: AuthenticatedUser,
-    data: MessageSendDto,
-  ): Promise<unknown> {
+  async handle(user: JwtPayload, data: MessageSendDto): Promise<unknown> {
     try {
       if (!this.producer) {
         throw new Error('Kafka producer is not available');

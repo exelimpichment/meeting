@@ -3,26 +3,26 @@ import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { KAFKA_CONSUMER_TOKEN, KAFKA_TOPIC_METADATA } from './constants';
+import { KafkaTopicName } from './topics.constants';
+import { SendMessageDto } from '@/libs/contracts/src/messenger/send-message-dto';
+import { EditMessageDto } from '@/libs/contracts/src/messenger/edit-message-dto';
+import { DeleteMessageDto } from '@/libs/contracts/src/messenger/delete-message-dto';
 
-interface MessageEventPayload {
-  userId: string;
-  message: string;
-  messageId?: string;
-  groupId: string;
-  timestamp: string;
-  source: string;
-}
+type MessageEventPayload =
+  | (SendMessageDto & { timestamp?: string; source?: string })
+  | (EditMessageDto & { timestamp?: string; source?: string })
+  | (DeleteMessageDto & { timestamp?: string; source?: string });
 
 interface KafkaHandler {
   target: Record<string, unknown>;
   methodName: string;
-  topic: string;
+  topic: KafkaTopicName;
 }
 
 @Injectable()
 export class KafkaConsumerService implements OnModuleInit {
   private readonly logger = new Logger(KafkaConsumerService.name);
-  private readonly handlers = new Map<string, KafkaHandler>();
+  private readonly handlers = new Map<KafkaTopicName, KafkaHandler>();
 
   constructor(
     @Inject(KAFKA_CONSUMER_TOKEN)
@@ -49,6 +49,7 @@ export class KafkaConsumerService implements OnModuleInit {
 
       // get list of topics to subscribe to
       const topics = Array.from(this.handlers.keys());
+
       this.logger.log(
         `Discovered ${topics.length} Kafka topic handlers: ${topics.join(', ')}`,
       );
@@ -70,7 +71,7 @@ export class KafkaConsumerService implements OnModuleInit {
             );
 
             // route to appropriate handler using reflection
-            await this.routeMessage(topic, payload);
+            await this.routeMessage(topic as KafkaTopicName, payload);
           } catch (error) {
             this.logger.error(
               `Error processing message from topic ${topic}:`,
@@ -100,16 +101,10 @@ export class KafkaConsumerService implements OnModuleInit {
 
     const allInstances = [...providers, ...controllers];
 
-    console.log(
-      'providers:',
-      providers.length,
-      'controllers:',
-      controllers.length,
-    );
-
     allInstances.forEach((wrapper: InstanceWrapper) => {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const { instance } = wrapper;
+
       if (!instance || typeof instance !== 'object') {
         return;
       }
@@ -133,10 +128,10 @@ export class KafkaConsumerService implements OnModuleInit {
           );
 
           if (topic && typeof topic === 'string') {
-            this.handlers.set(topic, {
+            this.handlers.set(topic as KafkaTopicName, {
               target,
               methodName,
-              topic,
+              topic: topic as KafkaTopicName,
             });
             this.logger.log(
               `Registered handler for topic "${topic}": ${target.constructor.name}.${methodName}`,
@@ -150,7 +145,10 @@ export class KafkaConsumerService implements OnModuleInit {
   /**
    * route a kafka message to its handler
    */
-  private async routeMessage(topic: string, payload: MessageEventPayload) {
+  private async routeMessage(
+    topic: KafkaTopicName,
+    payload: MessageEventPayload,
+  ) {
     const handler = this.handlers.get(topic);
 
     if (!handler) {

@@ -1,3 +1,12 @@
+import { MessageDeleteHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-delete-handler';
+import { MessageSendHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-send.handler';
+import { MessageEditHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-edit.handler';
+import { MessageDeleteDto } from '@/apps/messenger-ws-gateway/src/messages/dto/message-delete.dto';
+import { MessageSendDto } from '@/apps/messenger-ws-gateway/src/messages/dto/message-send.dto';
+import { MessageEditDto } from '@/apps/messenger-ws-gateway/src/messages/dto/message-edit.dto';
+import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
+import { WsUser } from '@/libs/shared-authentication/src/decorators/ws-user.decorator';
+import { MessageEventType } from '@/apps/messenger-ws-gateway/src/constants';
 import { Logger, UseGuards } from '@nestjs/common';
 import { IncomingMessage } from 'http';
 import { Server } from 'ws';
@@ -10,21 +19,10 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 
-import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
-import { MessageDeleteHandler } from './handlers/message-delete-handler';
-import { MessageEditHandler } from './handlers/message-edit.handler';
-import { MessageSendHandler } from './handlers/message-send.handler';
-import { MessageSendDto } from './dto/message-send.dto';
-import { MessageEditDto } from './dto/message-edit.dto';
-import { MessageDeleteDto } from './dto/message-delete.dto';
-import { AuthenticatedWebSocket } from '../types';
-import { MessageEventType } from '../constants';
-import { WsUser } from '../decorators/ws-user.decorator';
-
-interface AuthenticatedUser {
-  sub: string;
-  [key: string]: unknown;
-}
+import {
+  AuthenticatedWebSocket,
+  JwtPayload,
+} from '@/libs/shared-authentication/src/types';
 
 @WebSocketGateway({
   path: '/ws/messages',
@@ -61,7 +59,7 @@ export class MessagesGateway
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.SEND)
   async handleMessage(
-    @WsUser() user: AuthenticatedUser,
+    @WsUser() user: JwtPayload,
     @MessageBody() data: MessageSendDto,
   ) {
     return await this.messageSendHandler.handle(user, data);
@@ -70,7 +68,7 @@ export class MessagesGateway
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.EDIT)
   async handleMessageEdit(
-    @WsUser() user: AuthenticatedUser,
+    @WsUser() user: JwtPayload,
     @MessageBody() data: MessageEditDto,
   ): Promise<unknown> {
     return await this.messageEditHandler.handle(user, data);
@@ -79,7 +77,7 @@ export class MessagesGateway
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.DELETE)
   async handleMessageDelete(
-    @WsUser() user: AuthenticatedUser,
+    @WsUser() user: JwtPayload,
     @MessageBody() data: MessageDeleteDto,
   ): Promise<unknown> {
     return await this.messageDeleteHandler.handle(user, data);

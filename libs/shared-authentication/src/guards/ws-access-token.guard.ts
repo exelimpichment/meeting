@@ -1,10 +1,14 @@
-import { jwtConfig } from '../configs/jwt-config';
+import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
 import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 import { TokenExpiredError } from 'jsonwebtoken';
+import {
+  AuthenticatedWebSocket,
+  ExtendedWebSocket,
+  JwtPayload,
+} from '@/libs/shared-authentication/src/types';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { WebSocket } from 'ws';
-import { IncomingMessage } from 'http';
+
 import {
   CanActivate,
   ExecutionContext,
@@ -12,12 +16,6 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
-
-type AuthenticatedWebSocket = WebSocket & {
-  [REQUEST_USER_KEY]?: Record<string, unknown>;
-  // attached by custom WebSocket adapter for accessing cookies/headers
-  upgradeReq?: IncomingMessage;
-};
 
 @Injectable()
 export class WsAccessTokenGuard implements CanActivate {
@@ -33,7 +31,7 @@ export class WsAccessTokenGuard implements CanActivate {
       throw new WsException('This guard is for WebSocket contexts only');
     }
 
-    const client = context.switchToWs().getClient<AuthenticatedWebSocket>();
+    const client = context.switchToWs().getClient<ExtendedWebSocket>();
 
     const token = this.extractTokenFromCookie(client);
 
@@ -43,9 +41,7 @@ export class WsAccessTokenGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<
-        Record<string, unknown>
-      >(token, {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
         audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
         issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
@@ -90,7 +86,7 @@ export class WsAccessTokenGuard implements CanActivate {
   }
 
   private extractTokenFromCookie(
-    client: AuthenticatedWebSocket,
+    client: ExtendedWebSocket,
   ): string | undefined {
     // access the upgrade request that was attached by the custom adapter
     const request = client.upgradeReq;
@@ -125,15 +121,13 @@ export class WsAccessTokenGuard implements CanActivate {
    * returns the user payload if authentication is successful
    * throws WsException with proper error message if authentication fails
    */
-  async authenticateToken(token: string): Promise<Record<string, unknown>> {
+  async authenticateToken(token: string): Promise<JwtPayload> {
     if (!token) {
       throw new WsException('No token provided');
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<
-        Record<string, unknown>
-      >(token, {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
         audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
         issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,

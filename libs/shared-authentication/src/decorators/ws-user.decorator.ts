@@ -1,6 +1,6 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
-import { AuthenticatedWebSocket } from '../types';
+import { AuthenticatedWebSocket } from '@/libs/shared-authentication/src/types';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const WsUser = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {

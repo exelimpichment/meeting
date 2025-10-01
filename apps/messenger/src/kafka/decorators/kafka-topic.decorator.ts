@@ -1,5 +1,5 @@
+import { KAFKA_TOPIC_METADATA } from '@/apps/messenger/src/kafka/constants';
 import { SetMetadata } from '@nestjs/common';
-import { KAFKA_TOPIC_METADATA } from '../constants';
 
 /**
  * decorator to mark a method as a Kafka topic handler
