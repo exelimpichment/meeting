@@ -122,16 +122,16 @@ export class KafkaConsumerService implements OnModuleInit {
             return;
           }
 
-          const topic = this.reflector.get<string>(
+          const topic = this.reflector.get<KafkaTopicName>(
             KAFKA_TOPIC_METADATA,
             methodRef,
           );
 
           if (topic && typeof topic === 'string') {
-            this.handlers.set(topic as KafkaTopicName, {
+            this.handlers.set(topic, {
               target,
               methodName,
-              topic: topic as KafkaTopicName,
+              topic,
             });
             this.logger.log(
               `Registered handler for topic "${topic}": ${target.constructor.name}.${methodName}`,
