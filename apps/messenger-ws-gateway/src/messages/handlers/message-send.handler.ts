@@ -22,8 +22,6 @@ export class MessageSendHandler {
     user: AuthenticatedUser,
     data: MessageSendDto,
   ): Promise<unknown> {
-    console.log('MessageSendHandler called with user:', user);
-
     try {
       if (!this.producer) {
         throw new Error('Kafka producer is not available');
@@ -43,7 +41,7 @@ export class MessageSendHandler {
           },
         ],
       });
-      console.log('Message sent to Kafka: ', data.message);
+
       this.logger.log(`Message sent to Kafka: ${data.message}`);
       return { success: true, message: 'Message sent successfully' };
     } catch (error) {

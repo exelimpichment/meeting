@@ -2,6 +2,7 @@ import { KAFKA_ADMIN_CLIENT_TOKEN } from '@/apps/messenger-ws-gateway/src/kafka/
 import { ITopicConfig } from '@confluentinc/kafka-javascript/types/kafkajs';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
+import { KAFKA_TOPICS } from './topics.constants';
 
 @Injectable()
 export class TopicManagementService implements OnModuleInit {
@@ -18,17 +19,13 @@ export class TopicManagementService implements OnModuleInit {
       return;
     }
 
-    await this.ensureTopicsExist([
-      {
-        topic: 'messenger-ws.message-events',
-        numPartitions: 3,
+    await this.ensureTopicsExist(
+      Object.values(KAFKA_TOPICS).map((topic) => ({
+        topic,
+        numPartitions: 1,
         replicationFactor: 1,
-        configEntries: [
-          { name: 'cleanup.policy', value: 'delete' },
-          { name: 'retention.ms', value: '604800000' }, // 7 days
-        ],
-      },
-    ]);
+      })),
+    );
   }
 
   private async ensureTopicsExist(topicConfigs: ITopicConfig[]) {
@@ -39,7 +36,9 @@ export class TopicManagementService implements OnModuleInit {
     try {
       this.logger.log('Checking existing topics...');
       const existingTopics = await this.adminClient.listTopics();
-      this.logger.log(`Found ${existingTopics.length} existing topics`);
+      this.logger.log(
+        `Found ${existingTopics.length} existing topics, namely: ${existingTopics.join(', ')}`,
+      );
 
       const topicsToCreate = topicConfigs.filter(
         (config) => !existingTopics.includes(config.topic),

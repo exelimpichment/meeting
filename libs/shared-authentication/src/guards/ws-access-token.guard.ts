@@ -41,7 +41,6 @@ export class WsAccessTokenGuard implements CanActivate {
       this.closeConnectionWithError(client, 'Authentication token not found');
       return false;
     }
-    console.log('token', token);
 
     try {
       const payload = await this.jwtService.verifyAsync<
@@ -51,7 +50,7 @@ export class WsAccessTokenGuard implements CanActivate {
         audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
         issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
       });
-      console.log('payload', payload);
+
       // attach user payload to client for use in handlers (similar to request.user)
       client[REQUEST_USER_KEY] = payload;
       return true;

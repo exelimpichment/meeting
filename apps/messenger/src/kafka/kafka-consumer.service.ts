@@ -1,26 +1,35 @@
 import { Injectable, Logger, OnModuleInit, Inject } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
-import { KAFKA_CONSUMER_TOKEN } from './constants';
-import { KAFKA_TOPICS } from './topics.constants';
-import { MessagesService } from '../messages/messages.service';
+import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
+import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import { KAFKA_CONSUMER_TOKEN, KAFKA_TOPIC_METADATA } from './constants';
 
 interface MessageEventPayload {
   userId: string;
   message: string;
   messageId?: string;
-  groupId?: string;
+  groupId: string;
   timestamp: string;
   source: string;
+}
+
+interface KafkaHandler {
+  target: Record<string, unknown>;
+  methodName: string;
+  topic: string;
 }
 
 @Injectable()
 export class KafkaConsumerService implements OnModuleInit {
   private readonly logger = new Logger(KafkaConsumerService.name);
+  private readonly handlers = new Map<string, KafkaHandler>();
 
   constructor(
     @Inject(KAFKA_CONSUMER_TOKEN)
     private readonly consumer: KafkaJS.Consumer,
-    private readonly messagesService: MessagesService,
+    private readonly discoveryService: DiscoveryService,
+    private readonly metadataScanner: MetadataScanner,
+    private readonly reflector: Reflector,
   ) {}
 
   async onModuleInit() {
@@ -28,45 +37,40 @@ export class KafkaConsumerService implements OnModuleInit {
       this.logger.warn('Kafka consumer not configured, skipping subscription');
       return;
     }
-
+    this.logger.log('Kafka consumer initialized');
     try {
-      // subscribe to all message topics
-      await this.consumer.subscribe({
-        topics: [
-          KAFKA_TOPICS.MESSAGE_SEND,
-          KAFKA_TOPICS.MESSAGE_EDIT,
-          KAFKA_TOPICS.MESSAGE_DELETE,
-        ],
-      });
+      // discover all kafka topic handlers
+      this.discoverKafkaHandlers();
 
+      if (this.handlers.size === 0) {
+        this.logger.warn('No Kafka handlers found');
+        return;
+      }
+
+      // get list of topics to subscribe to
+      const topics = Array.from(this.handlers.keys());
+      this.logger.log(
+        `Discovered ${topics.length} Kafka topic handlers: ${topics.join(', ')}`,
+      );
+
+      // subscribe to all discovered topics
+      await this.consumer.subscribe({ topics });
       this.logger.log('Subscribed to Kafka topics successfully');
 
       // start consuming messages
       await this.consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
           try {
-            const payload: MessageEventPayload = JSON.parse(
+            const payload = JSON.parse(
               message.value?.toString() || '{}',
-            );
+            ) as MessageEventPayload;
 
             this.logger.log(
               `Received message from topic ${topic}, partition ${partition}`,
             );
 
-            // route to appropriate handler based on topic
-            switch (topic) {
-              case KAFKA_TOPICS.MESSAGE_SEND:
-                await this.handleMessageSend(payload);
-                break;
-              case KAFKA_TOPICS.MESSAGE_EDIT:
-                await this.handleMessageEdit(payload);
-                break;
-              case KAFKA_TOPICS.MESSAGE_DELETE:
-                await this.handleMessageDelete(payload);
-                break;
-              default:
-                this.logger.warn(`Unknown topic: ${topic}`);
-            }
+            // route to appropriate handler using reflection
+            await this.routeMessage(topic, payload);
           } catch (error) {
             this.logger.error(
               `Error processing message from topic ${topic}:`,
@@ -84,51 +88,87 @@ export class KafkaConsumerService implements OnModuleInit {
     }
   }
 
-  private async handleMessageSend(payload: MessageEventPayload) {
-    this.logger.log(`Handling message send: ${JSON.stringify(payload)}`);
+  /**
+   * discover all methods decorated with @KafkaTopic
+   */
+  private discoverKafkaHandlers() {
+    // get all providers and controllers
+    const providers: InstanceWrapper[] = this.discoveryService.getProviders();
 
-    if (!payload.groupId) {
-      this.logger.error('groupId is required for message send');
-      return;
-    }
+    const controllers: InstanceWrapper[] =
+      this.discoveryService.getControllers();
 
-    await this.messagesService.sendMessage({
-      userId: payload.userId,
-      message: payload.message,
-      groupId: payload.groupId,
-    });
-  }
+    const allInstances = [...providers, ...controllers];
 
-  private async handleMessageEdit(payload: MessageEventPayload) {
-    this.logger.log(`Handling message edit: ${JSON.stringify(payload)}`);
+    console.log(
+      'providers:',
+      providers.length,
+      'controllers:',
+      controllers.length,
+    );
 
-    if (!payload.groupId || !payload.messageId) {
-      this.logger.error('groupId and messageId are required for message edit');
-      return;
-    }
+    allInstances.forEach((wrapper: InstanceWrapper) => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const { instance } = wrapper;
+      if (!instance || typeof instance !== 'object') {
+        return;
+      }
 
-    await this.messagesService.editMessage({
-      userId: payload.userId,
-      message: payload.message,
-      groupId: payload.groupId,
-      messageId: payload.messageId,
-    });
-  }
+      // scan all methods in the instance
+      this.metadataScanner.scanFromPrototype(
+        instance,
+        Object.getPrototypeOf(instance) as object,
+        (methodName: string) => {
+          const target = instance as Record<string, unknown>;
+          const methodRef = target[methodName];
 
-  private async handleMessageDelete(payload: MessageEventPayload) {
-    this.logger.log(`Handling message delete: ${JSON.stringify(payload)}`);
+          // ensure methodRef is a function before checking metadata
+          if (typeof methodRef !== 'function') {
+            return;
+          }
 
-    if (!payload.groupId || !payload.messageId) {
-      this.logger.error(
-        'groupId and messageId are required for message delete',
+          const topic = this.reflector.get<string>(
+            KAFKA_TOPIC_METADATA,
+            methodRef,
+          );
+
+          if (topic && typeof topic === 'string') {
+            this.handlers.set(topic, {
+              target,
+              methodName,
+              topic,
+            });
+            this.logger.log(
+              `Registered handler for topic "${topic}": ${target.constructor.name}.${methodName}`,
+            );
+          }
+        },
       );
+    });
+  }
+
+  /**
+   * route a kafka message to its handler
+   */
+  private async routeMessage(topic: string, payload: MessageEventPayload) {
+    const handler = this.handlers.get(topic);
+
+    if (!handler) {
+      this.logger.warn(`No handler found for topic: ${topic}`);
       return;
     }
 
-    await this.messagesService.deleteMessage({
-      userId: payload.userId,
-      groupId: payload.groupId,
-      messageId: payload.messageId,
-    });
+    const { target, methodName } = handler;
+    const method = target[methodName];
+
+    if (typeof method !== 'function') {
+      this.logger.error(`Handler method is not a function: ${methodName}`);
+      return;
+    }
+
+    this.logger.debug(
+      `Routing message to ${target.constructor.name}.${methodName}`,
+    );
+    await method.call(target, payload);
   }
 }

@@ -1,3 +1,5 @@
+//TODO: move to shared package or smth
+
 // kafka topic names for message events
 export const KAFKA_TOPICS = {
   MESSAGE_SEND: 'messenger.message.send',

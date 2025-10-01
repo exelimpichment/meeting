@@ -64,8 +64,6 @@ export class MessagesGateway
     @WsUser() user: AuthenticatedUser,
     @MessageBody() data: MessageSendDto,
   ) {
-    console.log('Message handler called with user:', user);
-
     return await this.messageSendHandler.handle(user, data);
   }
 
