@@ -26,8 +26,8 @@
     "migrate:messenger-db": "dotenv -e apps/messenger/.env.messenger -- prisma migrate dev --schema=apps/messenger/prisma/schema.prisma"
   },
   "dependencies": {
-    "@confluentinc/kafka-javascript": "1.4.1",
-    "@confluentinc/schemaregistry": "1.4.1",
+    "@confluentinc/kafka-javascript": "1.5.0",
+    "@confluentinc/schemaregistry": "1.5.0",
     "@nestjs/common": "11.0.1",
     "@nestjs/config": "4.0.2",
     "@nestjs/core": "11.0.1",
