@@ -7,12 +7,16 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  MessageBody,
 } from '@nestjs/websockets';
 
 import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
 import { MessageDeleteHandler } from './handlers/message-delete-handler';
 import { MessageEditHandler } from './handlers/message-edit.handler';
 import { MessageSendHandler } from './handlers/message-send.handler';
+import { MessageSendDto } from './dto/message-send.dto';
+import { MessageEditDto } from './dto/message-edit.dto';
+import { MessageDeleteDto } from './dto/message-delete.dto';
 import { AuthenticatedWebSocket } from '../types';
 import { MessageEventType } from '../constants';
 import { WsUser } from '../decorators/ws-user.decorator';
@@ -56,27 +60,30 @@ export class MessagesGateway
 
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.SEND)
-  async handleMessage(@WsUser() user: AuthenticatedUser, message: string) {
+  async handleMessage(
+    @WsUser() user: AuthenticatedUser,
+    @MessageBody() data: MessageSendDto,
+  ) {
     console.log('Message handler called with user:', user);
 
-    return await this.messageSendHandler.handle(user, message);
+    return await this.messageSendHandler.handle(user, data);
   }
 
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.EDIT)
   async handleMessageEdit(
     @WsUser() user: AuthenticatedUser,
-    message: string,
-  ): Promise<any> {
-    return await this.messageEditHandler.handle(user, message);
+    @MessageBody() data: MessageEditDto,
+  ): Promise<unknown> {
+    return await this.messageEditHandler.handle(user, data);
   }
 
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.DELETE)
   async handleMessageDelete(
     @WsUser() user: AuthenticatedUser,
-    message: string,
-  ): Promise<any> {
-    return await this.messageDeleteHandler.handle(user, message);
+    @MessageBody() data: MessageDeleteDto,
+  ): Promise<unknown> {
+    return await this.messageDeleteHandler.handle(user, data);
   }
 }

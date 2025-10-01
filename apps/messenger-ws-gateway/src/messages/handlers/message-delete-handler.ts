@@ -1,6 +1,8 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
 import { KAFKA_PRODUCER_TOKEN } from '@/apps/messenger-ws-gateway/src/kafka/constants';
+import { KAFKA_TOPICS } from '@/apps/messenger-ws-gateway/src/kafka/topics.constants';
+import { MessageDeleteDto } from '../dto/message-delete.dto';
 
 interface AuthenticatedUser {
   sub: string;
@@ -16,7 +18,10 @@ export class MessageDeleteHandler {
     private readonly producer: KafkaJS.Producer,
   ) {}
 
-  async handle(user: AuthenticatedUser, message: string): Promise<unknown> {
+  async handle(
+    user: AuthenticatedUser,
+    data: MessageDeleteDto,
+  ): Promise<unknown> {
     console.log('MessageDeleteHandler called with user:', user);
 
     // forward message deletion to Kafka
@@ -26,12 +31,13 @@ export class MessageDeleteHandler {
       }
 
       await this.producer.send({
-        topic: 'messenger-ws.message-events',
+        topic: KAFKA_TOPICS.MESSAGE_DELETE,
         messages: [
           {
             value: JSON.stringify({
               userId: user.sub,
-              message,
+              groupId: data.groupId,
+              messageId: data.messageId,
               timestamp: new Date().toISOString(),
               source: 'websocket',
             }),
@@ -39,7 +45,9 @@ export class MessageDeleteHandler {
         ],
       });
 
-      this.logger.log(`Message deletion sent to Kafka: ${message}`);
+      this.logger.log(
+        `Message deletion sent to Kafka for messageId: ${data.messageId}`,
+      );
       return { success: true, message: 'Message deletion sent successfully' };
     } catch (error) {
       this.logger.error('Failed to send delete message to Kafka:', error);

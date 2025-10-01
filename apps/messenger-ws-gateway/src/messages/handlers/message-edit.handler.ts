@@ -1,4 +1,6 @@
 import { KAFKA_PRODUCER_TOKEN } from '@/apps/messenger-ws-gateway/src/kafka/constants';
+import { KAFKA_TOPICS } from '@/apps/messenger-ws-gateway/src/kafka/topics.constants';
+import { MessageEditDto } from '../dto/message-edit.dto';
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
 
@@ -16,7 +18,10 @@ export class MessageEditHandler {
     private readonly producer: KafkaJS.Producer,
   ) {}
 
-  async handle(user: AuthenticatedUser, message: string): Promise<unknown> {
+  async handle(
+    user: AuthenticatedUser,
+    data: MessageEditDto,
+  ): Promise<unknown> {
     console.log('MessageEditHandler called with user:', user);
 
     // forward message edit to Kafka
@@ -26,12 +31,14 @@ export class MessageEditHandler {
       }
 
       await this.producer.send({
-        topic: 'messenger-ws.message-events',
+        topic: KAFKA_TOPICS.MESSAGE_EDIT,
         messages: [
           {
             value: JSON.stringify({
               userId: user.sub,
-              message,
+              groupId: data.groupId,
+              messageId: data.messageId,
+              message: data.message,
               timestamp: new Date().toISOString(),
               source: 'websocket',
             }),
@@ -39,7 +46,7 @@ export class MessageEditHandler {
         ],
       });
 
-      this.logger.log(`Message edit sent to Kafka: ${message}`);
+      this.logger.log(`Message edit sent to Kafka: ${data.message}`);
       return { success: true, message: 'Message edit sent successfully' };
     } catch (error) {
       this.logger.error('Failed to send edit message to Kafka:', error);

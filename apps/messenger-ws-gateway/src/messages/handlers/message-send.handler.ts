@@ -1,4 +1,6 @@
 import { KAFKA_PRODUCER_TOKEN } from '@/apps/messenger-ws-gateway/src/kafka/constants';
+import { KAFKA_TOPICS } from '@/apps/messenger-ws-gateway/src/kafka/topics.constants';
+import { MessageSendDto } from '../dto/message-send.dto';
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
 
@@ -16,7 +18,10 @@ export class MessageSendHandler {
     private readonly producer: KafkaJS.Producer,
   ) {}
 
-  async handle(user: AuthenticatedUser, message: string): Promise<unknown> {
+  async handle(
+    user: AuthenticatedUser,
+    data: MessageSendDto,
+  ): Promise<unknown> {
     console.log('MessageSendHandler called with user:', user);
 
     try {
@@ -25,20 +30,21 @@ export class MessageSendHandler {
       }
 
       await this.producer.send({
-        topic: 'messenger-ws.message-events',
+        topic: KAFKA_TOPICS.MESSAGE_SEND,
         messages: [
           {
             value: JSON.stringify({
               userId: user.sub,
-              message,
+              groupId: data.groupId,
+              message: data.message,
               timestamp: new Date().toISOString(),
               source: 'websocket',
             }),
           },
         ],
       });
-      console.log('Message sent to Kafka: ', message);
-      this.logger.log(`Message sent to Kafka: ${message}`);
+      console.log('Message sent to Kafka: ', data.message);
+      this.logger.log(`Message sent to Kafka: ${data.message}`);
       return { success: true, message: 'Message sent successfully' };
     } catch (error) {
       this.logger.error('Failed to send message to Kafka:', error);
