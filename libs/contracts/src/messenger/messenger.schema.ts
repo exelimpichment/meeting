@@ -28,3 +28,21 @@ export const editMessageSchema = z.object({
 export type SendMessageDto = z.infer<typeof sendMessageSchema>;
 export type DeleteMessageDto = z.infer<typeof deleteMessageSchema>;
 export type EditMessageDto = z.infer<typeof editMessageSchema>;
+
+export type KafkaDeleteMessageDto = DeleteMessageDto & {
+  userId: string;
+  timestamp: string;
+  source: string;
+};
+
+export type KafkaEditMessageDto = EditMessageDto & {
+  userId: string;
+  timestamp: string;
+  source: string;
+};
+
+export type KafkaSendMessageDto = SendMessageDto & {
+  userId: string;
+  timestamp: string;
+  source: string;
+};

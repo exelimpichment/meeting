@@ -4,14 +4,14 @@ import { DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { KAFKA_CONSUMER_TOKEN, KAFKA_TOPIC_METADATA } from './constants';
 import { KafkaTopicName } from './topics.constants';
-import { SendMessageDto } from '@/libs/contracts/src/messenger/send-message-dto';
-import { EditMessageDto } from '@/libs/contracts/src/messenger/edit-message-dto';
-import { DeleteMessageDto } from '@/libs/contracts/src/messenger/delete-message-dto';
+import { KafkaSendMessageDto } from '@/libs/contracts/src/messenger/messenger.schema';
+import { KafkaEditMessageDto } from '@/libs/contracts/src/messenger/messenger.schema';
+import { KafkaDeleteMessageDto } from '@/libs/contracts/src/messenger/messenger.schema';
 
 type MessageEventPayload =
-  | (SendMessageDto & { timestamp?: string; source?: string })
-  | (EditMessageDto & { timestamp?: string; source?: string })
-  | (DeleteMessageDto & { timestamp?: string; source?: string });
+  | KafkaSendMessageDto
+  | KafkaEditMessageDto
+  | KafkaDeleteMessageDto;
 
 interface KafkaHandler {
   target: Record<string, unknown>;
