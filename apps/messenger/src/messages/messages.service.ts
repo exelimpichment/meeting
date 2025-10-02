@@ -1,16 +1,19 @@
-import { MessengerPrismaService } from '../prisma/messenger-prisma.service';
-import { DeleteMessageDto } from '../../../../libs/contracts/src/messenger/delete-message-dto';
-import { EditMessageDto } from '../../../../libs/contracts/src/messenger/edit-message-dto';
-import { SendMessageDto } from '../../../../libs/contracts/src/messenger/send-message-dto';
-import { GetMessagesDto } from '../../../../libs/contracts/src/messenger/get-messages-dto';
-
+import { MessengerPrismaService } from '@/apps/messenger/src/prisma/messenger-prisma.service';
 import { Injectable } from '@nestjs/common';
+
+import {
+  KafkaDeleteMessageDto,
+  KafkaEditMessageDto,
+  KafkaSendMessageDto,
+} from '@/libs/contracts/src/messenger/messenger.schema';
 
 @Injectable()
 export class MessagesService {
   constructor(private readonly prisma: MessengerPrismaService) {}
 
-  async sendMessage(sendMessageDto: SendMessageDto) {
+  async sendMessage(
+    sendMessageDto: Omit<KafkaSendMessageDto, 'timestamp' | 'source'>,
+  ) {
     const { groupId, userId, message } = sendMessageDto;
     return this.prisma.messages.create({
       data: {
@@ -21,7 +24,9 @@ export class MessagesService {
     });
   }
 
-  async deleteMessage(deleteMessageDto: DeleteMessageDto) {
+  async deleteMessage(
+    deleteMessageDto: Omit<KafkaDeleteMessageDto, 'timestamp' | 'source'>,
+  ) {
     const { groupId, userId, messageId } = deleteMessageDto;
     return this.prisma.messages.delete({
       where: {
@@ -32,7 +37,9 @@ export class MessagesService {
     });
   }
 
-  async editMessage(editMessageDto: EditMessageDto) {
+  async editMessage(
+    editMessageDto: Omit<KafkaEditMessageDto, 'timestamp' | 'source'>,
+  ) {
     const { groupId, userId, messageId, message } = editMessageDto;
     return this.prisma.messages.update({
       where: {
@@ -44,14 +51,14 @@ export class MessagesService {
     });
   }
 
-  async getMessageByConversationId(getMessagesDto: GetMessagesDto) {
-    return this.prisma.messages.findMany({
-      where: {
-        conversation_id: getMessagesDto.conversationId,
-      },
-      include: {
-        users: true,
-      },
-    });
-  }
+  // async getMessageByConversationId(getMessagesDto: GetMessagesDto) {
+  //   return this.prisma.messages.findMany({
+  //     where: {
+  //       conversation_id: getMessagesDto.conversationId,
+  //     },
+  //     include: {
+  //       users: true,
+  //     },
+  //   });
+  // }
 }

@@ -1,10 +1,12 @@
-import { DeleteMessageDto } from '@/libs/contracts/src/messenger/delete-message-dto';
-import { SendMessageDto } from '@/libs/contracts/src/messenger/send-message-dto';
-import { EditMessageDto } from '@/libs/contracts/src/messenger/edit-message-dto';
-import { KafkaTopic } from '../kafka/decorators/kafka-topic.decorator';
-import { MessagesService } from './messages.service';
+import { KafkaTopic } from '@/apps/messenger/src/kafka/decorators/kafka-topic.decorator';
+import { MessagesService } from '@/apps/messenger/src/messages/messages.service';
+import { KAFKA_TOPICS } from '@/apps/messenger/src/kafka/topics.constants';
 import { Controller, Logger } from '@nestjs/common';
-import { KAFKA_TOPICS } from '../kafka/topics.constants';
+import {
+  KafkaDeleteMessageDto,
+  KafkaEditMessageDto,
+  KafkaSendMessageDto,
+} from '@/libs/contracts/src/messenger/messenger.schema';
 
 @Controller()
 export class MessagesController {
@@ -14,9 +16,7 @@ export class MessagesController {
 
   // kafka topic handlers
   @KafkaTopic(KAFKA_TOPICS.MESSAGE_SEND)
-  async handleMessageSendFromKafka(
-    payload: SendMessageDto & { timestamp?: string; source?: string },
-  ) {
+  async handleMessageSendFromKafka(payload: KafkaSendMessageDto) {
     this.logger.log(`Handling Kafka message send: ${JSON.stringify(payload)}`);
     // console.log('payload', payload);
 
@@ -33,9 +33,7 @@ export class MessagesController {
   }
 
   @KafkaTopic(KAFKA_TOPICS.MESSAGE_EDIT)
-  async handleMessageEditFromKafka(
-    payload: EditMessageDto & { timestamp?: string; source?: string },
-  ) {
+  async handleMessageEditFromKafka(payload: KafkaEditMessageDto) {
     this.logger.log(`Handling Kafka message edit: ${JSON.stringify(payload)}`);
 
     if (!payload.groupId || !payload.messageId) {
@@ -52,9 +50,7 @@ export class MessagesController {
   }
 
   @KafkaTopic(KAFKA_TOPICS.MESSAGE_DELETE)
-  async handleMessageDeleteFromKafka(
-    payload: DeleteMessageDto & { timestamp?: string; source?: string },
-  ) {
+  async handleMessageDeleteFromKafka(payload: KafkaDeleteMessageDto) {
     this.logger.log(
       `Handling Kafka message delete: ${JSON.stringify(payload)}`,
     );

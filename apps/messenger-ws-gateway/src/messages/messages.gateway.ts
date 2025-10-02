@@ -1,4 +1,11 @@
-import { Logger, UseGuards } from '@nestjs/common';
+import { MessageDeleteHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-delete-handler';
+import { MessageSendHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-send.handler';
+import { MessageEditHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-edit.handler';
+import { WebSocketExceptionFilter } from '@/apps/messenger-ws-gateway/src/filters/websocket-exception.filter';
+import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
+import { WsUser } from '@/libs/shared-authentication/src/decorators/ws-user.decorator';
+import { MessageEventType } from '@/apps/messenger-ws-gateway/src/constants';
+import { Logger, UseGuards, UseFilters } from '@nestjs/common';
 import { IncomingMessage } from 'http';
 import { Server } from 'ws';
 import {
@@ -8,27 +15,24 @@ import {
   WebSocketGateway,
   WebSocketServer,
   MessageBody,
+  WsException,
 } from '@nestjs/websockets';
+import { z } from 'zod';
+import {
+  sendMessageSchema,
+  editMessageSchema,
+  deleteMessageSchema,
+} from '@/libs/contracts/src/messenger/messenger.schema';
 
-import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
-import { MessageDeleteHandler } from './handlers/message-delete-handler';
-import { MessageEditHandler } from './handlers/message-edit.handler';
-import { MessageSendHandler } from './handlers/message-send.handler';
-import { MessageSendDto } from './dto/message-send.dto';
-import { MessageEditDto } from './dto/message-edit.dto';
-import { MessageDeleteDto } from './dto/message-delete.dto';
-import { AuthenticatedWebSocket } from '../types';
-import { MessageEventType } from '../constants';
-import { WsUser } from '../decorators/ws-user.decorator';
-
-interface AuthenticatedUser {
-  sub: string;
-  [key: string]: unknown;
-}
+import {
+  AuthenticatedWebSocket,
+  JwtPayload,
+} from '@/libs/shared-authentication/src/types';
 
 @WebSocketGateway({
   path: '/ws/messages',
 })
+@UseFilters(WebSocketExceptionFilter)
 export class MessagesGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
@@ -61,27 +65,42 @@ export class MessagesGateway
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.SEND)
   async handleMessage(
-    @WsUser() user: AuthenticatedUser,
-    @MessageBody() data: MessageSendDto,
+    @WsUser() user: JwtPayload,
+    @MessageBody() data: unknown,
   ) {
-    return await this.messageSendHandler.handle(user, data);
+    const validatedData = this.validateDto(sendMessageSchema, data);
+    return await this.messageSendHandler.handle(user, validatedData);
   }
 
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.EDIT)
   async handleMessageEdit(
-    @WsUser() user: AuthenticatedUser,
-    @MessageBody() data: MessageEditDto,
+    @WsUser() user: JwtPayload,
+    @MessageBody() data: unknown,
   ): Promise<unknown> {
-    return await this.messageEditHandler.handle(user, data);
+    const validatedData = this.validateDto(editMessageSchema, data);
+    return await this.messageEditHandler.handle(user, validatedData);
   }
 
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.DELETE)
   async handleMessageDelete(
-    @WsUser() user: AuthenticatedUser,
-    @MessageBody() data: MessageDeleteDto,
+    @WsUser() user: JwtPayload,
+    @MessageBody() data: unknown,
   ): Promise<unknown> {
-    return await this.messageDeleteHandler.handle(user, data);
+    const validatedData = this.validateDto(deleteMessageSchema, data);
+    return await this.messageDeleteHandler.handle(user, validatedData);
+  }
+
+  private validateDto<T>(schema: z.ZodSchema<T>, data: unknown): T {
+    const result = schema.safeParse(data);
+    console.log('here');
+    if (!result.success) {
+      const errorMessage = result.error.errors
+        .map((err) => `${err.path.join('.')}: ${err.message}`)
+        .join(', ');
+      throw new WsException(`Validation failed: ${errorMessage}`);
+    }
+    return result.data;
   }
 }

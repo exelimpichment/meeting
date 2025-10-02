@@ -1,5 +1,7 @@
+import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
+import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
+import { JwtPayload } from '@/libs/shared-authentication/src/types';
 import { TokenExpiredError } from 'jsonwebtoken';
-import { jwtConfig } from '../configs/jwt-config';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
@@ -10,7 +12,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 @Injectable()
 export class HttpAccessTokenGuard implements CanActivate {
   constructor(
@@ -30,9 +31,7 @@ export class HttpAccessTokenGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<
-        Record<string, unknown>
-      >(token, {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
         audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
         issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
@@ -58,15 +57,13 @@ export class HttpAccessTokenGuard implements CanActivate {
    * Direct method to authenticate a token without execution context
    * Returns the user payload if authentication is successful
    */
-  async authenticateToken(token: string): Promise<Record<string, unknown>> {
+  async authenticateToken(token: string): Promise<JwtPayload> {
     if (!token) {
       throw new UnauthorizedException('No token provided');
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync<
-        Record<string, unknown>
-      >(token, {
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
         secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
         audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
         issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,

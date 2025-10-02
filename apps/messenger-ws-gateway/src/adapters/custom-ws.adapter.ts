@@ -1,11 +1,8 @@
-import { WsAdapter } from '@nestjs/platform-ws';
+import { ExtendedWebSocket } from '@/libs/shared-authentication/src/types';
 import { INestApplicationContext } from '@nestjs/common';
-import { WebSocket, Server } from 'ws';
+import { WsAdapter } from '@nestjs/platform-ws';
 import { IncomingMessage } from 'http';
-
-type ExtendedWebSocket = WebSocket & {
-  upgradeReq?: IncomingMessage;
-};
+import { Server } from 'ws';
 
 /**
  * custom WebSocket adapter that attaches the HTTP upgrade request to the client.

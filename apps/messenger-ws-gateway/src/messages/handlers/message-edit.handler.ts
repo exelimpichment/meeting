@@ -1,13 +1,9 @@
 import { KAFKA_PRODUCER_TOKEN } from '@/apps/messenger-ws-gateway/src/kafka/constants';
 import { KAFKA_TOPICS } from '@/apps/messenger-ws-gateway/src/kafka/topics.constants';
-import { MessageEditDto } from '../dto/message-edit.dto';
+import { EditMessageDto } from '@/libs/contracts/src/messenger/messenger.schema';
+import { JwtPayload } from '@/libs/shared-authentication/src/types';
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
-
-interface AuthenticatedUser {
-  sub: string;
-  [key: string]: unknown;
-}
 
 @Injectable()
 export class MessageEditHandler {
@@ -18,10 +14,7 @@ export class MessageEditHandler {
     private readonly producer: KafkaJS.Producer,
   ) {}
 
-  async handle(
-    user: AuthenticatedUser,
-    data: MessageEditDto,
-  ): Promise<unknown> {
+  async handle(user: JwtPayload, data: EditMessageDto): Promise<unknown> {
     console.log('MessageEditHandler called with user:', user);
 
     // forward message edit to Kafka
