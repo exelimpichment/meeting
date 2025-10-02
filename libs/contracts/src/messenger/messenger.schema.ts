@@ -29,20 +29,14 @@ export type SendMessageDto = z.infer<typeof sendMessageSchema>;
 export type DeleteMessageDto = z.infer<typeof deleteMessageSchema>;
 export type EditMessageDto = z.infer<typeof editMessageSchema>;
 
-export type KafkaDeleteMessageDto = DeleteMessageDto & {
+export type KafkaBaseMessageDto = {
   userId: string;
   timestamp: string;
   source: string;
 };
 
-export type KafkaEditMessageDto = EditMessageDto & {
-  userId: string;
-  timestamp: string;
-  source: string;
-};
+export type KafkaDeleteMessageDto = DeleteMessageDto & KafkaBaseMessageDto;
 
-export type KafkaSendMessageDto = SendMessageDto & {
-  userId: string;
-  timestamp: string;
-  source: string;
-};
+export type KafkaEditMessageDto = EditMessageDto & KafkaBaseMessageDto;
+
+export type KafkaSendMessageDto = SendMessageDto & KafkaBaseMessageDto;
