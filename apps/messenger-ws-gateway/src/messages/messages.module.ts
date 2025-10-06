@@ -6,18 +6,22 @@ import { HashingModule } from '@libs/hashing/src/hashing.module';
 import { ConfigModule as CustomConfigModule } from '@/libs/config/src/config.module';
 import { MessagesGateway } from './messages.gateway';
 import { Module } from '@nestjs/common';
+import { NatsModule } from '@/apps/messenger-ws-gateway/src/nats/nats.module';
+import { ConversationSubscriptionsService } from '@/apps/messenger-ws-gateway/src/messages/conversation-subscriptions.service';
 
 @Module({
   imports: [
     CustomConfigModule,
     HashingModule,
     SharedAuthenticationModule.forRoot(),
+    NatsModule,
   ],
   providers: [
     MessagesGateway,
     MessageSendHandler,
     MessageEditHandler,
     MessageDeleteHandler,
+    ConversationSubscriptionsService,
   ],
   exports: [MessagesGateway],
 })

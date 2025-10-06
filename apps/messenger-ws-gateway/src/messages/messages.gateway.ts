@@ -1,8 +1,10 @@
+import { ConversationSubscriptionsService } from '@/apps/messenger-ws-gateway/src/messages/conversation-subscriptions.service';
 import { MessageDeleteHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-delete-handler';
 import { MessageSendHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-send.handler';
 import { MessageEditHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-edit.handler';
 import { WebSocketExceptionFilter } from '@/apps/messenger-ws-gateway/src/filters/websocket-exception.filter';
 import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
+import { validateDto } from '@/apps/messenger-ws-gateway/src/messages/utils/dto-validator';
 import { WsUser } from '@/libs/shared-authentication/src/decorators/ws-user.decorator';
 import { MessageEventType } from '@/apps/messenger-ws-gateway/src/constants';
 import { Logger, UseGuards, UseFilters } from '@nestjs/common';
@@ -15,9 +17,8 @@ import {
   WebSocketGateway,
   WebSocketServer,
   MessageBody,
-  WsException,
 } from '@nestjs/websockets';
-import { z } from 'zod';
+// zod used in validator util; no direct usage here
 import {
   sendMessageSchema,
   editMessageSchema,
@@ -42,21 +43,36 @@ export class MessagesGateway
     private messageSendHandler: MessageSendHandler,
     private messageEditHandler: MessageEditHandler,
     private messageDeleteHandler: MessageDeleteHandler,
+    private readonly conversationSubscriptionsService: ConversationSubscriptionsService,
   ) {}
 
   @WebSocketServer()
   server: Server;
 
+  // state and pub/sub logic moved to ConversationSubscriptionsService
+
   handleConnection(
     client: AuthenticatedWebSocket,
     request: IncomingMessage,
   ): void {
-    void client;
-    void request;
+    const url = new URL(
+      request.url ?? '',
+      `http://${request.headers.host ?? 'localhost'}`,
+    );
+    const conversationId = url.searchParams.get('conversation_id');
+
+    if (!conversationId) {
+      client.close();
+      return;
+    }
+
+    this.conversationSubscriptionsService.addSocket(conversationId, client);
     this.logger.log('client connected!');
   }
 
   handleDisconnect(client: AuthenticatedWebSocket): void {
+    this.conversationSubscriptionsService.removeSocket(client);
+
     this.logger.log(
       `client disconnected: ${client.user?.sub || 'not authenticated'}`,
     );
@@ -68,7 +84,7 @@ export class MessagesGateway
     @WsUser() user: JwtPayload,
     @MessageBody() data: unknown,
   ) {
-    const validatedData = this.validateDto(sendMessageSchema, data);
+    const validatedData = validateDto(sendMessageSchema, data);
     return await this.messageSendHandler.handle(user, validatedData);
   }
 
@@ -78,7 +94,7 @@ export class MessagesGateway
     @WsUser() user: JwtPayload,
     @MessageBody() data: unknown,
   ): Promise<unknown> {
-    const validatedData = this.validateDto(editMessageSchema, data);
+    const validatedData = validateDto(editMessageSchema, data);
     return await this.messageEditHandler.handle(user, validatedData);
   }
 
@@ -88,19 +104,7 @@ export class MessagesGateway
     @WsUser() user: JwtPayload,
     @MessageBody() data: unknown,
   ): Promise<unknown> {
-    const validatedData = this.validateDto(deleteMessageSchema, data);
+    const validatedData = validateDto(deleteMessageSchema, data);
     return await this.messageDeleteHandler.handle(user, validatedData);
-  }
-
-  private validateDto<T>(schema: z.ZodSchema<T>, data: unknown): T {
-    const result = schema.safeParse(data);
-    console.log('here');
-    if (!result.success) {
-      const errorMessage = result.error.errors
-        .map((err) => `${err.path.join('.')}: ${err.message}`)
-        .join(', ');
-      throw new WsException(`Validation failed: ${errorMessage}`);
-    }
-    return result.data;
   }
 }

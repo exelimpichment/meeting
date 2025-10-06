@@ -2,12 +2,13 @@ import { MessengerPrismaModule } from '@/apps/messenger/src/prisma/messenger-pri
 import { ConversationsModule } from '@/apps/messenger/src/conversations/conversations.module';
 import { MessengerEnv, MessengerEnvSchema } from '@/apps/messenger/env.schema';
 import { MessagesModule } from '@/apps/messenger/src/messages/messages.module';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { ConfigModule as CustomConfigModule } from '@config/config.module';
+import { KafkaModule } from '@/apps/messenger/src/kafka/kafka.module';
+import { NatsModule } from '@/apps/messenger/src/nats/nats.module';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { ConfigService } from '@config/config.service';
 import { Module } from '@nestjs/common';
 import { join } from 'path';
-import { KafkaModule } from './kafka/kafka.module';
-import { ConfigService } from '@config/config.service';
 @Module({
   imports: [
     NestConfigModule.forRoot({
@@ -19,6 +20,7 @@ import { ConfigService } from '@config/config.service';
     MessengerPrismaModule,
     MessagesModule,
     ConversationsModule,
+    NatsModule,
 
     KafkaModule.forRootAsync({
       imports: [CustomConfigModule],
