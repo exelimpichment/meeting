@@ -8,6 +8,9 @@ export const meetingApiGatewayEnvSchema = z
     PORT: z.string(),
     BASE_URL: z.string(),
     WEB_APP_URL: z.string(),
+    NODE_ENV: z
+      .enum(['development', 'production', 'test'])
+      .default('development'),
 
     //  ======= Database =========
     DATABASE_URL: z.string(),

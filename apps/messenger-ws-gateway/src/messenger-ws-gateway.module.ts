@@ -1,7 +1,3 @@
-import {
-  MessengerWsGatewayEnv,
-  MessengerWsGatewayEnvSchema,
-} from '@/apps/messenger-ws-gateway/messenger-ws-gateway.schema';
 import { TopicManagementService } from '@/apps/messenger-ws-gateway/src/kafka/topic-management.service';
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { KafkaModule } from '@/apps/messenger-ws-gateway/src/kafka/kafka.module';
@@ -10,10 +6,15 @@ import { MessengerWsGatewayService } from './messenger-ws-gateway.service';
 import { ConfigModule as CustomConfigModule } from '@config/config.module';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { MessagesModule } from './messages/messages.module';
+import { LoggingModule } from '@app/logging/logging.module';
 import { ConfigService } from '@config/config.service';
 import { Module } from '@nestjs/common';
 import { cwd } from 'process';
 import { join } from 'path';
+import {
+  MessengerWsGatewayEnv,
+  MessengerWsGatewayEnvSchema,
+} from '@/apps/messenger-ws-gateway/messenger-ws-gateway.schema';
 
 @Module({
   imports: [
@@ -89,6 +90,11 @@ import { join } from 'path';
       inject: [ConfigService],
     }),
     SharedAuthenticationModule.forRoot(), // handles JWT validation internally
+    // TODO:use custom configure module
+    LoggingModule.forRoot({
+      serviceName: 'messenger-ws-gateway',
+      prettyPrint: process.env.NODE_ENV !== 'production',
+    }),
     MessagesModule,
   ],
   controllers: [MessengerWsGatewayController],

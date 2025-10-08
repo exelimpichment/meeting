@@ -1,4 +1,5 @@
 import { IncomingMessage } from 'http';
+import type { WebSocket } from 'ws';
 import { jwtEnvSchema } from '../configs/jwt-env.schema';
 import { z } from 'zod';
 import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';

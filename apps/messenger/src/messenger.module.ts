@@ -6,6 +6,7 @@ import { ConfigModule as CustomConfigModule } from '@config/config.module';
 import { KafkaModule } from '@/apps/messenger/src/kafka/kafka.module';
 import { NatsModule } from '@/apps/messenger/src/nats/nats.module';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { LoggingModule } from '@app/logging/logging.module';
 import { ConfigService } from '@config/config.service';
 import { Module } from '@nestjs/common';
 import { join } from 'path';
@@ -21,6 +22,10 @@ import { join } from 'path';
     MessagesModule,
     ConversationsModule,
     NatsModule,
+    LoggingModule.forRoot({
+      serviceName: 'messenger',
+      prettyPrint: process.env.NODE_ENV !== 'production',
+    }),
 
     KafkaModule.forRootAsync({
       imports: [CustomConfigModule],

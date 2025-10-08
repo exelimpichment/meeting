@@ -8,6 +8,7 @@ import { validateDto } from '@/apps/messenger-ws-gateway/src/messages/utils/dto-
 import { WsUser } from '@/libs/shared-authentication/src/decorators/ws-user.decorator';
 import { MessageEventType } from '@/apps/messenger-ws-gateway/src/constants';
 import { Logger, UseGuards, UseFilters } from '@nestjs/common';
+
 import { IncomingMessage } from 'http';
 import { Server } from 'ws';
 import {
