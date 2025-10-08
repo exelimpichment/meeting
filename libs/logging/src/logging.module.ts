@@ -5,6 +5,8 @@ import { ContextMiddleware } from '@/libs/logging/src/middleware/context.middlew
 import { RequestContextStorage } from '@/libs/logging/src/als.request-context';
 import { LOGGER_MODULE_OPTIONS } from '@/libs/logging/src/tokens';
 import { LoggerModuleOptions } from '@/libs/logging/src/types';
+import { APP_FILTER } from '@nestjs/core';
+import { AllExceptionsFilter } from '@/libs/logging/src/filters/all-exceptions.filter';
 
 @Global()
 @Module({})
@@ -22,6 +24,10 @@ export class LoggingModule {
             return new PinoLoggerService(storage, options);
           },
           inject: [RequestContextStorage],
+        },
+        {
+          provide: APP_FILTER,
+          useClass: AllExceptionsFilter,
         },
         {
           provide: LOGGER_MODULE_OPTIONS,
