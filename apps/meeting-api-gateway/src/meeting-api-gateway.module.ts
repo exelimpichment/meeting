@@ -11,7 +11,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
 import { LoggingModule } from '@app/logging/logging.module';
-import { RequestLoggerMiddleware } from '../../../libs/logging/src/middleware/request-logger.middleware';
+import { ContextMiddleware, RequestLoggerMiddleware } from '@app/logging';
 import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
 import { join } from 'path';
 import { cwd } from 'process';
@@ -45,7 +45,10 @@ import { cwd } from 'process';
     }),
     // CustomConfigModule,
     SharedAuthenticationModule.forRoot(),
-    LoggingModule,
+    LoggingModule.forRoot({
+      serviceName: 'meeting-api-gateway',
+      prettyPrint: process.env.NODE_ENV !== 'production',
+    }),
     IAmModule,
     NatsModule,
     UsersModule,
@@ -64,6 +67,6 @@ import { cwd } from 'process';
 })
 export class MeetingApiGatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+    consumer.apply(ContextMiddleware, RequestLoggerMiddleware).forRoutes('*');
   }
 }
