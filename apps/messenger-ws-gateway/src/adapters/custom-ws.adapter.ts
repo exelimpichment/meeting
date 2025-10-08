@@ -11,6 +11,7 @@ import { Server } from 'ws';
 export class CustomWsAdapter extends WsAdapter {
   constructor(appOrHttpServer?: INestApplicationContext) {
     super(appOrHttpServer);
+    // no-op: keep adapter minimal and avoid DI lookups here
   }
 
   // override the create method to attach the upgrade request to the client
@@ -30,6 +31,31 @@ export class CustomWsAdapter extends WsAdapter {
       (client: ExtendedWebSocket, request: IncomingMessage) => {
         // attach the upgrade request to the client so guards can access it
         client.upgradeReq = request;
+
+        // early guard: if incoming frame is not valid json, notify client
+        client.on('message', (raw) => {
+          const isText = typeof raw === 'string';
+
+          const isBuffer = typeof raw !== 'string' && Buffer.isBuffer(raw);
+
+          if (!isText && !isBuffer) return;
+
+          const text = isText ? (raw as string) : raw.toString();
+          try {
+            JSON.parse(text);
+          } catch {
+            if (client.readyState === client.OPEN) {
+              client.send(
+                JSON.stringify({
+                  type: 'error',
+                  error: 'invalid json',
+                  timestamp: new Date().toISOString(),
+                }),
+              );
+              client.close(1003, 'invalid json');
+            }
+          }
+        });
       },
     );
 
