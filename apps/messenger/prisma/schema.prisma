@@ -48,14 +48,21 @@ model conversations {
 }
 
 model users_conversations {
-  id              String   @id @default(uuid())
+  id              String           @id @default(uuid())
   user_id         String
   conversation_id String
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
+  created_at      DateTime         @default(now())
+  updated_at      DateTime         @updatedAt
+  role            ConversationRole @default(PARTICIPANT)
 
   conversation conversations @relation(fields: [conversation_id], references: [id], onDelete: Cascade)
   users        users?        @relation(fields: [user_id], references: [id])
 
   @@unique([user_id, conversation_id])
+}
+
+enum ConversationRole {
+  CREATOR
+  MODERATOR
+  PARTICIPANT
 }
