@@ -1,0 +1,35 @@
+{
+  "name": "@exelimpichment/prisma-types",
+  "version": "0.1.0",
+  "description": "Types-only package aggregating Prisma model types from IAM and Messenger",
+  "type": "module",
+  "files": [
+    "dist/index.d.ts",
+    "dist/index.js",
+    "dist/generated"
+  ],
+  "types": "dist/index.d.ts",
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json && tsc src/generated/iam.ts src/generated/messenger.ts --declaration --emitDeclarationOnly --outDir dist/generated",
+    "clean": "rimraf dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/exelimpichment/meeting.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "devDependencies": {
+    "typescript": "5.7.3",
+    "rimraf": "5.0.0"
+  }
+}
