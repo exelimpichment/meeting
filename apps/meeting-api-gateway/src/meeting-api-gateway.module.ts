@@ -1,12 +1,13 @@
-import { meetingApiGatewayEnvSchema } from '../meeting-api-gateway.schema';
-import { MeetingApiGatewayController } from './meeting-api-gateway.controller';
+import { MeetingApiGatewayController } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.controller';
+import { ConversationsModule } from '@/apps/meeting-api-gateway/src/conversations/conversations.module';
+import { meetingApiGatewayEnvSchema } from '@/apps/meeting-api-gateway/meeting-api-gateway.schema';
+import { MeetingApiGatewayService } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.service';
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { MeetingApiGatewayService } from './meeting-api-gateway.service';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
-import { KafkaModule } from './kafka/kafka.module';
-import { IAmModule } from './iam/src/iam.module';
-import { NatsModule } from './nats/nats.module';
+import { UsersModule } from '@/apps/meeting-api-gateway/src/users/users.module';
+import { KafkaModule } from '@/apps/meeting-api-gateway/src/kafka/kafka.module';
+import { IAmModule } from '@/apps/meeting-api-gateway/src/iam/src/iam.module';
+import { NatsModule } from '@/apps/meeting-api-gateway/src/nats/nats.module';
 import { APP_GUARD } from '@nestjs/core';
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
@@ -53,6 +54,7 @@ import { cwd } from 'process';
     NatsModule,
     UsersModule,
     KafkaModule,
+    ConversationsModule,
   ],
 
   // TODO: remove this MeetingApiGatewayController after testing

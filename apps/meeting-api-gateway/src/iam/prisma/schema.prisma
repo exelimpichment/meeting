@@ -3,9 +3,9 @@ generator client {
   output   = "../generated/iam-client"
 }
 
-generator packageClient {
-  provider = "prisma-client-js"
-  output   = "../../../../../packages/meeting-api-gateway/generated"
+generator typescript {
+  provider = "prisma-generator-typescript-interfaces"
+  output   = "../../../../../packages/prisma-types/src/generated/iam.ts"
 }
 
 datasource db {

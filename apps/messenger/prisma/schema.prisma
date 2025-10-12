@@ -3,9 +3,9 @@ generator client {
   output   = "../generated/messenger-client"
 }
 
-generator packageClient {
-  provider = "prisma-client-js"
-  output   = "../../../packages/messenger/generated"
+generator typescript {
+  provider = "prisma-generator-typescript-interfaces"
+  output   = "../../../packages/prisma-types/src/generated/messenger.ts"
 }
 
 datasource db {
