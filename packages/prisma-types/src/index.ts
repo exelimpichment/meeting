@@ -19,7 +19,14 @@ export type MessageWithUser = Omit<MessengerMessage, 'users'> & {
   users: IamUser;
 };
 
+export type ConversationWithMessage = Omit<
+  MessengerConversation,
+  'messages'
+> & {
+  messages: MessengerMessage[];
+};
+
 export type ApiResponses = {
   'GET /api/conversations/:id/messages': MessageWithUser[];
-  'GET api/conversations': MessengerConversation[];
+  'GET api/conversations': ConversationWithMessage[];
 };

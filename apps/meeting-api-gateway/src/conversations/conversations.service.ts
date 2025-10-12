@@ -1,5 +1,5 @@
 import { ReadConversationsPayload } from '@/libs/contracts/src/messenger/conversations.schema';
-import { MessengerConversation } from '@exelimpichment/prisma-types';
+import { ConversationWithMessage } from '@exelimpichment/prisma-types';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
@@ -14,11 +14,11 @@ export class ConversationsService {
     @Inject(MEETING_API_NATS_CLIENT) private readonly natsClient: ClientProxy,
   ) {}
 
-  async getConversations(userId: string): Promise<MessengerConversation[]> {
+  async getConversations(userId: string): Promise<ConversationWithMessage[]> {
     const payload = { userId };
 
     return await firstValueFrom(
-      this.natsClient.send<MessengerConversation[], ReadConversationsPayload>(
+      this.natsClient.send<ConversationWithMessage[], ReadConversationsPayload>(
         CONVERSATIONS_GET_PATTERN,
         payload,
       ),
