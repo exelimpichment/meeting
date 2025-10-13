@@ -22,6 +22,10 @@ export const meetingApiGatewayEnvSchema = z
     // ======= Refresh Token =======
     JWT_REFRESH_SECRET: z.string(),
     JWT_REFRESH_EXPIRATION_TIME: z.string(),
+
+    // ======= Redis =======
+    REDIS_URL: z.string(),
+    CACHE_TTL_MS: z.number().default(60_000),
   })
   .merge(jwtEnvSchema);
 

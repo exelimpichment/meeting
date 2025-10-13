@@ -39,6 +39,17 @@ services:
     networks:
       - nest-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: nest_redis
+    command: ['redis-server', '--appendonly', 'yes']
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
+    networks:
+      - nest-network
+
   kafka:
     image: confluentinc/cp-kafka:7.4.0
     container_name: kafka
@@ -79,6 +90,7 @@ volumes:
   mysql_data:
   mysql_messenger_data:
   kafka_data:
+  redis_data:
 
 networks:
   nest-network:

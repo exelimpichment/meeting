@@ -117,6 +117,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/shared-authentication/tsconfig.lib.json"
       }
+    },
+    "caching": {
+      "type": "library",
+      "root": "libs/caching",
+      "entryFile": "index",
+      "sourceRoot": "libs/caching/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/caching/tsconfig.lib.json"
+      }
     }
   }
 }

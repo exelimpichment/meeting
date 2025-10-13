@@ -1,21 +1,27 @@
 import { MeetingApiGatewayController } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.controller';
 import { ConversationsModule } from '@/apps/meeting-api-gateway/src/conversations/conversations.module';
-import { meetingApiGatewayEnvSchema } from '@/apps/meeting-api-gateway/meeting-api-gateway.schema';
+import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { MeetingApiGatewayService } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.service';
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
+import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
 import { UsersModule } from '@/apps/meeting-api-gateway/src/users/users.module';
 import { KafkaModule } from '@/apps/meeting-api-gateway/src/kafka/kafka.module';
 import { IAmModule } from '@/apps/meeting-api-gateway/src/iam/src/iam.module';
 import { NatsModule } from '@/apps/meeting-api-gateway/src/nats/nats.module';
-import { APP_GUARD } from '@nestjs/core';
-import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
-import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
-import { LoggingModule } from '@app/logging/logging.module';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ContextMiddleware, RequestLoggerMiddleware } from '@app/logging';
-import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
-import { join } from 'path';
+import { ConfigService as AppConfigService } from '@config/config.service';
+import { ConfigModule as AppConfigModule } from '@config/config.module';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { LoggingModule } from '@app/logging/logging.module';
+import { SharedCacheModule } from '@app/caching';
+import { APP_GUARD } from '@nestjs/core';
 import { cwd } from 'process';
+import { join } from 'path';
+import {
+  MeetingApiGatewayEnv,
+  meetingApiGatewayEnvSchema,
+} from '@/apps/meeting-api-gateway/meeting-api-gateway.schema';
 
 @Module({
   imports: [
@@ -46,10 +52,23 @@ import { cwd } from 'process';
     }),
     // CustomConfigModule,
     SharedAuthenticationModule.forRoot(),
+
     LoggingModule.forRoot({
       serviceName: 'meeting-api-gateway',
       prettyPrint: process.env.NODE_ENV !== 'production',
     }),
+
+    AppConfigModule,
+
+    SharedCacheModule.registerAsync({
+      inject: [AppConfigService],
+      useFactory: (cfg: AppConfigService<MeetingApiGatewayEnv>) => ({
+        url: cfg.get('REDIS_URL'),
+        ttlMs: cfg.get('CACHE_TTL_MS') ?? 60_000,
+        keyPrefix: 'meeting:gw:',
+      }),
+    }),
+
     IAmModule,
     NatsModule,
     UsersModule,
