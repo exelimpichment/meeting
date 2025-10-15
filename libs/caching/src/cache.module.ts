@@ -42,6 +42,7 @@ export class SharedCacheModule {
             const factory = options.useFactory as (
               ...factoryArgs: unknown[]
             ) => Promise<RedisCacheOptions> | RedisCacheOptions;
+
             const cfg = await factory(...args);
 
             return {

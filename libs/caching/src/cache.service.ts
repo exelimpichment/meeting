@@ -20,7 +20,7 @@ export class CacheService {
   }
 
   async reset(): Promise<void> {
-    await this.cache.reset();
+    await this.cache.clear();
   }
 
   async getOrSet<T>(
