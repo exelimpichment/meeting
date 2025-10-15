@@ -34,13 +34,5 @@
       "@packages/*": ["./packages/*"]
     }
   },
-  "include": ["apps/**/*", "libs/**/*", "packages/**/*"],
-  "references": [
-    {
-      "path": "./packages/meeting-api-gateway"
-    },
-    {
-      "path": "./packages/messenger"
-    }
-  ]
+  "include": ["apps/**/*", "libs/**/*", "packages/**/*"]
 }
