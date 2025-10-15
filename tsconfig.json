@@ -27,6 +27,8 @@
       "@app/logging/*": ["libs/logging/src/*"],
       "@app/shared-authentication": ["libs/shared-authentication/src"],
       "@app/shared-authentication/*": ["libs/shared-authentication/src/*"],
+      "@app/cache": ["libs/cache/src"],
+      "@app/cache/*": ["libs/cache/src/*"],
       "@apps/*": ["./apps/*"],
       "@config": ["libs/config/src"],
       "@config/*": ["libs/config/src/*"],

@@ -45,6 +45,7 @@
     "@types/cookie-parser": "1.4.8",
     "bcryptjs": "3.0.0",
     "cache-manager": "7.2.4",
+    "keyv": "5.5.3",
     "cookie-parser": "1.4.7",
     "jsonwebtoken": "9.0.2",
     "nats": "2.29.3",
@@ -113,6 +114,7 @@
     ],
     "moduleNameMapper": {
       "@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
+      "^@app/cache(|/.*)$": "<rootDir>/libs/cache/src/$1",
       "^@app/auth(|/.*)$": "<rootDir>/libs/auth/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
       "^@app/logging(|/.*)$": "<rootDir>/libs/logging/src/$1",

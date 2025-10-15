@@ -1,21 +1,28 @@
 import { MeetingApiGatewayController } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.controller';
 import { ConversationsModule } from '@/apps/meeting-api-gateway/src/conversations/conversations.module';
-import { meetingApiGatewayEnvSchema } from '@/apps/meeting-api-gateway/meeting-api-gateway.schema';
+import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { MeetingApiGatewayService } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.service';
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import { ConfigModule as NestConfigModule } from '@nestjs/config';
-import { UsersModule } from '@/apps/meeting-api-gateway/src/users/users.module';
+import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
+import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
 import { KafkaModule } from '@/apps/meeting-api-gateway/src/kafka/kafka.module';
+import { UsersModule } from '@/apps/meeting-api-gateway/src/users/users.module';
 import { IAmModule } from '@/apps/meeting-api-gateway/src/iam/src/iam.module';
 import { NatsModule } from '@/apps/meeting-api-gateway/src/nats/nats.module';
-import { APP_GUARD } from '@nestjs/core';
-import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
-import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
-import { LoggingModule } from '@app/logging/logging.module';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
+import type { ZodError } from 'zod';
+import { ConfigModule as CustomConfigModule } from '@config/config.module';
 import { ContextMiddleware, RequestLoggerMiddleware } from '@app/logging';
-import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
-import { join } from 'path';
+import { ConfigModule as NestConfigModule } from '@nestjs/config';
+import { LoggingModule } from '@app/logging/logging.module';
+import { ConfigService } from '@config/config.service';
+import { KeyvCacheModule } from '@app/cache/keyv-cache.module';
+import { APP_GUARD } from '@nestjs/core';
 import { cwd } from 'process';
+import { join } from 'path';
+import {
+  MeetingApiGatewayEnv,
+  meetingApiGatewayEnvSchema,
+} from '@/apps/meeting-api-gateway/meeting-api-gateway.schema';
 
 @Module({
   imports: [
@@ -33,10 +40,8 @@ import { cwd } from 'process';
         const result = mergedSchemas.safeParse(config);
 
         if (!result.success) {
-          console.error(
-            'Environment validation error:',
-            result.error.flatten().fieldErrors,
-          );
+          const flattened = (result.error as ZodError).flatten();
+          console.error('Environment validation error:', flattened.fieldErrors);
           throw new Error(
             'Invalid environment variables for meeting-api-gateway',
           );
@@ -44,7 +49,7 @@ import { cwd } from 'process';
         return { ...config, ...result.data };
       },
     }),
-    // CustomConfigModule,
+    CustomConfigModule,
     SharedAuthenticationModule.forRoot(),
     LoggingModule.forRoot({
       serviceName: 'meeting-api-gateway',
@@ -55,6 +60,23 @@ import { cwd } from 'process';
     UsersModule,
     KafkaModule,
     ConversationsModule,
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    KeyvCacheModule.forRootAsync({
+      imports: [CustomConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<MeetingApiGatewayEnv>) => {
+        const url = config.get('CACHE_REDIS_URL');
+        const ttlMs = config.get('CACHE_TTL_MS');
+
+        return {
+          url,
+          namespace: 'meeting-api-gateway',
+          ttlMs,
+        };
+      },
+      isGlobal: true,
+    }),
   ],
 
   // TODO: remove this MeetingApiGatewayController after testing
