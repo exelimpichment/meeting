@@ -1,4 +1,5 @@
 import { MessengerPrismaService } from '@/apps/messenger/src/prisma/messenger-prisma.service';
+import { EditConversationPayload } from '@/libs/contracts/src/messenger/conversations.schema';
 import { Injectable } from '@nestjs/common';
 @Injectable()
 export class ConversationsService {
@@ -21,6 +22,18 @@ export class ConversationsService {
           },
         },
       },
+    });
+  }
+
+  async editConversation(payload: EditConversationPayload) {
+    const { userId, conversationId, name } = payload;
+
+    return this.prisma.conversations.update({
+      where: {
+        id: conversationId,
+        users_conversations: { some: { user_id: userId } },
+      },
+      data: { name },
     });
   }
 }

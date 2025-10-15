@@ -36,7 +36,6 @@ export class KeyvCacheModule {
 
       providers: [KeyvCacheService],
       exports: [KeyvCacheService, CacheModule],
-
       global: options.isGlobal === true,
     };
   }
