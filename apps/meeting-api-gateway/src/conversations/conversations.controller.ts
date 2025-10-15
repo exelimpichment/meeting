@@ -2,7 +2,8 @@ import { User } from '@/libs/shared-authentication/src/decorators/user.decorator
 import { MessengerConversation } from '@exelimpichment/prisma-types';
 import { JwtPayload } from '@/libs/shared-authentication/src/types';
 import { ConversationsService } from './conversations.service';
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Put } from '@nestjs/common';
+import { EditConversationPayload } from '@/libs/contracts/src/messenger/conversations.schema';
 
 @Controller('conversations')
 export class ConversationsController {
@@ -13,5 +14,13 @@ export class ConversationsController {
     @User() user: JwtPayload,
   ): Promise<MessengerConversation[]> {
     return this.conversationsService.getConversations(user.sub);
+  }
+
+  @Put()
+  async editConversation(
+    @User() user: JwtPayload,
+    @Body() body: EditConversationPayload,
+  ): Promise<MessengerConversation> {
+    return this.conversationsService.editConversation(user.sub, body);
   }
 }

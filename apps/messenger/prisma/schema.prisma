@@ -34,17 +34,19 @@ model users {
 
   messages            messages[]
   users_conversations users_conversations[]
+  conversations       conversations[]       @relation("conversation_creator")
 }
 
 model conversations {
-  id   String @id @default(uuid())
-  name String @db.VarChar(100)
-
+  id         String   @id @default(uuid())
+  name       String   @db.VarChar(100)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  creator_id String?
 
   users_conversations users_conversations[]
   messages            messages[]
+  creator             users?                @relation("conversation_creator", fields: [creator_id], references: [id], onDelete: SetNull, onUpdate: NoAction)
 }
 
 model users_conversations {
