@@ -29,3 +29,5 @@ A background process or separate service reads the outbox and sends Kafka messag
 This avoids issues like:
 Message saved, but Kafka event not sent.
 Kafka event sent, but message not saved.
+
+Another problem can happen when the service is scaled up to several instances. Every running application process has its independent in-process cache, which inevitably leads to a situation where some entities are cached in one instance, but not in another. So whenever a request would access the wrong instance it will get the cache miss. To avoid this problem we could use sticky sessions or sharding with consistent hashing. An even better solution is a standalone cache.

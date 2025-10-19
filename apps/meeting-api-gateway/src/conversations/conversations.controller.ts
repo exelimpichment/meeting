@@ -2,8 +2,8 @@ import { User } from '@/libs/shared-authentication/src/decorators/user.decorator
 import { MessengerConversation } from '@exelimpichment/prisma-types';
 import { JwtPayload } from '@/libs/shared-authentication/src/types';
 import { ConversationsService } from './conversations.service';
-import { Body, Controller, Get, Put } from '@nestjs/common';
-import { EditConversationPayload } from '@/libs/contracts/src/messenger/conversations.schema';
+import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { PatchConversationBody } from '@/libs/contracts/src/messenger/conversations.schema';
 
 @Controller('conversations')
 export class ConversationsController {
@@ -16,11 +16,23 @@ export class ConversationsController {
     return this.conversationsService.getConversations(user.sub);
   }
 
-  @Put()
+  @Patch(':conversationId')
   async editConversation(
     @User() user: JwtPayload,
-    @Body() body: EditConversationPayload,
+    @Param('conversationId') conversationId: string,
+    @Body() body: PatchConversationBody,
   ): Promise<MessengerConversation> {
-    return this.conversationsService.editConversation(user.sub, body);
+    const payload = {
+      name: body.name,
+      userId: user.sub,
+      conversationId,
+    };
+    console.log('payload', payload);
+
+    return this.conversationsService.editConversation(user.sub, {
+      name: body.name,
+      userId: user.sub,
+      conversationId,
+    });
   }
 }

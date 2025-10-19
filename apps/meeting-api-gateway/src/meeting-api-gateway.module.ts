@@ -8,15 +8,15 @@ import { KafkaModule } from '@/apps/meeting-api-gateway/src/kafka/kafka.module';
 import { UsersModule } from '@/apps/meeting-api-gateway/src/users/users.module';
 import { IAmModule } from '@/apps/meeting-api-gateway/src/iam/src/iam.module';
 import { NatsModule } from '@/apps/meeting-api-gateway/src/nats/nats.module';
-import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
-import type { ZodError } from 'zod';
 import { ConfigModule as CustomConfigModule } from '@config/config.module';
+import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { ContextMiddleware, RequestLoggerMiddleware } from '@app/logging';
+import { KeyvCacheModule } from '@app/cache/keyv-cache.module';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { LoggingModule } from '@app/logging/logging.module';
 import { ConfigService } from '@config/config.service';
-import { KeyvCacheModule } from '@app/cache/keyv-cache.module';
 import { APP_GUARD } from '@nestjs/core';
+import type { ZodError } from 'zod';
 import { cwd } from 'process';
 import { join } from 'path';
 import {
@@ -61,7 +61,6 @@ import {
     KafkaModule,
     ConversationsModule,
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
     KeyvCacheModule.forRootAsync({
       imports: [CustomConfigModule],
       inject: [ConfigService],

@@ -4,6 +4,7 @@ import { MessengerEnv, MessengerEnvSchema } from '@/apps/messenger/env.schema';
 import { MessagesModule } from '@/apps/messenger/src/messages/messages.module';
 import { ConfigModule as CustomConfigModule } from '@config/config.module';
 import { KafkaModule } from '@/apps/messenger/src/kafka/kafka.module';
+import { KeyvCacheModule } from '@/libs/cache/src/keyv-cache.module';
 import { NatsModule } from '@/apps/messenger/src/nats/nats.module';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { LoggingModule } from '@app/logging/logging.module';
@@ -47,6 +48,22 @@ import { join } from 'path';
         };
       },
       inject: [ConfigService],
+    }),
+
+    KeyvCacheModule.forRootAsync({
+      imports: [CustomConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<MessengerEnv>) => {
+        const url = config.get('CACHE_REDIS_URL');
+        const ttlMs = config.get('CACHE_TTL_MS');
+
+        return {
+          url,
+          namespace: 'meeting-api-gateway',
+          ttlMs,
+        };
+      },
+      isGlobal: true,
     }),
   ],
 })

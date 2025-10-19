@@ -9,6 +9,10 @@ export const MessengerEnvSchema = z.object({
   NODE_ENV: z
     .enum(['development', 'production', 'test'])
     .default('development'),
+
+  // ======= cache (redis via keyv) =======
+  CACHE_REDIS_URL: z.string().default('redis://localhost:6379'),
+  CACHE_TTL_MS: z.coerce.number().default(60000),
 });
 
 export function getEnvConfig(configService: ConfigService<MessengerEnv>) {
