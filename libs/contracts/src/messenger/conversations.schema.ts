@@ -3,7 +3,9 @@ export type ReadConversationsPayload = {
 };
 
 export type EditConversationPayload = {
-  userId: string;
-  conversationId: string;
   name: string;
+  conversationId: string;
+  userId: string;
 };
+
+export type PatchConversationBody = Pick<EditConversationPayload, 'name'>;

@@ -1,11 +1,11 @@
 import { ConversationsService } from '@/apps/messenger/src/conversations/conversations.service';
+import { MessengerConversation } from '@exelimpichment/prisma-types';
+import { MessagePattern } from '@nestjs/microservices';
+import { Controller } from '@nestjs/common';
 import {
   EditConversationPayload,
   ReadConversationsPayload,
 } from '@/libs/contracts/src/messenger/conversations.schema';
-import { MessengerConversation } from '@exelimpichment/prisma-types';
-import { MessagePattern } from '@nestjs/microservices';
-import { Controller } from '@nestjs/common';
 import {
   CONVERSATIONS_EDIT_PATTERN,
   CONVERSATIONS_GET_PATTERN,

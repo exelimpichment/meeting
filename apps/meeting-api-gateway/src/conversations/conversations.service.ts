@@ -57,12 +57,12 @@ export class ConversationsService {
 
   async editConversation(
     userId: string,
-    body: EditConversationPayload,
+    args: EditConversationPayload,
   ): Promise<MessengerConversation> {
     return await firstValueFrom(
       this.natsClient.send<MessengerConversation, EditConversationPayload>(
         CONVERSATIONS_EDIT_PATTERN,
-        { ...body, userId },
+        { ...args, userId },
       ),
     );
   }
