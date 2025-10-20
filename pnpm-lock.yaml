@@ -15,8 +15,8 @@ importers:
         specifier: 1.5.0
         version: 1.5.0
       '@exelimpichment/prisma-types':
-        specifier: 0.1.1
-        version: 0.1.1
+        specifier: 0.1.2
+        version: 0.1.2
       '@keyv/redis':
         specifier: 5.1.3
         version: 5.1.3(keyv@5.5.3)
@@ -821,8 +821,8 @@ packages:
     resolution: {integrity: sha512-ZAoA40rNMPwSm+AeHpCq8STiNAwzWLJuP8Xv4CHIc9wv/PSuExjMrmjfYNj682vW0OOiZ1HKxzvjQr9XZIisQA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@exelimpichment/prisma-types@0.1.1':
-    resolution: {integrity: sha512-Wa7m4/A4vEuVXW9yjimND3sWiaxha0xojGoMqhxiyFI8NQxWCO/bD8TpJE8aKtQAQvAeAfx8YY3dppQeTKLYgA==, tarball: https://npm.pkg.github.com/download/@exelimpichment/prisma-types/0.1.1/3b04d73f3633f60e09deffed98d9663ffae23615}
+  '@exelimpichment/prisma-types@0.1.2':
+    resolution: {integrity: sha512-aiGNDcrGBSmqrfKLohRIPHFOKGT+OmmdZKdfa/2o37yc13BGK3+jG0xgmqeek5hiXEAr/1ssj34DBBg6V5J6bg==, tarball: https://npm.pkg.github.com/download/@exelimpichment/prisma-types/0.1.2/f8c49abe760703adfc79637e1193752e62ef8b2f}
 
   '@google-cloud/kms@4.5.0':
     resolution: {integrity: sha512-i2vC0DI7bdfEhQszqASTw0KVvbB7HsO2CwTBod423NawAu7FWi+gVVa7NLfXVNGJaZZayFfci2Hu+om/HmyEjQ==}
@@ -6197,7 +6197,7 @@ snapshots:
       '@eslint/core': 0.13.0
       levn: 0.4.1
 
-  '@exelimpichment/prisma-types@0.1.1': {}
+  '@exelimpichment/prisma-types@0.1.2': {}
 
   '@google-cloud/kms@4.5.0':
     dependencies:
