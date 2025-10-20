@@ -1,14 +1,14 @@
+import { HttpAccessTokenGuard } from '@/libs/shared-authentication/src/guards/http-access-token.guard';
+import { WsAccessTokenGuard } from '@/libs/shared-authentication/src/guards/ws-access-token.guard';
+import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
 import { ConfigModule as CustomConfigModule } from '@/libs/config/src/config.module';
 import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
-import { HttpAccessTokenGuard } from './guards/http-access-token.guard';
-import { WsAccessTokenGuard } from './guards/ws-access-token.guard';
-import { AuthenticationGuard } from './guards/authentication.guard';
+import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
 import { ConfigService as NestConfigService } from '@nestjs/config';
+import { JwtEnvSchema } from '@/libs/shared-authentication/src/types';
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { jwtConfig } from './configs/jwt-config';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtEnvSchema } from './types';
 
 /*
  * Global Authentication Module - Import once in your root module and it will be available everywhere.

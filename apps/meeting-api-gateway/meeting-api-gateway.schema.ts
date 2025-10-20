@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
+import { z } from 'zod';
 
 export const meetingApiGatewayEnvSchema = z
   .object({
@@ -22,10 +22,6 @@ export const meetingApiGatewayEnvSchema = z
     // ======= cache (redis via keyv) =======
     CACHE_REDIS_URL: z.string().default('redis://localhost:6379'),
     CACHE_TTL_MS: z.coerce.number().default(60000),
-
-    // ======= Refresh Token =======
-    JWT_REFRESH_SECRET: z.string(),
-    JWT_REFRESH_EXPIRATION_TIME: z.string(),
   })
   .merge(jwtEnvSchema);
 

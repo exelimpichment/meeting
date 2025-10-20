@@ -8,4 +8,8 @@ export const jwtEnvSchema = z.object({
     .string()
     .transform((val) => parseInt(val, 10))
     .default('3600'),
+  JWT_REFRESH_TOKEN_TTL: z
+    .string()
+    .transform((val) => parseInt(val, 10))
+    .default('86400'),
 });
