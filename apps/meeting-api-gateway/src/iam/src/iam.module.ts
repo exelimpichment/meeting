@@ -1,7 +1,7 @@
+import { AuthenticationModule } from '@/apps/meeting-api-gateway/src/iam/src/authentication/authentication.module';
 import { ConfigModule as CustomConfigModule } from '@libs/config/src/config.module';
-import { AuthenticationModule } from './authentication/authentication.module';
+import { IAmPrismaModule } from '@/apps/meeting-api-gateway/src/iam/src/prisma';
 import { HashingModule } from '@libs/hashing/src/hashing.module';
-import { IAmPrismaModule } from './prisma';
 import { Module } from '@nestjs/common';
 
 @Module({
@@ -13,5 +13,6 @@ import { Module } from '@nestjs/common';
   ],
   providers: [],
   controllers: [],
+  exports: [AuthenticationModule, HashingModule],
 })
 export class IAmModule {}

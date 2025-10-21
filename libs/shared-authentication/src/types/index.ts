@@ -1,8 +1,8 @@
+import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
+import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 import { IncomingMessage } from 'http';
 import type { WebSocket } from 'ws';
-import { jwtEnvSchema } from '../configs/jwt-env.schema';
 import { z } from 'zod';
-import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
 
 export type JwtEnvSchema = z.infer<typeof jwtEnvSchema>;
 
@@ -15,6 +15,7 @@ export enum AuthType {
  * jwt payload structure for access tokens
  */
 export interface JwtPayload {
+  jti?: string;
   sub: string;
   email: string;
   iat: number;
