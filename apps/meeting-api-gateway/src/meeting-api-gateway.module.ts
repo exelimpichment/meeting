@@ -1,3 +1,4 @@
+import { RefreshGrantMiddleware } from '@/apps/meeting-api-gateway/src/iam/src/refresh-tokens/refresh-grant.middleware';
 import { MeetingApiGatewayController } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.controller';
 import { ConversationsModule } from '@/apps/meeting-api-gateway/src/conversations/conversations.module';
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
@@ -86,10 +87,13 @@ import {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
     },
+    RefreshGrantMiddleware,
   ],
 })
 export class MeetingApiGatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ContextMiddleware, RequestLoggerMiddleware).forRoutes('*');
+    consumer
+      .apply(ContextMiddleware, RefreshGrantMiddleware, RequestLoggerMiddleware)
+      .forRoutes('*');
   }
 }

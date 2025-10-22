@@ -1,9 +1,9 @@
-import { HttpAccessTokenGuard } from './http-access-token.guard';
-import { WsAccessTokenGuard } from './ws-access-token.guard';
+import { HttpAccessTokenGuard } from '@/libs/shared-authentication/src/guards/http-access-token.guard';
+import { WsAccessTokenGuard } from '@/libs/shared-authentication/src/guards/ws-access-token.guard';
+import { AUTH_TYPE_KEY } from '@/libs/shared-authentication/src/constants';
+import { AuthType } from '@/libs/shared-authentication/src/types';
 import { WsException } from '@nestjs/websockets';
-import { AUTH_TYPE_KEY } from '../constants';
 import { Reflector } from '@nestjs/core';
-import { AuthType } from '../types';
 import {
   CanActivate,
   ExecutionContext,
@@ -18,7 +18,7 @@ export class AuthenticationGuard implements CanActivate {
   constructor(
     private readonly reflector: Reflector,
     private readonly httpAccessTokenGuard: HttpAccessTokenGuard,
-    private readonly wsAccessTokenGuard: WsAccessTokenGuard, // Inject WS guard
+    private readonly wsAccessTokenGuard: WsAccessTokenGuard,
   ) {}
 
   private getAuthTypeGuardMap(

@@ -1,5 +1,6 @@
 import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
 import { REQUEST_USER_KEY } from '@/libs/shared-authentication/src/constants';
+import { WsException } from '@nestjs/websockets';
 import { TokenExpiredError } from 'jsonwebtoken';
 import {
   AuthenticatedWebSocket,
@@ -8,14 +9,12 @@ import {
 } from '@/libs/shared-authentication/src/types';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-
 import {
   CanActivate,
   ExecutionContext,
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { WsException } from '@nestjs/websockets';
 
 @Injectable()
 export class WsAccessTokenGuard implements CanActivate {
