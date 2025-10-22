@@ -77,9 +77,9 @@ export class AuthenticationService {
         jti,
       },
       {
-        audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
-        issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
-        secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
+        audience: this.jwtConfiguration.JWT_REFRESH_TOKEN_AUDIENCE,
+        issuer: this.jwtConfiguration.JWT_REFRESH_TOKEN_ISSUER,
+        secret: this.jwtConfiguration.JWT_REFRESH_TOKEN_SECRET,
         expiresIn: `${this.jwtConfiguration.JWT_REFRESH_TOKEN_TTL}s`,
       },
     );
@@ -107,9 +107,9 @@ export class AuthenticationService {
       const payload = await this.jwtService.verifyAsync<JwtPayload>(
         refreshToken,
         {
-          secret: this.jwtConfiguration.JWT_ACCESS_TOKEN_SECRET,
-          audience: this.jwtConfiguration.JWT_ACCESS_TOKEN_AUDIENCE,
-          issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
+          secret: this.jwtConfiguration.JWT_REFRESH_TOKEN_SECRET,
+          audience: this.jwtConfiguration.JWT_REFRESH_TOKEN_AUDIENCE,
+          issuer: this.jwtConfiguration.JWT_REFRESH_TOKEN_ISSUER,
         },
       );
 

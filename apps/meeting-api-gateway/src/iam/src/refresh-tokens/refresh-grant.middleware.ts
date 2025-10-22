@@ -38,21 +38,23 @@ export class RefreshGrantMiddleware implements NestMiddleware {
     const accessToken = req.cookies?.['access_token'] as string | undefined;
     const refreshToken = req.cookies?.['refresh_token'] as string | undefined;
 
-    // STEP 2: Early exit if no access token present
+    // STEP 2: Early exit if both tokens are missing
     // Let the authentication guard handle the rejection
-    if (!accessToken) return next();
+    if (!accessToken && !refreshToken) return next();
 
-    // STEP 3: Check if access token is still valid
-    try {
-      await this.jwtService.verifyAsync<JwtPayload>(accessToken, {
-        secret: this.jwt.JWT_ACCESS_TOKEN_SECRET,
-        audience: this.jwt.JWT_ACCESS_TOKEN_AUDIENCE,
-        issuer: this.jwt.JWT_ACCESS_TOKEN_ISSUER,
-      });
-      // Access token is still valid - let the guard attach payload and continue
-      return next();
-    } catch {
-      // Access token is expired/invalid - fall through to refresh logic
+    // STEP 3: Check if access token is present and still valid
+    if (accessToken) {
+      try {
+        await this.jwtService.verifyAsync<JwtPayload>(accessToken, {
+          secret: this.jwt.JWT_ACCESS_TOKEN_SECRET,
+          audience: this.jwt.JWT_ACCESS_TOKEN_AUDIENCE,
+          issuer: this.jwt.JWT_ACCESS_TOKEN_ISSUER,
+        });
+        // Access token is still valid - let the guard attach payload and continue
+        return next();
+      } catch {
+        // Access token is expired/invalid - fall through to refresh logic
+      }
     }
 
     // STEP 4: Check if refresh token is available
@@ -62,12 +64,13 @@ export class RefreshGrantMiddleware implements NestMiddleware {
     // STEP 5: Attempt to refresh the access token using refresh token
     try {
       // STEP 5a: Verify refresh token JWT structure and signature
+
       const refreshPayload = await this.jwtService.verifyAsync<JwtPayload>(
         refreshToken,
         {
-          secret: this.jwt.JWT_ACCESS_TOKEN_SECRET,
-          audience: this.jwt.JWT_ACCESS_TOKEN_AUDIENCE,
-          issuer: this.jwt.JWT_ACCESS_TOKEN_ISSUER,
+          secret: this.jwt.JWT_REFRESH_TOKEN_SECRET,
+          audience: this.jwt.JWT_REFRESH_TOKEN_AUDIENCE,
+          issuer: this.jwt.JWT_REFRESH_TOKEN_ISSUER,
         },
       );
 
@@ -145,9 +148,9 @@ export class RefreshGrantMiddleware implements NestMiddleware {
       const newRefreshToken = await this.jwtService.signAsync(
         { sub: userId, email: refreshPayload.email, jti: newJti },
         {
-          audience: this.jwt.JWT_ACCESS_TOKEN_AUDIENCE,
-          issuer: this.jwt.JWT_ACCESS_TOKEN_ISSUER,
-          secret: this.jwt.JWT_ACCESS_TOKEN_SECRET,
+          audience: this.jwt.JWT_REFRESH_TOKEN_AUDIENCE,
+          issuer: this.jwt.JWT_REFRESH_TOKEN_ISSUER,
+          secret: this.jwt.JWT_REFRESH_TOKEN_SECRET,
           expiresIn: `${this.jwt.JWT_REFRESH_TOKEN_TTL}s`,
         },
       );

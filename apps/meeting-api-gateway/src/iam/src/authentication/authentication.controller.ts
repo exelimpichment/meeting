@@ -44,10 +44,10 @@ export class AuthenticationController {
     const accessTokenTtl = this.jwtConfiguration.JWT_ACCESS_TOKEN_TTL;
     const accessMaxAge = accessTokenTtl
       ? Number(accessTokenTtl) * 1000
-      : 3600 * 1000;
+      : 3600 * 1000; // 1 hour
 
     const refreshTtl = this.jwtConfiguration.JWT_REFRESH_TOKEN_TTL;
-    const refreshMaxAge = refreshTtl ? Number(refreshTtl) * 1000 : 86400 * 1000;
+    const refreshMaxAge = refreshTtl ? Number(refreshTtl) * 1000 : 86400 * 1000; // 1 day
 
     const environment = process.env.NODE_ENV || 'development';
 
