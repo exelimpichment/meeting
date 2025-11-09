@@ -30,11 +30,6 @@ export class ConversationsService {
       ConversationWithMessage[]
     >(`user:${userId}:conversations`);
 
-    console.log(
-      'cachedConversationWithMessages',
-      cachedConversationWithMessages,
-    );
-
     if (cachedConversationWithMessages) {
       return cachedConversationWithMessages;
     }
