@@ -7,14 +7,10 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@exelimpichment/meeting-api-gateway':
-        specifier: '*'
-        version: 0.0.6(typescript@5.7.3)
-      '@exelimpichment/messenger':
-        specifier: '*'
-        version: 0.1.1(typescript@5.7.3)
     devDependencies:
+      dotenv-cli:
+        specifier: 8.0.0
+        version: 8.0.0
       rimraf:
         specifier: 5.0.0
         version: 5.0.0
@@ -24,12 +20,6 @@ importers:
 
 packages:
 
-  '@exelimpichment/meeting-api-gateway@0.0.6':
-    resolution: {integrity: sha512-1gYlPb6qkFU5QThDx6v695IlZTdrBC+8yChpCHxmT94xzu3qrXWQa2Lf07VzIUrB5cPdhKYjr9NnLRg/n+mwvQ==, tarball: https://npm.pkg.github.com/download/@exelimpichment/meeting-api-gateway/0.0.6/d514908a5e23fa92792710af10f2f6197a40fdc4}
-
-  '@exelimpichment/messenger@0.1.1':
-    resolution: {integrity: sha512-OzBt9JyoLz2uYkeOupPMqZ9DkPSDHyCwzWMQPBhyJUte3IXsAaxu1eLhy/xn0CDRw+78gZqrs8Fan1/pRQfVFQ==, tarball: https://npm.pkg.github.com/download/@exelimpichment/messenger/0.1.1/54d26f20633619b603b5dd58ff3b127b7a821515}
-
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
@@ -37,18 +27,6 @@ packages:
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
-
-  '@prisma/client@6.6.0':
-    resolution: {integrity: sha512-vfp73YT/BHsWWOAuthKQ/1lBgESSqYqAWZEYyTdGXyFAHpmewwWL2Iz6ErIzkj4aHbuc6/cGSsE6ZY+pBO04Cg==}
-    engines: {node: '>=18.18'}
-    peerDependencies:
-      prisma: '*'
-      typescript: '>=5.1.0'
-    peerDependenciesMeta:
-      prisma:
-        optional: true
-      typescript:
-        optional: true
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -83,6 +61,18 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
+  dotenv-cli@8.0.0:
+    resolution: {integrity: sha512-aLqYbK7xKOiTMIRf1lDPbI+Y+Ip/wo5k3eyp6ePysVaSqbyxjyK3dK35BTxG+rmd7djf5q2UPs4noPNH+cj0Qw==}
+    hasBin: true
+
+  dotenv-expand@10.0.0:
+    resolution: {integrity: sha512-GopVGCpVS1UKH75VKHGuQFqS1Gusej0z4FyQkPdwjil2gNIv+LNsqBlboOzpJFZKVT95GkCyWJbBSdFEFUWI2A==}
+    engines: {node: '>=12'}
+
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
+    engines: {node: '>=12'}
+
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
 
@@ -116,6 +106,9 @@ packages:
   minimatch@9.0.5:
     resolution: {integrity: sha512-G6T0ZX48xgozx7587koeX9Ys2NYy6Gmv//P89sEte9V9whIapMNF4idKxnW2QtCcLiTWlb/wfCabAtAFWhhBow==}
     engines: {node: '>=16 || 14 >=14.17'}
+
+  minimist@1.2.8:
+    resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
   minipass@7.1.2:
     resolution: {integrity: sha512-qOOzS1cBTWYF4BH8fVePDBOO9iptMnGUEZwNc/cMWnTV2nVLZ7VoNWEPHkYczZA0pdoA7dl6e7FL659nX9S2aw==}
@@ -185,20 +178,6 @@ packages:
 
 snapshots:
 
-  '@exelimpichment/meeting-api-gateway@0.0.6(typescript@5.7.3)':
-    dependencies:
-      '@prisma/client': 6.6.0(typescript@5.7.3)
-    transitivePeerDependencies:
-      - prisma
-      - typescript
-
-  '@exelimpichment/messenger@0.1.1(typescript@5.7.3)':
-    dependencies:
-      '@prisma/client': 6.6.0(typescript@5.7.3)
-    transitivePeerDependencies:
-      - prisma
-      - typescript
-
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -210,10 +189,6 @@ snapshots:
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
-
-  '@prisma/client@6.6.0(typescript@5.7.3)':
-    optionalDependencies:
-      typescript: 5.7.3
 
   ansi-regex@5.0.1: {}
 
@@ -242,6 +217,17 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  dotenv-cli@8.0.0:
+    dependencies:
+      cross-spawn: 7.0.6
+      dotenv: 16.6.1
+      dotenv-expand: 10.0.0
+      minimist: 1.2.8
+
+  dotenv-expand@10.0.0: {}
+
+  dotenv@16.6.1: {}
 
   eastasianwidth@0.2.0: {}
 
@@ -278,6 +264,8 @@ snapshots:
   minimatch@9.0.5:
     dependencies:
       brace-expansion: 2.0.2
+
+  minimist@1.2.8: {}
 
   minipass@7.1.2: {}
 

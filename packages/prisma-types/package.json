@@ -1,6 +1,6 @@
 {
   "name": "@exelimpichment/prisma-types",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Types-only package aggregating Prisma model types from IAM and Messenger",
   "type": "module",
   "files": [
@@ -19,7 +19,8 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsc -p tsconfig.json && tsc src/generated/iam.ts src/generated/messenger.ts --declaration --emitDeclarationOnly --outDir dist/generated",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "publish:gh": "dotenv -e ../../.env -- npm publish --registry https://npm.pkg.github.com"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "typescript": "5.7.3",
-    "rimraf": "5.0.0"
+    "rimraf": "5.0.0",
+    "dotenv-cli": "8.0.0"
   }
 }
