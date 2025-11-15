@@ -23,7 +23,10 @@
     "generate:auth-db": "dotenv -e apps/meeting-api-gateway/.env.meeting-api-gateway -- prisma generate --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
     "migrate:auth-db": "dotenv -e apps/meeting-api-gateway/.env.meeting-api-gateway -- prisma migrate dev --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma",
     "generate:messenger-db": "dotenv -e apps/messenger/.env.messenger -- prisma generate --schema=apps/messenger/prisma/schema.prisma",
-    "migrate:messenger-db": "dotenv -e apps/messenger/.env.messenger -- prisma migrate dev --schema=apps/messenger/prisma/schema.prisma"
+    "migrate:messenger-db": "dotenv -e apps/messenger/.env.messenger -- prisma migrate dev --schema=apps/messenger/prisma/schema.prisma",
+    "build:prisma-types": "pnpm --filter @exelimpichment/prisma-types run build",
+    "publish:prisma-types": "pnpm --filter @exelimpichment/prisma-types run publish:gh",
+    "release:prisma-types": "pnpm run build:prisma-types && pnpm run publish:prisma-types"
   },
   "dependencies": {
     "@confluentinc/kafka-javascript": "1.5.0",
