@@ -22,13 +22,6 @@ export class ConversationsController {
     @Param('conversationId') conversationId: string,
     @Body() body: PatchConversationBody,
   ): Promise<MessengerConversation> {
-    const payload = {
-      name: body.name,
-      userId: user.sub,
-      conversationId,
-    };
-    console.log('payload', payload);
-
     return this.conversationsService.editConversation(user.sub, {
       name: body.name,
       userId: user.sub,
