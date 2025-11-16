@@ -8,12 +8,9 @@ importers:
 
   .:
     dependencies:
-      '@exelimpichment/meeting-api-gateway':
-        specifier: '*'
-        version: 0.0.6(typescript@5.7.3)
-      '@exelimpichment/messenger':
-        specifier: '*'
-        version: 0.1.1(typescript@5.7.3)
+      '@exelimpichment/prisma-types':
+        specifier: 0.1.5
+        version: 0.1.5
     devDependencies:
       rimraf:
         specifier: 5.0.0
@@ -24,11 +21,8 @@ importers:
 
 packages:
 
-  '@exelimpichment/meeting-api-gateway@0.0.6':
-    resolution: {integrity: sha512-1gYlPb6qkFU5QThDx6v695IlZTdrBC+8yChpCHxmT94xzu3qrXWQa2Lf07VzIUrB5cPdhKYjr9NnLRg/n+mwvQ==, tarball: https://npm.pkg.github.com/download/@exelimpichment/meeting-api-gateway/0.0.6/d514908a5e23fa92792710af10f2f6197a40fdc4}
-
-  '@exelimpichment/messenger@0.1.1':
-    resolution: {integrity: sha512-OzBt9JyoLz2uYkeOupPMqZ9DkPSDHyCwzWMQPBhyJUte3IXsAaxu1eLhy/xn0CDRw+78gZqrs8Fan1/pRQfVFQ==, tarball: https://npm.pkg.github.com/download/@exelimpichment/messenger/0.1.1/54d26f20633619b603b5dd58ff3b127b7a821515}
+  '@exelimpichment/prisma-types@0.1.5':
+    resolution: {integrity: sha512-IDDUZDFCHI4vKMpQPvQHScDK9gqPdaR8CX/ArEHA2ZGdEuvKL04GMNJfAUBkpGm677fYMnYYySgFkBPDD4EJZA==, tarball: https://npm.pkg.github.com/download/@exelimpichment/prisma-types/0.1.5/ce1086ed3d705ec35a1ee84829986e14c4f47b10}
 
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -37,18 +31,6 @@ packages:
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
-
-  '@prisma/client@6.6.0':
-    resolution: {integrity: sha512-vfp73YT/BHsWWOAuthKQ/1lBgESSqYqAWZEYyTdGXyFAHpmewwWL2Iz6ErIzkj4aHbuc6/cGSsE6ZY+pBO04Cg==}
-    engines: {node: '>=18.18'}
-    peerDependencies:
-      prisma: '*'
-      typescript: '>=5.1.0'
-    peerDependenciesMeta:
-      prisma:
-        optional: true
-      typescript:
-        optional: true
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -185,19 +167,7 @@ packages:
 
 snapshots:
 
-  '@exelimpichment/meeting-api-gateway@0.0.6(typescript@5.7.3)':
-    dependencies:
-      '@prisma/client': 6.6.0(typescript@5.7.3)
-    transitivePeerDependencies:
-      - prisma
-      - typescript
-
-  '@exelimpichment/messenger@0.1.1(typescript@5.7.3)':
-    dependencies:
-      '@prisma/client': 6.6.0(typescript@5.7.3)
-    transitivePeerDependencies:
-      - prisma
-      - typescript
+  '@exelimpichment/prisma-types@0.1.5': {}
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -210,10 +180,6 @@ snapshots:
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
-
-  '@prisma/client@6.6.0(typescript@5.7.3)':
-    optionalDependencies:
-      typescript: 5.7.3
 
   ansi-regex@5.0.1: {}
 

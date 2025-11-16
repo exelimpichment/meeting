@@ -25,3 +25,10 @@ project-root/
 ├── .dockerignore (optional)
 ├── tsconfig.json (optional, for monorepo)
 └── (other root-level config files, e.g., .gitignore)
+
+      test('should return conversations from NATS when cache is empty (cache miss scenario)', async () => {
+        // arrange: setup mocks
+        const getCacheSpy = jest.spyOn(keyvCacheService, 'get');
+        const setCacheSpy = jest.spyOn(keyvCacheService, 'set');
+        const sendNatsSpy = jest.spyOn(natsClient, 'send');
+      });
