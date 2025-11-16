@@ -1,0 +1,196 @@
+name: Build & Deploy Microservices
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      services:
+        description: 'Comma-separated list (meeting-api-gateway,messenger,meeting,messenger-ws-gateway,all)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      services: ${{ steps.collect.outputs.services }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            meeting_api_gateway:
+              - 'apps/meeting-api-gateway/**'
+              - 'k8s/meeting-api-gateway/**'
+            messenger:
+              - 'apps/messenger/**'
+              - 'k8s/messenger/**'
+            meeting:
+              - 'apps/meeting/**'
+              - 'k8s/meeting/**'
+            messenger_ws_gateway:
+              - 'apps/messenger-ws-gateway/**'
+              - 'k8s/messenger-ws-gateway/**'
+            shared:
+              - 'libs/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+              - 'tsconfig*.json'
+              - 'nest-cli.json'
+              - '.npmrc'
+              - '.github/workflows/build-deploy.yml'
+              - 'infra/**'
+              - 'docker-compose.yml'
+
+      - name: Build deployment matrix
+        id: collect
+        env:
+          MANUAL_SERVICES: ${{ github.event.inputs.services || '' }}
+          MEETING_API_GATEWAY_CHANGED: ${{ steps.filter.outputs.meeting_api_gateway }}
+          MESSENGER_CHANGED: ${{ steps.filter.outputs.messenger }}
+          MEETING_CHANGED: ${{ steps.filter.outputs.meeting }}
+          MESSENGER_WS_GATEWAY_CHANGED: ${{ steps.filter.outputs.messenger_ws_gateway }}
+          SHARED_CHANGED: ${{ steps.filter.outputs.shared }}
+        run: |
+          set -eo pipefail
+
+          declare -a all_services=("meeting-api-gateway" "messenger" "meeting" "messenger-ws-gateway")
+          declare -a selected=()
+
+          manual_trimmed="$(echo "${MANUAL_SERVICES}" | tr -d '[:space:]')"
+          if [[ -n "${manual_trimmed}" ]]; then
+            manual_lower="${manual_trimmed,,}"
+            if [[ "${manual_lower}" == "all" ]]; then
+              selected=("${all_services[@]}")
+            else
+              IFS=',' read -ra requested <<< "${MANUAL_SERVICES}"
+              for raw in "${requested[@]}"; do
+                svc="$(echo "${raw}" | xargs)"
+                case "${svc}" in
+                  meeting-api-gateway|messenger|meeting|messenger-ws-gateway)
+                    selected+=("${svc}")
+                    ;;
+                  all|ALL)
+                    selected=("${all_services[@]}")
+                    break
+                    ;;
+                esac
+              done
+            fi
+          else
+            if [[ "${SHARED_CHANGED}" == 'true' ]]; then
+              selected=("${all_services[@]}")
+            else
+              [[ "${MEETING_API_GATEWAY_CHANGED}" == 'true' ]] && selected+=("meeting-api-gateway")
+              [[ "${MESSENGER_CHANGED}" == 'true' ]] && selected+=("messenger")
+              [[ "${MEETING_CHANGED}" == 'true' ]] && selected+=("meeting")
+              [[ "${MESSENGER_WS_GATEWAY_CHANGED}" == 'true' ]] && selected+=("messenger-ws-gateway")
+            fi
+          fi
+
+          declare -A seen=()
+          declare -a unique=()
+          for svc in "${selected[@]}"; do
+            if [[ -n "${svc}" && -z "${seen[${svc}]:-}" ]]; then
+              seen["${svc}"]=1
+              unique+=("${svc}")
+            fi
+          done
+
+          if [[ "${#unique[@]}" -eq 0 ]]; then
+            echo "services=[]" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          json="["
+          for svc in "${unique[@]}"; do
+            if [[ "${json}" != "[" ]]; then
+              json+=","
+            fi
+            json+="\"${svc}\""
+          done
+          json+="]"
+
+          echo "services=${json}" >> "${GITHUB_OUTPUT}"
+
+  build-and-deploy:
+    needs: detect-changes
+    if: ${{ needs.detect-changes.outputs.services != '[]' }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
+    env:
+      GAR_LOCATION: ${{ vars.GAR_LOCATION }}
+      GAR_REPOSITORY: ${{ vars.GAR_REPOSITORY }}
+      GKE_CLUSTER: ${{ vars.GKE_CLUSTER }}
+      GKE_LOCATION: ${{ vars.GKE_LOCATION }}
+      K8S_NAMESPACE: ${{ vars.GKE_NAMESPACE || 'default' }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate deployment configuration
+        shell: bash
+        run: |
+          set -eo pipefail
+          for var in GAR_LOCATION GAR_REPOSITORY GKE_CLUSTER GKE_LOCATION GCP_PROJECT_ID; do
+            value="${!var:-}"
+            if [[ -z "${value}" ]]; then
+              echo "::error title=Missing configuration::Environment variable ${var} is not set. Configure it as a repository variable or secret." >&2
+              exit 1
+            fi
+          done
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+      - name: Set up gcloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Artifact Registry auth
+        run: gcloud auth configure-docker "${{ env.GAR_LOCATION }}-docker.pkg.dev" --quiet
+
+      - name: Build and push image
+        env:
+          SERVICE: ${{ matrix.service }}
+        run: |
+          set -eo pipefail
+          REGISTRY_HOST="${GAR_LOCATION}-docker.pkg.dev"
+          IMAGE="${REGISTRY_HOST}/${GCP_PROJECT_ID}/${GAR_REPOSITORY}/${SERVICE}:${GITHUB_SHA}"
+          echo "IMAGE_REF=${IMAGE}" >> "${GITHUB_ENV}"
+          docker build -f "apps/${SERVICE}/Dockerfile" -t "${IMAGE}" .
+          docker push "${IMAGE}"
+
+      - name: Fetch GKE credentials
+        uses: google-github-actions/get-gke-credentials@v2
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_LOCATION }}
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Apply Kubernetes manifests
+        run: kubectl apply -f "k8s/${{ matrix.service }}/deployment.yaml" --namespace "${K8S_NAMESPACE}"
+
+      - name: Update image tag
+        run: |
+          kubectl set image deployment/${{ matrix.service }} ${{ matrix.service }}="${IMAGE_REF}" --namespace "${K8S_NAMESPACE}"
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/${{ matrix.service }} --namespace "${K8S_NAMESPACE}" --timeout=300s
+
