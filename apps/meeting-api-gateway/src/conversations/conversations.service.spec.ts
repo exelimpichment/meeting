@@ -50,7 +50,7 @@ describe('ConversationsService', () => {
       ],
     }).compile();
 
-    service = module.get<ConversationsService>(ConversationsService);
+    service = module.get(ConversationsService);
     natsClient = module.get(MEETING_API_NATS_CLIENT);
     keyvCacheService = module.get(KeyvCacheService);
   });
