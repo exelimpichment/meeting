@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meeting
+  labels:
+    app: meeting
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: meeting
+  template:
+    metadata:
+      labels:
+        app: meeting
+    spec:
+      containers:
+        - name: meeting
+          image: REGION-docker.pkg.dev/PROJECT_ID/meeting/meeting:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: meeting-config
+            - secretRef:
+                name: meeting-secrets
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 400m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: meeting
+  labels:
+    app: meeting
+spec:
+  clusterIP: None
+  selector:
+    app: meeting
+  # placeholder port because this microservice only consumes nats traffic
+  ports:
+    - name: dummy
+      port: 80
+      targetPort: 80
+      protocol: TCP
+
