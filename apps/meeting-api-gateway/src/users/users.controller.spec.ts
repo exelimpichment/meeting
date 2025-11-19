@@ -33,28 +33,28 @@ describe('UsersController', () => {
 
   describe('getUser', () => {
     test('should return user', async () => {
-        const mockUser = { 
-          id: '123', 
-          name: 'Test User',
-          email: 'test@example.com',
-          createdAt: '2025-11-18T23:25:08Z'
-        };
+      const mockUser = {
+        id: '123',
+        name: 'Test User',
+        email: 'test@example.com',
+        createdAt: '2025-11-18T23:25:08Z',
+      };
 
-        usersService.getUser.mockResolvedValue(mockUser);
+      usersService.getUser.mockResolvedValue(mockUser);
 
-        const result = await controller.getUser(mockUser.id);
+      const result = await controller.getUser(mockUser.id);
 
-        expect(result).toEqual(mockUser);
-        expect(usersService.getUser).toHaveBeenCalledWith(mockUser.id);
+      expect(result).toEqual(mockUser);
+      expect(usersService.getUser).toHaveBeenCalledWith(mockUser.id);
     });
 
     test('should throw error', async () => {
-      const mockUser = { 
-          id: '123', 
-          name: 'Test User',
-          email: 'test@example.com',
-          createdAt: '2025-11-18T23:25:08Z'
-        };
+      const mockUser = {
+        id: '123',
+        name: 'Test User',
+        email: 'test@example.com',
+        createdAt: '2025-11-18T23:25:08Z',
+      };
       const mockError = new Error('User not found');
 
       usersService.getUser.mockRejectedValue(mockError);

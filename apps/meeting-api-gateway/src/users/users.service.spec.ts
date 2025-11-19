@@ -1,7 +1,7 @@
 import { MEETING_API_NATS_CLIENT } from '@/apps/meeting-api-gateway/src/constants';
 import { UsersService } from '@/apps/meeting-api-gateway/src/users/users.service';
-import { ClientProxy } from '@nestjs/microservices';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ClientProxy } from '@nestjs/microservices';
 import { of, throwError } from 'rxjs';
 
 describe('UsersService', () => {
@@ -40,13 +40,12 @@ describe('UsersService', () => {
       const mockUser = { id: '123', name: 'Test User' };
 
       natsClient.send.mockReturnValue(of(mockUser));
-      const user = await service.getUser('123');
-      
+      const user = await service.getUser(mockUser.id);
+
       expect(user).toEqual(mockUser);
-      expect(natsClient.send).toHaveBeenCalledWith(
-        'users.findOne',
-        { id: '123' },
-      );
+      expect(natsClient.send).toHaveBeenCalledWith('users.findOne', {
+        id: '123',
+      });
     });
 
     test('should propagate NATS errors when NATS client fails', async () => {

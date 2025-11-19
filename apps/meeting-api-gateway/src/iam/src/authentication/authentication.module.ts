@@ -4,7 +4,7 @@ import { AuthenticationService } from '@/apps/meeting-api-gateway/src/iam/src/au
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { UsersModule } from '@/apps/meeting-api-gateway/src/iam/src/users/users.module';
 import { IAmPrismaModule } from '@/apps/meeting-api-gateway/src/iam/src/prisma';
-import { HashingModule } from '@libs/hashing/src/hashing.module';
+import { HashingModule } from '@app/hashing';
 import { Module } from '@nestjs/common';
 
 @Module({

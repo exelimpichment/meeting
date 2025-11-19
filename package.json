@@ -122,13 +122,16 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
+      "^@libs/(.*)$": "<rootDir>/libs/$1",
       "^@/(.*)$": "<rootDir>/$1",
       "@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
       "^@app/cache(|/.*)$": "<rootDir>/libs/cache/src/$1",
       "^@app/auth(|/.*)$": "<rootDir>/libs/auth/src/$1",
       "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
       "^@app/logging(|/.*)$": "<rootDir>/libs/logging/src/$1",
-      "^@app/shared-authentication(|/.*)$": "<rootDir>/libs/shared-authentication/src/$1"
+      "^@app/shared-authentication(|/.*)$": "<rootDir>/libs/shared-authentication/src/$1",
+      "^@app/hashing$": "<rootDir>/libs/hashing/src/index",
+      "^@app/hashing/(.*)$": "<rootDir>/libs/hashing/src/$1"
     }
   }
 }
