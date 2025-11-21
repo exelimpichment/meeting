@@ -1,3 +1,9 @@
+import { buildConversationsCacheKey } from '@/apps/meeting-api-gateway/src/conversations/utils/buildConversationsCacheKey';
+import { MEETING_API_NATS_CLIENT } from '@/apps/meeting-api-gateway/src/constants';
+import { Inject, Injectable } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { KeyvCacheService } from '@/libs/cache';
+import { firstValueFrom } from 'rxjs';
 import {
   EditConversationPayload,
   ReadConversationsPayload,
@@ -6,11 +12,6 @@ import {
   ConversationWithMessage,
   MessengerConversation,
 } from '@exelimpichment/prisma-types';
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
-import { MEETING_API_NATS_CLIENT } from '@/apps/meeting-api-gateway/src/constants';
-import { KeyvCacheService } from '@/libs/cache';
 import {
   CONVERSATIONS_EDIT_PATTERN,
   CONVERSATIONS_GET_PATTERN,
@@ -28,7 +29,7 @@ export class ConversationsService {
 
     const cachedConversationWithMessages = await this.keyvCacheService.get<
       ConversationWithMessage[]
-    >(`user:${userId}:conversations`);
+    >(buildConversationsCacheKey(userId));
 
     if (cachedConversationWithMessages) {
       return cachedConversationWithMessages;
@@ -42,7 +43,7 @@ export class ConversationsService {
     );
 
     await this.keyvCacheService.set<ConversationWithMessage[]>(
-      `user:${userId}:conversations`,
+      buildConversationsCacheKey(userId),
       conversationWithMessages,
       300000,
     );

@@ -3,8 +3,8 @@ import { getCookieOptions } from '@/apps/meeting-api-gateway/src/iam/src/common/
 import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
 import { Injectable, NestMiddleware, Inject } from '@nestjs/common';
 import { JwtPayload } from '@/libs/shared-authentication/src/types';
-import { HashingService } from '@libs/hashing/src/hashing.service';
 import { Request, Response, NextFunction } from 'express';
+import { HashingService } from '@app/hashing';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';

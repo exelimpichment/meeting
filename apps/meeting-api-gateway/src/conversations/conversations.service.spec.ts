@@ -1,17 +1,23 @@
-import { CONVERSATIONS_GET_PATTERN } from '@/libs/contracts/patterns/conversations/CONSTANTS';
+import { buildConversationsCacheKey } from '@/apps/meeting-api-gateway/src/conversations/utils/buildConversationsCacheKey';
 import { ConversationsService } from '@/apps/meeting-api-gateway/src/conversations/conversations.service';
+import { CONVERSATIONS_GET_PATTERN } from '@/libs/contracts/patterns/conversations/CONSTANTS';
 import { MEETING_API_NATS_CLIENT } from '@/apps/meeting-api-gateway/src/constants';
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClientProxy } from '@nestjs/microservices';
 import { KeyvCacheService } from '@/libs/cache';
 import { of, throwError } from 'rxjs';
 
+const conversationsCacheTtlMs = 300000;
+
 describe('ConversationsService', () => {
   let service: ConversationsService;
-  let natsClient: jest.Mocked<ClientProxy>;
-  let keyvCacheService: jest.Mocked<KeyvCacheService>;
+  let natsClient: jest.Mocked<Pick<ClientProxy, 'send'>>;
+  let keyvCacheService: jest.Mocked<
+    Pick<KeyvCacheService, 'get' | 'set' | 'del'>
+  >;
 
   const userId = 'b8b3e3eb-ad07-4a04-9e86-ef6ad6069c27';
+  const cacheKey = buildConversationsCacheKey(userId);
   const mockCachedConversations = [
     {
       id: '550e8400-e29b-41d4-a716-446655440000',
@@ -24,12 +30,14 @@ describe('ConversationsService', () => {
 
   beforeEach(async () => {
     // create mock for NATS client
-    const mockNatsClient = {
+    const mockNatsClient: jest.Mocked<Pick<ClientProxy, 'send'>> = {
       send: jest.fn(),
     };
 
     // create mock for cache service
-    const mockKeyvCacheService = {
+    const mockKeyvCacheService: jest.Mocked<
+      Pick<KeyvCacheService, 'get' | 'set' | 'del'>
+    > = {
       get: jest.fn(),
       set: jest.fn(),
       del: jest.fn(),
@@ -51,8 +59,8 @@ describe('ConversationsService', () => {
     }).compile();
 
     service = module.get(ConversationsService);
-    natsClient = module.get(MEETING_API_NATS_CLIENT);
-    keyvCacheService = module.get(KeyvCacheService);
+    natsClient = mockNatsClient;
+    keyvCacheService = mockKeyvCacheService;
   });
 
   test('should be defined', () => {
@@ -63,112 +71,86 @@ describe('ConversationsService', () => {
     describe('cache related scenarios', () => {
       test('should return cached conversations when cache exists (cache hit scenario)', async () => {
         // arrange: setup mocks
-        const getCacheSpy = jest.spyOn(keyvCacheService, 'get');
-        const setCacheSpy = jest.spyOn(keyvCacheService, 'set');
-        const sendNatsSpy = jest.spyOn(natsClient, 'send');
-
-        getCacheSpy.mockResolvedValue(mockCachedConversations);
+        keyvCacheService.get.mockResolvedValue(mockCachedConversations);
 
         // act: call the method
         const result = await service.getConversations(userId);
 
         // assert: verify results
         expect(result).toEqual(mockCachedConversations);
-        expect(getCacheSpy).toHaveBeenCalledWith(
-          `user:${userId}:conversations`,
-        );
-
-        expect(getCacheSpy).toHaveBeenCalledTimes(1);
+        expect(keyvCacheService.get).toHaveBeenCalledWith(cacheKey);
+        expect(keyvCacheService.get).toHaveBeenCalledTimes(1);
 
         // assert: verify NATS was NOT called (cache hit means no NATS call)
-        expect(sendNatsSpy).not.toHaveBeenCalled();
+        expect(natsClient.send).not.toHaveBeenCalled();
 
         // assert: verify cache was NOT updated (we already have data)
-        expect(setCacheSpy).not.toHaveBeenCalled();
+        expect(keyvCacheService.set).not.toHaveBeenCalled();
       });
 
       test('should return conversations from NATS when cache is empty (cache miss scenario)', async () => {
         // arrange: setup mocks
-        const getCacheSpy = jest.spyOn(keyvCacheService, 'get');
-        const sendNatsSpy = jest.spyOn(natsClient, 'send');
-        const setCacheSpy = jest.spyOn(keyvCacheService, 'set');
-
-        getCacheSpy.mockResolvedValue(undefined);
-        sendNatsSpy.mockReturnValue(of(mockCachedConversations));
+        keyvCacheService.get.mockResolvedValue(undefined);
+        natsClient.send.mockReturnValue(of(mockCachedConversations));
 
         // act: call the method
         const result = await service.getConversations(userId);
 
         // assert: verify results
-        expect(getCacheSpy).toHaveBeenCalledWith(
-          `user:${userId}:conversations`,
+        expect(keyvCacheService.get).toHaveBeenCalledWith(cacheKey);
+        expect(natsClient.send).toHaveBeenCalledWith(
+          CONVERSATIONS_GET_PATTERN,
+          {
+            userId,
+          },
         );
-
-        // assert: verify cache returns undefined since cache is not there
-        const cacheResult = await (getCacheSpy.mock.results[0]
-          .value as Promise<undefined>);
-        expect(cacheResult).toBeUndefined();
-
-        expect(sendNatsSpy).toHaveBeenCalledWith(CONVERSATIONS_GET_PATTERN, {
-          userId,
-        });
-
-        expect(setCacheSpy).toHaveBeenCalledWith(
-          `user:${userId}:conversations`,
+        expect(keyvCacheService.set).toHaveBeenCalledWith(
+          cacheKey,
           mockCachedConversations,
-          300000,
+          conversationsCacheTtlMs,
         );
-
         expect(result).toEqual(mockCachedConversations);
       });
     });
 
     test('should handle empty results from NATS', async () => {
       // arrange: cache miss, NATS returns empty array
-      const getCacheSpy = jest.spyOn(keyvCacheService, 'get');
-      const sendNatsSpy = jest.spyOn(natsClient, 'send');
-      const setCacheSpy = jest.spyOn(keyvCacheService, 'set');
-
       const emptyResult = [];
 
-      getCacheSpy.mockResolvedValue(undefined);
-      sendNatsSpy.mockReturnValue(of(emptyResult));
+      keyvCacheService.get.mockResolvedValue(undefined);
+      natsClient.send.mockReturnValue(of(emptyResult));
 
       // act: call the method
       const result = await service.getConversations(userId);
 
       // assert: verify cache was called
-      expect(getCacheSpy).toHaveBeenCalledWith(`user:${userId}:conversations`);
-      expect(getCacheSpy).toHaveBeenCalledTimes(1);
+      expect(keyvCacheService.get).toHaveBeenCalledWith(cacheKey);
+      expect(keyvCacheService.get).toHaveBeenCalledTimes(1);
 
       // assert: verify NATS was called
-      expect(sendNatsSpy).toHaveBeenCalledWith(CONVERSATIONS_GET_PATTERN, {
+      expect(natsClient.send).toHaveBeenCalledWith(CONVERSATIONS_GET_PATTERN, {
         userId,
       });
-      expect(sendNatsSpy).toHaveBeenCalledTimes(1);
+      expect(natsClient.send).toHaveBeenCalledTimes(1);
 
       // assert: verify cache was updated
-      expect(setCacheSpy).toHaveBeenCalledWith(
-        `user:${userId}:conversations`,
+      expect(keyvCacheService.set).toHaveBeenCalledWith(
+        cacheKey,
         emptyResult,
-        300000,
+        conversationsCacheTtlMs,
       );
-      expect(setCacheSpy).toHaveBeenCalledTimes(1);
+      expect(keyvCacheService.set).toHaveBeenCalledTimes(1);
 
       expect(result).toEqual(emptyResult);
     });
 
     test('should propagate NATS errors when NATS client fails', async () => {
       // arrange: cache miss, NATS throws error
-      const getCacheSpy = jest.spyOn(keyvCacheService, 'get');
-      const sendNatsSpy = jest.spyOn(natsClient, 'send');
-      const setCacheSpy = jest.spyOn(keyvCacheService, 'set');
-
       const NatsError = new Error('NATS connection failed');
 
-      getCacheSpy.mockResolvedValue(undefined);
+      keyvCacheService.get.mockResolvedValue(undefined);
       // mock NATS to return an error Observable
-      sendNatsSpy.mockReturnValue(throwError(() => NatsError));
+      natsClient.send.mockReturnValue(throwError(() => NatsError));
 
       // act & assert: verify error is propagated
       await expect(service.getConversations(userId)).rejects.toThrow(
@@ -176,27 +158,24 @@ describe('ConversationsService', () => {
       );
 
       // assert: verify cache was called
-      expect(getCacheSpy).toHaveBeenCalledWith(`user:${userId}:conversations`);
-      expect(getCacheSpy).toHaveBeenCalledTimes(1);
+      expect(keyvCacheService.get).toHaveBeenCalledWith(cacheKey);
+      expect(keyvCacheService.get).toHaveBeenCalledTimes(1);
 
       // assert: verify NATS was called
-      expect(sendNatsSpy).toHaveBeenCalledWith(CONVERSATIONS_GET_PATTERN, {
+      expect(natsClient.send).toHaveBeenCalledWith(CONVERSATIONS_GET_PATTERN, {
         userId,
       });
-      expect(sendNatsSpy).toHaveBeenCalledTimes(1);
+      expect(natsClient.send).toHaveBeenCalledTimes(1);
 
       // assert: verify cache was NOT updated when error occurs
-      expect(setCacheSpy).not.toHaveBeenCalled();
+      expect(keyvCacheService.set).not.toHaveBeenCalled();
     });
 
     test('should propagate cache errors when cache.get() fails', async () => {
       // arrange: cache.get() throws an error
-      const getCacheSpy = jest.spyOn(keyvCacheService, 'get');
-      const sendNatsSpy = jest.spyOn(natsClient, 'send');
-
       const cacheError = new Error('Cache service unavailable');
 
-      getCacheSpy.mockRejectedValue(cacheError);
+      keyvCacheService.get.mockRejectedValue(cacheError);
 
       // act & assert: verify error is propagated
 
@@ -205,24 +184,20 @@ describe('ConversationsService', () => {
       await expect(result).rejects.toThrow('Cache service unavailable');
 
       // assert: verify cache was called
-      expect(getCacheSpy).toHaveBeenCalledWith(`user:${userId}:conversations`);
-      expect(getCacheSpy).toHaveBeenCalledTimes(1);
+      expect(keyvCacheService.get).toHaveBeenCalledWith(cacheKey);
+      expect(keyvCacheService.get).toHaveBeenCalledTimes(1);
 
       // assert: verify NATS was NOT called (error happened before NATS call)
-      expect(sendNatsSpy).not.toHaveBeenCalled();
+      expect(natsClient.send).not.toHaveBeenCalled();
     });
 
     test('should propagate cache errors when cache.set() fails after NATS call', async () => {
       // arrange: cache miss, NATS succeeds, but cache.set() fails
-      const getCacheSpy = jest.spyOn(keyvCacheService, 'get');
-      const sendNatsSpy = jest.spyOn(natsClient, 'send');
-      const setCacheSpy = jest.spyOn(keyvCacheService, 'set');
-
       const cacheSetError = new Error('Failed to write to cache');
 
-      getCacheSpy.mockResolvedValue(undefined);
-      sendNatsSpy.mockReturnValue(of(mockCachedConversations));
-      setCacheSpy.mockRejectedValue(cacheSetError);
+      keyvCacheService.get.mockResolvedValue(undefined);
+      natsClient.send.mockReturnValue(of(mockCachedConversations));
+      keyvCacheService.set.mockRejectedValue(cacheSetError);
 
       // act & assert: verify error is propagated
       await expect(service.getConversations(userId)).rejects.toThrow(
@@ -230,12 +205,12 @@ describe('ConversationsService', () => {
       );
 
       // assert: verify NATS was called successfully
-      expect(sendNatsSpy).toHaveBeenCalledWith(CONVERSATIONS_GET_PATTERN, {
+      expect(natsClient.send).toHaveBeenCalledWith(CONVERSATIONS_GET_PATTERN, {
         userId,
       });
 
       // assert: verify cache.set() was attempted
-      expect(setCacheSpy).toHaveBeenCalled();
+      expect(keyvCacheService.set).toHaveBeenCalled();
     });
   });
 });

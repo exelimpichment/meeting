@@ -1,12 +1,8 @@
-import { MEETING_API_NATS_CLIENT } from '@/apps/meeting-api-gateway/src/constants';
-import { Inject, Injectable } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class MeetingApiGatewayService {
-  constructor(
-    @Inject(MEETING_API_NATS_CLIENT) private meetingClient: ClientProxy,
-  ) {}
+  constructor() {}
 
   // Should only answer: “Is the process healthy enough to keep running?”
   // implement some lightweight check.
