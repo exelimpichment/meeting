@@ -29,10 +29,12 @@ export class AuthenticationService {
     const hashedPassword = await this.hashingService.hash(password);
 
     try {
-      return await this.usersRepository.create({
+      const user = await this.usersRepository.create({
         email,
         hashedPassword,
       });
+
+      return user;
     } catch (error: unknown) {
       handlePrismaError(error);
     }
