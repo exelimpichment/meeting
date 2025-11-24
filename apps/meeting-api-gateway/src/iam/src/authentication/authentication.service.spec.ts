@@ -2,7 +2,7 @@ import { AuthenticationService } from '@/apps/meeting-api-gateway/src/iam/src/au
 import { Test, TestingModule } from '@nestjs/testing';
 import { SignUpDto } from './dto/sign-up.dto';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { UsersRepository } from '@/apps/meeting-api-gateway/src/iam/src/users/repositories/users.repository';
 import { HashingService } from '@/libs/hashing/src';
 import { JwtService } from '@nestjs/jwt';
@@ -428,12 +428,109 @@ describe('AuthenticationService', () => {
       });
     });
 
-    // test: should throw UnauthorizedException if user does not exist
-    // test: should throw UnauthorizedException if password does not match
-    // test: should handle edge case when user password is null or undefined
+    test('should throw UnauthorizedException if user does not exist', async () => {
+      // arrange
+      const mockSignInDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      usersRepository.findOneByEmail.mockResolvedValue(null);
+
+      // act & assert
+      await expect(service.signIn(mockSignInDto)).rejects.toThrow(
+        new UnauthorizedException('User does not exist'),
+      );
+    });
+
+    test('should throw UnauthorizedException if password does not match', async () => {
+      // arrange
+      const mockSignInDto = {
+        email: 'test@example.com',
+        password: 'password123',
+      };
+
+      usersRepository.findOneByEmail.mockResolvedValue({
+        id: 'user-id-123',
+        email: 'test@example.com',
+        password: 'hashedPassword123',
+      });
+
+      hashingService.compare.mockResolvedValue(false);
+
+      // act
+      await expect(service.signIn(mockSignInDto)).rejects.toThrow(
+        new UnauthorizedException('Password does not match'),
+      );
+    });
   });
 
   describe('logout', () => {
+    test('should successfully revoke refresh token when valid token is provided', async () => {
+      // arrange
+      const mockRefreshToken = 'refreshToken123';
+
+      const mockRefreshTokenPayload = {
+        jti: 'refreshToken123',
+      };
+
+      const mockedRecord = {
+        id: 'refreshToken123',
+        jti: 'refreshToken123',
+      };
+
+      mockJwtService.verifyAsync.mockResolvedValue(mockRefreshTokenPayload);
+
+      refreshTokensRepository.findByJti.mockResolvedValue(mockedRecord);
+
+      // act
+      await service.logout(mockRefreshToken);
+
+      // assert
+      expect(refreshTokensRepository.revokeById).toHaveBeenCalledWith(
+        mockedRecord.id,
+      );
+    });
+
+    test('should call jwtService.verifyAsync with correct token and options', async () => {
+      // arrange
+      const mockRefreshToken = 'refreshToken123';
+
+      // act
+      await service.logout(mockRefreshToken);
+
+      // assert
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(
+        mockRefreshToken,
+        {
+          secret: jwtConfiguration.JWT_REFRESH_TOKEN_SECRET,
+          audience: jwtConfiguration.JWT_REFRESH_TOKEN_AUDIENCE,
+          issuer: jwtConfiguration.JWT_REFRESH_TOKEN_ISSUER,
+        },
+      );
+    });
+
+    test('should successfully revoke refresh token when valid token is provided', async () => {
+      // arrange
+      const mockedRecord = {
+        id: 'refreshToken123',
+        jti: 'refreshToken123',
+      };
+
+      const mockRefreshToken = 'refreshToken123';
+
+      refreshTokensRepository.findByJti.mockResolvedValue(mockedRecord);
+      mockJwtService.verifyAsync.mockResolvedValue(mockedRecord);
+
+      // act
+      await service.logout(mockRefreshToken);
+
+      // assert
+      expect(refreshTokensRepository.revokeById).toHaveBeenCalledWith(
+        mockedRecord.id,
+      );
+    });
+
     // test: should successfully revoke refresh token when valid token is provided
     // test: should call jwtService.verifyAsync with correct token and options
     // test: should extract jti from verified token payload
