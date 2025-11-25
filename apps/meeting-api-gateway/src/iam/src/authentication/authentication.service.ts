@@ -5,7 +5,7 @@ import { SignInDto } from '@/apps/meeting-api-gateway/src/iam/src/authentication
 import { jwtConfig } from '@/libs/shared-authentication/src/configs/jwt-config';
 import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
 import { JwtPayload } from '@/libs/shared-authentication/src/types';
-import { HashingService } from '@libs/hashing/src/hashing.service';
+import { HashingService } from '@/libs/hashing/src';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
@@ -29,10 +29,12 @@ export class AuthenticationService {
     const hashedPassword = await this.hashingService.hash(password);
 
     try {
-      return await this.usersRepository.create({
+      const user = await this.usersRepository.create({
         email,
         hashedPassword,
       });
+
+      return user;
     } catch (error: unknown) {
       handlePrismaError(error);
     }
