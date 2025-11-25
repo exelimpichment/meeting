@@ -531,18 +531,284 @@ describe('AuthenticationService', () => {
       );
     });
 
-    // test: should successfully revoke refresh token when valid token is provided
-    // test: should call jwtService.verifyAsync with correct token and options
-    // test: should extract jti from verified token payload
-    // test: should call refreshTokensRepository.findByJti with correct jti
-    // test: should call refreshTokensRepository.revokeById with correct record id when token is found
-    // test: should return void when token is successfully revoked
-    // test: should return void when refreshToken is undefined
-    // test: should return void when refreshToken is null
-    // test: should return void when jti is missing from token payload
-    // test: should return void when token record is not found in database
-    // test: should silently handle invalid token (catch and ignore errors)
-    // test: should silently handle expired token
-    // test: should silently handle malformed token
+    test('should successfully revoke refresh token when valid token is provided', async () => {
+      const mockRefreshToken = 'refreshToken123';
+
+      const mockedRecord = {
+        id: 'refreshToken123',
+        jti: 'refreshToken123',
+      };
+
+      mockJwtService.verifyAsync.mockResolvedValue(mockedRecord);
+      refreshTokensRepository.findByJti.mockResolvedValue(mockedRecord);
+
+      // act
+      await service.logout(mockRefreshToken);
+
+      // assert
+      expect(refreshTokensRepository.revokeById).toHaveBeenCalledWith(
+        mockedRecord.id,
+      );
+      expect(refreshTokensRepository.revokeById).toHaveBeenCalledTimes(1);
+    });
+
+    test('should call jwtService.verifyAsync with correct token and options', async () => {
+      // arrange
+      const mockRefreshToken = 'refreshToken123';
+
+      // act
+      await service.logout(mockRefreshToken);
+
+      // assert
+      expect(mockJwtService.verifyAsync).toHaveBeenCalledWith(
+        mockRefreshToken,
+        {
+          secret: jwtConfiguration.JWT_REFRESH_TOKEN_SECRET,
+          audience: jwtConfiguration.JWT_REFRESH_TOKEN_AUDIENCE,
+          issuer: jwtConfiguration.JWT_REFRESH_TOKEN_ISSUER,
+        },
+      );
+    });
+
+    test('should extract jti from verified token payload', async () => {
+      // arrange
+      const mockRefreshToken = 'refreshToken123';
+      const mockRefreshTokenPayload = {
+        jti: 'jti-123',
+        sub: 'user-id-123',
+        email: 'test@example.com',
+        iat: 1234567890,
+        exp: 1234567890,
+        aud: 'test-audience',
+        iss: 'test-issuer',
+      };
+
+      const mockedRecord = {
+        id: 'record-id-123',
+        jti: 'jti-123',
+      };
+
+      mockJwtService.verifyAsync.mockResolvedValue(mockRefreshTokenPayload);
+      refreshTokensRepository.findByJti.mockResolvedValue(mockedRecord);
+
+      // act
+      await service.logout(mockRefreshToken);
+
+      // assert
+      expect(mockJwtService.verifyAsync).toHaveBeenCalled();
+      expect(refreshTokensRepository.findByJti).toHaveBeenCalledWith('jti-123');
+    });
+
+    test('should call refreshTokensRepository.findByJti with correct jti', async () => {
+      // arrange
+      const mockRefreshToken = 'refreshToken123';
+      const mockJti = 'jti-456';
+      const mockRefreshTokenPayload = {
+        jti: mockJti,
+        sub: 'user-id-123',
+        email: 'test@example.com',
+        iat: 1234567890,
+        exp: 1234567890,
+        aud: 'test-audience',
+        iss: 'test-issuer',
+      };
+
+      const mockedRecord = {
+        id: 'record-id-123',
+        jti: mockJti,
+      };
+
+      mockJwtService.verifyAsync.mockResolvedValue(mockRefreshTokenPayload);
+      refreshTokensRepository.findByJti.mockResolvedValue(mockedRecord);
+
+      // act
+      await service.logout(mockRefreshToken);
+
+      // assert
+      expect(refreshTokensRepository.findByJti).toHaveBeenCalledWith(mockJti);
+    });
+
+    test('should call refreshTokensRepository.revokeById with correct record id when token is found', async () => {
+      // arrange
+      const mockRefreshToken = 'refreshToken123';
+      const mockRefreshTokenPayload = {
+        jti: 'jti-789',
+        sub: 'user-id-123',
+        email: 'test@example.com',
+        iat: 1234567890,
+        exp: 1234567890,
+        aud: 'test-audience',
+        iss: 'test-issuer',
+      };
+
+      const mockedRecord = {
+        id: 'record-id-789',
+        jti: 'jti-789',
+      };
+
+      mockJwtService.verifyAsync.mockResolvedValue(mockRefreshTokenPayload);
+      refreshTokensRepository.findByJti.mockResolvedValue(mockedRecord);
+
+      // act
+      await service.logout(mockRefreshToken);
+
+      // assert
+      expect(refreshTokensRepository.revokeById).toHaveBeenCalledWith(
+        'record-id-789',
+      );
+    });
+
+    test('should return void when token is successfully revoked', async () => {
+      // arrange
+      const mockRefreshToken = 'refreshToken123';
+      const mockRefreshTokenPayload = {
+        jti: 'jti-123',
+        sub: 'user-id-123',
+        email: 'test@example.com',
+        iat: 1234567890,
+        exp: 1234567890,
+        aud: 'test-audience',
+        iss: 'test-issuer',
+      };
+
+      const mockedRecord = {
+        id: 'record-id-123',
+        jti: 'jti-123',
+      };
+
+      mockJwtService.verifyAsync.mockResolvedValue(mockRefreshTokenPayload);
+      refreshTokensRepository.findByJti.mockResolvedValue(mockedRecord);
+      refreshTokensRepository.revokeById.mockResolvedValue(undefined);
+
+      // act
+      const result = await service.logout(mockRefreshToken);
+
+      // assert
+      expect(result).toBeUndefined();
+    });
+
+    test('should return void when refreshToken is undefined', async () => {
+      // arrange
+      const mockRefreshToken = undefined;
+
+      // act
+      const result = await service.logout(mockRefreshToken);
+
+      // assert
+      expect(result).toBeUndefined();
+      expect(mockJwtService.verifyAsync).not.toHaveBeenCalled();
+      expect(refreshTokensRepository.findByJti).not.toHaveBeenCalled();
+      expect(refreshTokensRepository.revokeById).not.toHaveBeenCalled();
+    });
+
+    test('should return void when refreshToken is null', async () => {
+      // arrange
+      const mockRefreshToken = null as unknown as string;
+
+      // act
+      const result = await service.logout(mockRefreshToken);
+
+      // assert
+      expect(result).toBeUndefined();
+      expect(mockJwtService.verifyAsync).not.toHaveBeenCalled();
+      expect(refreshTokensRepository.findByJti).not.toHaveBeenCalled();
+      expect(refreshTokensRepository.revokeById).not.toHaveBeenCalled();
+    });
+
+    test('should return void when jti is missing from token payload', async () => {
+      // arrange
+      const mockRefreshToken = 'refreshToken123';
+      const mockRefreshTokenPayload = {
+        sub: 'user-id-123',
+        email: 'test@example.com',
+        iat: 1234567890,
+        exp: 1234567890,
+        aud: 'test-audience',
+        iss: 'test-issuer',
+      };
+
+      mockJwtService.verifyAsync.mockResolvedValue(mockRefreshTokenPayload);
+
+      // act
+      const result = await service.logout(mockRefreshToken);
+
+      // assert
+      expect(result).toBeUndefined();
+      expect(refreshTokensRepository.findByJti).not.toHaveBeenCalled();
+      expect(refreshTokensRepository.revokeById).not.toHaveBeenCalled();
+    });
+
+    test('should return void when token record is not found in database', async () => {
+      // arrange
+      const mockRefreshToken = 'refreshToken123';
+      const mockRefreshTokenPayload = {
+        jti: 'jti-123',
+        sub: 'user-id-123',
+        email: 'test@example.com',
+        iat: 1234567890,
+        exp: 1234567890,
+        aud: 'test-audience',
+        iss: 'test-issuer',
+      };
+
+      mockJwtService.verifyAsync.mockResolvedValue(mockRefreshTokenPayload);
+      refreshTokensRepository.findByJti.mockResolvedValue(null);
+
+      // act
+      const result = await service.logout(mockRefreshToken);
+
+      // assert
+      expect(result).toBeUndefined();
+      expect(refreshTokensRepository.findByJti).toHaveBeenCalledWith('jti-123');
+      expect(refreshTokensRepository.revokeById).not.toHaveBeenCalled();
+    });
+
+    test('should silently handle invalid token (catch and ignore errors)', async () => {
+      // arrange
+      const mockRefreshToken = 'invalidToken123';
+      const error = new Error('Invalid token');
+
+      mockJwtService.verifyAsync.mockRejectedValue(error);
+
+      // act
+      const result = await service.logout(mockRefreshToken);
+
+      // assert
+      expect(result).toBeUndefined();
+      expect(refreshTokensRepository.findByJti).not.toHaveBeenCalled();
+      expect(refreshTokensRepository.revokeById).not.toHaveBeenCalled();
+    });
+
+    test('should silently handle expired token', async () => {
+      // arrange
+      const mockRefreshToken = 'expiredToken123';
+      const error = new Error('Token expired');
+
+      mockJwtService.verifyAsync.mockRejectedValue(error);
+
+      // act
+      const result = await service.logout(mockRefreshToken);
+
+      // assert
+      expect(result).toBeUndefined();
+      expect(refreshTokensRepository.findByJti).not.toHaveBeenCalled();
+      expect(refreshTokensRepository.revokeById).not.toHaveBeenCalled();
+    });
+
+    test('should silently handle malformed token', async () => {
+      // arrange
+      const mockRefreshToken = 'malformed.token';
+      const error = new Error('Malformed token');
+
+      mockJwtService.verifyAsync.mockRejectedValue(error);
+
+      // act
+      const result = await service.logout(mockRefreshToken);
+
+      // assert
+      expect(result).toBeUndefined();
+      expect(refreshTokensRepository.findByJti).not.toHaveBeenCalled();
+      expect(refreshTokensRepository.revokeById).not.toHaveBeenCalled();
+    });
   });
 });
