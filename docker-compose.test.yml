@@ -1,7 +1,7 @@
 services:
-  mysql_test:
+  mysql_auth_test:
     image: mysql:8.0
-    container_name: nest_mysql_test
+    container_name: nest_mysql_auth_test
     ports:
       - '3308:3306'
     environment:
@@ -10,9 +10,28 @@ services:
       MYSQL_USER: test_user
       MYSQL_PASSWORD: test_pass
     tmpfs:
-      - /var/lib/mysql # Use RAM for faster IO and auto-cleanup on stop
+      - /var/lib/mysql
     volumes:
-      - ./docker/mysql-init:/docker-entrypoint-initdb.d
+      - ./docker/mysql-init/auth:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
+      timeout: 10s
+      retries: 5
+
+  mysql_messenger_test:
+    image: mysql:8.0
+    container_name: nest_mysql_messenger_test
+    ports:
+      - '3309:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: messenger_db_test
+      MYSQL_USER: test_user
+      MYSQL_PASSWORD: test_pass
+    tmpfs:
+      - /var/lib/mysql
+    volumes:
+      - ./docker/mysql-init/messenger:/docker-entrypoint-initdb.d
     healthcheck:
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       timeout: 10s
@@ -23,5 +42,5 @@ services:
     container_name: nest_nats_test
     ports:
       - '4222:4222'
-      - '8222:8222' # HTTP monitoring port
-    command: ['-js', '-m', '8222'] # Enable JetStream and monitoring
+      - '8222:8222'
+    command: ['-js', '-m', '8222']
