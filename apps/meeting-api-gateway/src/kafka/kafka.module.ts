@@ -6,13 +6,13 @@ import {
 import { ClientsModule, Transport, KafkaOptions } from '@nestjs/microservices';
 import { KafkaProducerService } from './kafka.producer.service';
 import { MeetingApiGatewayEnv } from '../../meeting-api-gateway.schema';
-import { MEETING_API_SERVICE_CLIENT } from '../constants';
+import { MEETING_API_KAFKA_CLIENT } from '../constants';
 
 @Module({
   imports: [
     ClientsModule.registerAsync([
       {
-        name: MEETING_API_SERVICE_CLIENT,
+        name: MEETING_API_KAFKA_CLIENT,
         imports: [CustomConfigModule],
         useFactory: (
           configService: CustomConfigService<MeetingApiGatewayEnv>,

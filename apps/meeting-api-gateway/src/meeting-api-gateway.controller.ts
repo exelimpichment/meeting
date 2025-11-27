@@ -20,4 +20,10 @@ export class MeetingApiGatewayController {
   readiness() {
     return this.meetingApiGatewayService.readiness();
   }
+
+  @Auth(AuthType.None)
+  @Get('e2e-test')
+  e2eTest() {
+    return { message: 'Hello World!' };
+  }
 }

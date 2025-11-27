@@ -1,9 +1,21 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
-  "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "rootDir": "../../..",
+  "testRegex": "apps/meeting-api-gateway/test/.*\\.e2e-spec\\.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "^@libs/(.*)$": "<rootDir>/libs/$1",
+    "^@/(.*)$": "<rootDir>/$1",
+    "^@app/config(|/.*)$": "<rootDir>/libs/config/src/$1",
+    "^@config(|/.*)$": "<rootDir>/libs/config/src/$1",
+    "^@app/cache(|/.*)$": "<rootDir>/libs/cache/src/$1",
+    "^@app/auth(|/.*)$": "<rootDir>/libs/auth/src/$1",
+    "^@app/contracts(|/.*)$": "<rootDir>/libs/contracts/src/$1",
+    "^@app/logging(|/.*)$": "<rootDir>/libs/logging/src/$1",
+    "^@app/shared-authentication(|/.*)$": "<rootDir>/libs/shared-authentication/src/$1",
+    "^@app/hashing$": "<rootDir>/libs/hashing/src/index",
+    "^@app/hashing/(.*)$": "<rootDir>/libs/hashing/src/$1"
   }
 }

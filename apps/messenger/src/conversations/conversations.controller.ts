@@ -26,6 +26,8 @@ export class ConversationsController {
   async editConversationHandler(
     payload: EditConversationPayload,
   ): Promise<MessengerConversation> {
+    console.log('here3');
+
     return await this.conversationsService.editConversation(payload);
   }
 }

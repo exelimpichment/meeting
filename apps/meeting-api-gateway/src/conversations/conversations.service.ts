@@ -55,6 +55,8 @@ export class ConversationsService {
     userId: string,
     args: EditConversationPayload,
   ): Promise<MessengerConversation> {
+    console.log('here2');
+
     return await firstValueFrom(
       this.natsClient.send<MessengerConversation, EditConversationPayload>(
         CONVERSATIONS_EDIT_PATTERN,
