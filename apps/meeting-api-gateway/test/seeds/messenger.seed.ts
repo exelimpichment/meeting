@@ -1,6 +1,7 @@
 import { PrismaClient } from '../../../messenger/generated/messenger-client';
 
-const testUserId = 'test-user-id';
+const testUserId = '00000000-0000-0000-0000-000000000001';
+const testConversationId = '00000000-0000-0000-0000-000000000002';
 const testUserEmail = 'test@example.com';
 
 export async function seedMessenger(prisma: PrismaClient) {
@@ -37,6 +38,7 @@ export async function seedMessenger(prisma: PrismaClient) {
 
   const conversation = await prisma.conversations.create({
     data: {
+      id: testConversationId,
       name: 'General Chat',
       creator_id: primaryUser.id,
       users_conversations: {

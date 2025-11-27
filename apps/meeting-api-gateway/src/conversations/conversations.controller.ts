@@ -22,6 +22,7 @@ export class ConversationsController {
     @Param('conversationId') conversationId: string,
     @Body() body: PatchConversationBody,
   ): Promise<MessengerConversation> {
+    console.log('here1');
     return this.conversationsService.editConversation(user.sub, {
       name: body.name,
       userId: user.sub,

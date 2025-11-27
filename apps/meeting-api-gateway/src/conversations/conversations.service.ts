@@ -26,7 +26,6 @@ export class ConversationsService {
 
   async getConversations(userId: string): Promise<ConversationWithMessage[]> {
     const payload = { userId };
-    console.log('here1', payload);
 
     const cachedConversationWithMessages = await this.keyvCacheService.get<
       ConversationWithMessage[]
@@ -56,6 +55,8 @@ export class ConversationsService {
     userId: string,
     args: EditConversationPayload,
   ): Promise<MessengerConversation> {
+    console.log('here2');
+
     return await firstValueFrom(
       this.natsClient.send<MessengerConversation, EditConversationPayload>(
         CONVERSATIONS_EDIT_PATTERN,

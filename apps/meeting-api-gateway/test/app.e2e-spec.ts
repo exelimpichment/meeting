@@ -24,7 +24,7 @@ describe('MeetingApiGatewayController (e2e)', () => {
   let jwtService: JwtService;
   let iamPrisma: IamPrismaClient;
   let messengerPrisma: MessengerPrismaClient;
-  const testUserId = 'test-user-id';
+  const testUserId = '00000000-0000-0000-0000-000000000001';
   const testUserEmail = 'test@example.com';
 
   // Ensure required env vars for Messenger are present
@@ -157,16 +157,16 @@ describe('MeetingApiGatewayController (e2e)', () => {
       .expect(200);
   });
 
-  // test.skip('/conversations/:conversationId (PATCH)', async () => {
-  //   const userId = 'test-user-id';
-  //   const conversationId = 'test-conversation-id';
+  test('/conversations/:conversationId (PATCH)', async () => {
+    const userId = '00000000-0000-0000-0000-000000000001';
+    const conversationId = '00000000-0000-0000-0000-000000000002';
 
-  //   const token = jwtService.sign({ sub: userId, email: 'test@example.com' });
+    const token = jwtService.sign({ sub: userId, email: 'test@example.com' });
 
-  //   await request(app.getHttpServer())
-  //     .patch(`/conversations/${conversationId}`)
-  //     .set('Cookie', [`access_token=${token}`]) // Pass token as cookie
-  //     .send({ name: 'Updated Name' })
-  //     .expect(200); // Or 404 if not found in DB
-  // });
+    await request(app.getHttpServer())
+      .patch(`/conversations/${conversationId}`)
+      .set('Cookie', [`access_token=${token}`]) // Pass token as cookie
+      .send({ name: 'Updated Name' })
+      .expect(200);
+  });
 });

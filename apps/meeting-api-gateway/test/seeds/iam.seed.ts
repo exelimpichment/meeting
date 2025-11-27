@@ -1,7 +1,7 @@
 import { PrismaClient } from '../../src/iam/generated/iam-client';
 import * as bcrypt from 'bcryptjs';
 
-const testUserId = 'test-user-id';
+const testUserId = '00000000-0000-0000-0000-000000000001';
 const testUserEmail = 'test@example.com';
 
 export async function seedIam(prisma: PrismaClient) {

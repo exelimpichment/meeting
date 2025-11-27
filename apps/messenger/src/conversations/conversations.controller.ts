@@ -19,7 +19,6 @@ export class ConversationsController {
   async getConversationHandler(
     payload: ReadConversationsPayload,
   ): Promise<MessengerConversation[]> {
-    console.log('here2', payload);
     return await this.conversationsService.getConversations(payload.userId);
   }
 
@@ -27,6 +26,8 @@ export class ConversationsController {
   async editConversationHandler(
     payload: EditConversationPayload,
   ): Promise<MessengerConversation> {
+    console.log('here3');
+
     return await this.conversationsService.editConversation(payload);
   }
 }
