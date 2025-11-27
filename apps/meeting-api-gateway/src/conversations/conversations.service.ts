@@ -26,6 +26,7 @@ export class ConversationsService {
 
   async getConversations(userId: string): Promise<ConversationWithMessage[]> {
     const payload = { userId };
+    console.log('here1', payload);
 
     const cachedConversationWithMessages = await this.keyvCacheService.get<
       ConversationWithMessage[]

@@ -1,22 +1,22 @@
-import { MeetingApiGatewayModule } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.module';
-import { MEETING_API_KAFKA_CLIENT } from '@/apps/meeting-api-gateway/src/constants';
-import { MessengerModule } from '@/apps/messenger/src/messenger.module';
 import { PrismaClient as IamPrismaClient } from '@/apps/meeting-api-gateway/src/iam/generated/iam-client';
+import { MeetingApiGatewayModule } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.module';
 import { PrismaClient as MessengerPrismaClient } from '@/apps/messenger/generated/messenger-client';
+import { MEETING_API_KAFKA_CLIENT } from '@/apps/meeting-api-gateway/src/constants';
+import { seedMessenger } from '@/apps/meeting-api-gateway/test/seeds/messenger.seed';
+import { cleanDatabase } from '@/apps/meeting-api-gateway/test/utils/db.utils';
+import { MessengerModule } from '@/apps/messenger/src/messenger.module';
+import { seedIam } from '@/apps/meeting-api-gateway/test/seeds/iam.seed';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { INestApplication, INestMicroservice } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import * as cookieParser from 'cookie-parser'; // Import cookie-parser
 import { JwtService } from '@nestjs/jwt';
 import * as request from 'supertest';
-import * as cookieParser from 'cookie-parser'; // Import cookie-parser
 import {
   KAFKA_CONSUMER_TOKEN,
   // KAFKA_PRODUCER_TOKEN,
   // KAFKA_ADMIN_CLIENT_TOKEN,
 } from '@/apps/messenger/src/kafka/constants';
-import { seedIam } from './seeds/iam.seed';
-import { seedMessenger } from './seeds/messenger.seed';
-import { cleanDatabase } from './utils/db.utils';
 
 describe('MeetingApiGatewayController (e2e)', () => {
   let app: INestApplication;
@@ -157,19 +157,16 @@ describe('MeetingApiGatewayController (e2e)', () => {
       .expect(200);
   });
 
-  test.skip('/conversations/:conversationId (PATCH)', async () => {
-    const userId = 'test-user-id';
-    const conversationId = 'test-conversation-id';
+  // test.skip('/conversations/:conversationId (PATCH)', async () => {
+  //   const userId = 'test-user-id';
+  //   const conversationId = 'test-conversation-id';
 
-    // Note: You might need to seed the database with this conversation first
-    // so that the Messenger service can find and update it.
+  //   const token = jwtService.sign({ sub: userId, email: 'test@example.com' });
 
-    const token = jwtService.sign({ sub: userId, email: 'test@example.com' });
-
-    await request(app.getHttpServer())
-      .patch(`/conversations/${conversationId}`)
-      .set('Cookie', [`access_token=${token}`]) // Pass token as cookie
-      .send({ name: 'Updated Name' })
-      .expect(200); // Or 404 if not found in DB
-  });
+  //   await request(app.getHttpServer())
+  //     .patch(`/conversations/${conversationId}`)
+  //     .set('Cookie', [`access_token=${token}`]) // Pass token as cookie
+  //     .send({ name: 'Updated Name' })
+  //     .expect(200); // Or 404 if not found in DB
+  // });
 });
