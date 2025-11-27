@@ -7,7 +7,13 @@ export class MessengerPrismaService
   implements OnModuleInit, OnModuleDestroy
 {
   constructor() {
-    super();
+    super({
+      datasources: {
+        db: {
+          url: process.env.MESSENGER_DATABASE_URL || process.env.DATABASE_URL,
+        },
+      },
+    });
   }
 
   async onModuleInit() {

@@ -37,6 +37,8 @@ export class HttpAccessTokenGuard implements CanActivate {
         issuer: this.jwtConfiguration.JWT_ACCESS_TOKEN_ISSUER,
       });
 
+      console.log('payload', payload);
+
       request[REQUEST_USER_KEY] = payload;
     } catch (error) {
       if (error instanceof TokenExpiredError) {

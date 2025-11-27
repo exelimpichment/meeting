@@ -11,6 +11,8 @@ services:
       MYSQL_PASSWORD: test_pass
     tmpfs:
       - /var/lib/mysql # Use RAM for faster IO and auto-cleanup on stop
+    volumes:
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       timeout: 10s
