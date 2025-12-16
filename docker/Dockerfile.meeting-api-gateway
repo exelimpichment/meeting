@@ -19,7 +19,7 @@ FROM base AS build
 
 # install all dependencies (including dev dependencies)
 RUN --mount=type=secret,id=npm_token \
-    NPM_TOKEN=$(cat /run/secrets/npm_token) \
+    export NPM_TOKEN=$(cat /run/secrets/npm_token) && \
     pnpm install --frozen-lockfile
 
 # copy configuration files
