@@ -1,0 +1,31 @@
+name: Deploy Meeting API Gateway
+
+on:
+  push:
+    branches:
+      - main
+      - '**'
+    paths:
+      - 'apps/meeting-api-gateway/**'
+      - 'libs/**'
+      - 'docker/Dockerfile.meeting-api-gateway'
+      - 'k8s/meeting-api-gateway/**'
+      - '.github/workflows/deploy-meeting-api-gateway.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/reusable-deploy.yml
+    with:
+      service_name: meeting-api-gateway
+      dockerfile_path: docker/Dockerfile.meeting-api-gateway
+      k8s_folder: k8s/meeting-api-gateway
+      environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'staging' }}
+    secrets:
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+      GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}

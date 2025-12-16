@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meeting-api-gateway
+  labels:
+    app: meeting-api-gateway
+    env: $NAMESPACE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: meeting-api-gateway
+      env: $NAMESPACE
+  template:
+    metadata:
+      labels:
+        app: meeting-api-gateway
+        env: $NAMESPACE
+    spec:
+      containers:
+        - name: meeting-api-gateway
+          image: $IMAGE_NAME
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - configMapRef:
+                name: meeting-api-gateway-config
+          env:
+            - name: NODE_ENV
+              value: 'production'
+            # Secrets should be handled via K8s Secrets, but for now we'll assum1e some env vars are needed
+            # Add sensitive vars here referencing secrets if needed
+          resources:
+            requests:
+              cpu: '100m'
+              memory: '128Mi'
+            limits:
+              cpu: '500m'
+              memory: '512Mi'

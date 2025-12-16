@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: meeting-api-gateway
+  labels:
+    app: meeting-api-gateway
+    env: $NAMESPACE
+spec:
+  selector:
+    app: meeting-api-gateway
+    env: $NAMESPACE
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP
