@@ -1,0 +1,23 @@
+# Default values for Strimzi Cluster Operator
+# You can override these to customize the operator installation
+# See full list: https://github.com/strimzi/strimzi-kafka-operator/blob/main/helm-charts/helm3/strimzi-kafka-operator/values.yaml
+
+replicaCount: 1
+
+watchAnyNamespace: true
+
+resources:
+  limits:
+    memory: 384Mi
+  requests:
+    cpu: 100m
+    memory: 384Mi
+
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 30
+
+readinessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 30
+
