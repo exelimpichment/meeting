@@ -6,6 +6,7 @@ on:
       - main
       - '**'
     paths:
+      - '.github/workflows/reusable-deploy.yml'
       - 'apps/meeting-api-gateway/**'
       - 'libs/**'
       - 'docker/Dockerfile.meeting-api-gateway'
