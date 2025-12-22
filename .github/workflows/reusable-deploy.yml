@@ -28,6 +28,9 @@ env:
   GKE_ZONE: us-central1
   REGION: us-central1
   REPOSITORY: meeting-services
+  GSA_NAME: github-cicd-sa
+  GCP_SECRET_NAME: meeting-api-gateway-env
+  SECRET_VERSION: latest
 
 jobs:
   build-and-deploy:
@@ -102,9 +105,19 @@ jobs:
         env:
           IMAGE_NAME: ${{ env.REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ env.REPOSITORY }}/${{ inputs.service_name }}:${{ github.sha }}
           NAMESPACE: ${{ inputs.environment }}
+          PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+          GSA_NAME: ${{ env.GSA_NAME }}
+          GCP_SECRET_NAME: ${{ env.GCP_SECRET_NAME }}
+          SECRET_VERSION: ${{ env.SECRET_VERSION }}
         run: |
           # Create namespace if it doesn't exist
           kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
+
+          # Apply service account with workload identity binding
+          envsubst '$NAMESPACE $PROJECT_ID $GSA_NAME' < ${{ inputs.k8s_folder }}/service-account.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
+
+          # Apply SecretProviderClass for Secret Manager CSI
+          envsubst '$NAMESPACE $PROJECT_ID $GCP_SECRET_NAME $SECRET_VERSION' < ${{ inputs.k8s_folder }}/app-secrets.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
 
           # Apply manifests with envsubst
           envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/configmap.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}

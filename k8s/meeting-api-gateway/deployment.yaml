@@ -17,6 +17,7 @@ spec:
         app: meeting-api-gateway
         env: $NAMESPACE
     spec:
+      serviceAccountName: meeting-api-gateway-sa
       containers:
         - name: meeting-api-gateway
           image: $IMAGE_NAME
@@ -29,8 +30,12 @@ spec:
           env:
             - name: NODE_ENV
               value: 'production'
-            # Secrets should be handled via K8s Secrets, but for now we'll assum1e some env vars are needed
-            # Add sensitive vars here referencing secrets if needed
+            - name: SECRETS_FILE_PATH
+              value: '/var/secrets/secrets.json'
+          volumeMounts:
+            - mountPath: '/var/secrets'
+              name: secrets-store-inline
+              readOnly: true
           resources:
             requests:
               cpu: '100m'
@@ -38,3 +43,10 @@ spec:
             limits:
               cpu: '500m'
               memory: '512Mi'
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store-gke.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: meeting-api-gateway-secrets
