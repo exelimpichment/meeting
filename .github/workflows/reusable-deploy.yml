@@ -85,6 +85,15 @@ jobs:
             --create-namespace \
             --values k8s/kafka/strimzi-values.yaml
 
+      - name: Install NATS
+        run: |
+          helm repo add nats https://nats-io.github.io/k8s/helm/charts/
+          helm repo update
+          helm upgrade --install nats nats/nats \
+            --namespace meeting-app \
+            --create-namespace \
+            --values k8s/nats/values.yaml
+
       - name: Apply Kafka Cluster
         run: |
           kubectl apply -f k8s/kafka/kafka-cluster.yaml -n kafka
