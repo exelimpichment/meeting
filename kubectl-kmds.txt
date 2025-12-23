@@ -1,0 +1,1 @@
+kubectl logs meeting-api-gateway-57cd7d7df4-mqnf8 -n staging --previous
