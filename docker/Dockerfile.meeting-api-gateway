@@ -3,12 +3,14 @@ FROM node:22-alpine AS base
 
 # enable corepack for pnpm
 RUN corepack enable
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 
 # create app directory
 WORKDIR /usr/src/app
 
 # copy package files for dependency resolution
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml .npmrc ./
 
 # ================================
 # build stage
@@ -16,10 +18,16 @@ COPY package.json pnpm-lock.yaml ./
 FROM base AS build
 
 # install all dependencies (including dev dependencies)
-RUN pnpm install --frozen-lockfile
+RUN --mount=type=secret,id=npm_token \
+    export NPM_TOKEN=$(cat /run/secrets/npm_token) && \
+    pnpm install --frozen-lockfile
 
-# copy source code and configuration files
-COPY . .
+# copy configuration files
+COPY nest-cli.json tsconfig.json tsconfig.build.json ./
+
+# copy shared libraries and the specific application
+COPY libs ./libs
+COPY apps/meeting-api-gateway ./apps/meeting-api-gateway
 
 # generate prisma client for auth database
 RUN pnpm exec prisma generate --schema=apps/meeting-api-gateway/src/iam/prisma/schema.prisma
@@ -30,40 +38,41 @@ RUN pnpm run build meeting-api-gateway
 # ================================
 # production stage
 # ================================
-FROM node:22-alpine AS production
+FROM base AS production
 
-# enable corepack for pnpm
-RUN corepack enable
+# Set production environment
+ENV NODE_ENV=production
 
-# use pre-existing node user for security
+# install system dependencies (dumb-init for PID 1)
+RUN apk add --no-cache dumb-init
 
 # create app directory
 WORKDIR /usr/src/app
 
 # copy package files and install only production dependencies
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --prod --frozen-lockfile
+COPY package.json pnpm-lock.yaml .npmrc ./
+RUN --mount=type=secret,id=npm_token \
+    NPM_TOKEN=$(cat /run/secrets/npm_token) \
+    pnpm install --prod --frozen-lockfile
 
 # copy built application from build stage
 COPY --from=build --chown=node:node /usr/src/app/dist ./dist
 
 # copy prisma generated clients from build stage
 COPY --from=build --chown=node:node /usr/src/app/apps/meeting-api-gateway/src/iam/generated ./apps/meeting-api-gateway/src/iam/generated
-COPY --from=build --chown=node:node /usr/src/app/packages/meeting-api-gateway/generated ./packages/meeting-api-gateway/generated
-
-# copy any additional required files
-COPY --chown=node:node nest-cli.json ./
-COPY --chown=node:node tsconfig.json ./
-COPY --chown=node:node apps/meeting-api-gateway/tsconfig.app.json ./apps/meeting-api-gateway/
 
 # copy prisma schema (needed for runtime)
 COPY --chown=node:node apps/meeting-api-gateway/src/iam/prisma/ ./apps/meeting-api-gateway/src/iam/prisma/
+
+# remove .npmrc after install to avoid leaking token in layer (optional but good practice)
+RUN rm .npmrc
 
 # switch to non-root user
 USER node
 
 # expose port
-EXPOSE 3001
+EXPOSE 3000
 
 # start the application
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["node", "dist/apps/meeting-api-gateway/main.js"]

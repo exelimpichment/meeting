@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: meeting-api-gateway-config
+  labels:
+    app: meeting-api-gateway
+    env: $NAMESPACE
+data:
+  PORT: '3000'
+  BASE_URL: 'http://meeting-api-gateway.$NAMESPACE.svc.cluster.local'
+
+  # Added configuration
+  WEB_APP_URL: 'http://localhost:3009'
+  NODE_ENV: 'development'
+  KAFKA_BROKER: 'my-cluster-kafka-bootstrap.kafka.svc.cluster.local:9092'
+  NATS_URL: 'nats://nats-service.meeting-app.svc.cluster.local:4222'
+
+  # JWT Public Config
+  JWT_ACCESS_TOKEN_AUDIENCE: 'meeting-api-gateway'
+  JWT_ACCESS_TOKEN_ISSUER: 'meeting-api-gateway'
+  JWT_ACCESS_TOKEN_TTL: '3600'
+  JWT_REFRESH_TOKEN_AUDIENCE: 'meeting-api-gateway'
+  JWT_REFRESH_TOKEN_ISSUER: 'meeting-api-gateway'
+  JWT_REFRESH_TOKEN_TTL: '86400'
+
+  # Cache
+  CACHE_TTL_MS: '60000'
+  # If REDIS_URL contains no password, it can be here. Otherwise, move to secrets.
+  REDIS_URL: 'redis://redis.meeting-app.svc.cluster.local:6379/0'

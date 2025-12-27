@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meeting-api-gateway
+  labels:
+    app: meeting-api-gateway
+    env: $NAMESPACE
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: meeting-api-gateway
+      env: $NAMESPACE
+  template:
+    metadata:
+      labels:
+        app: meeting-api-gateway
+        env: $NAMESPACE
+    spec:
+      serviceAccountName: meeting-api-gateway-sa
+      containers:
+        - name: meeting-api-gateway
+          image: $IMAGE_NAME
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /api/liveness
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /api/readiness
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          envFrom:
+            - configMapRef:
+                name: meeting-api-gateway-config
+          env:
+            - name: SECRETS_FILE_PATH
+              value: '/var/secrets/.env.meeting-api-gateway'
+          volumeMounts:
+            - mountPath: '/var/secrets'
+              name: secrets-store-inline
+              readOnly: true
+            - mountPath: '/usr/src/app/apps/meeting-api-gateway/.env.meeting-api-gateway'
+              name: secrets-store-inline
+              subPath: '.env.meeting-api-gateway'
+              readOnly: true
+          resources:
+            requests:
+              cpu: '100m'
+              memory: '128Mi'
+            limits:
+              cpu: '500m'
+              memory: '512Mi'
+      volumes:
+        - name: secrets-store-inline
+          csi:
+            driver: secrets-store-gke.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: meeting-api-gateway-secrets
