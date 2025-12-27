@@ -28,13 +28,15 @@ spec:
             - configMapRef:
                 name: meeting-api-gateway-config
           env:
-            - name: NODE_ENV
-              value: 'production'
             - name: SECRETS_FILE_PATH
-              value: '/var/secrets/secrets.json'
+              value: '/var/secrets/.env.meeting-api-gateway'
           volumeMounts:
             - mountPath: '/var/secrets'
               name: secrets-store-inline
+              readOnly: true
+            - mountPath: '/usr/src/app/apps/meeting-api-gateway/.env.meeting-api-gateway'
+              name: secrets-store-inline
+              subPath: '.env.meeting-api-gateway'
               readOnly: true
           resources:
             requests:
