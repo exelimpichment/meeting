@@ -1,0 +1,19 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: meeting-api-route
+  namespace: $NAMESPACE
+spec:
+  parentRefs:
+    - name: meeting-gateway
+      namespace: $NAMESPACE
+  hostnames:
+    - 'garbadge.shop'
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: meeting-api-gateway
+          port: 80
