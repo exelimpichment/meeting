@@ -121,6 +121,8 @@ jobs:
 
           # Apply manifests with envsubst
           envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/certificate.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
+          envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/gateway.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
+          envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/httproute.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
           envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/configmap.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
           envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/service.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
           envsubst '$IMAGE_NAME $NAMESPACE' < ${{ inputs.k8s_folder }}/deployment.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
