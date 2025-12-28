@@ -4,7 +4,7 @@ metadata:
   name: meeting-gateway
   namespace: $NAMESPACE
   annotations:
-    networking.gke.io/cert-map: ''
+    networking.gke.io/certmap: meeting-gateway-certmap
     networking.gke.io/static-ip: meeting-gateway-ip
 spec:
   gatewayClassName: gke-l7-global-external-managed
@@ -14,8 +14,6 @@ spec:
       port: 443
       tls:
         mode: Terminate
-        options:
-          networking.gke.io/pre-shared-certs: meeting-gateway-cert
     - name: http
       protocol: HTTP
       port: 80
