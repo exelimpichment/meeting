@@ -14,7 +14,8 @@ spec:
       port: 443
       tls:
         mode: Terminate
-        options: {}
+        certificateRefs:
+          - name: noop
     - name: http
       protocol: HTTP
       port: 80
