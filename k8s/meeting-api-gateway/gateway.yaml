@@ -13,8 +13,6 @@ spec:
       port: 443
       tls:
         mode: Terminate
-        options:
-          networking.gke.io/certmap: garbadge-shop-map # Added back to satisfy validation
     - name: http
       protocol: HTTP
       port: 80
