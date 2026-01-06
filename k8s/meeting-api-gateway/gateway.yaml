@@ -4,13 +4,10 @@ metadata:
   name: meeting-gateway
   annotations:
     networking.gke.io/certmap: garbadge-shop-map
-    networking.gke.io/static-ip: meeting-gateway-ip
 spec:
+  # This GatewayClass uses a global external Application Load Balancer.
   gatewayClassName: gke-l7-global-external-managed
   listeners:
     - name: https
       protocol: HTTPS
       port: 443
-    - name: http
-      protocol: HTTP
-      port: 80
