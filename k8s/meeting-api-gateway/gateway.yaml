@@ -11,8 +11,6 @@ spec:
     - name: https
       protocol: HTTPS
       port: 443
-      tls:
-        mode: Terminate
     - name: http
       protocol: HTTP
       port: 80
