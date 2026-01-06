@@ -1,11 +1,10 @@
 kind: Gateway
-apiVersion: gateway.networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
 metadata:
-  name: meeting-gateway
-  namespace: $NAMESPACE
+  name: meeting-gateway # Kept your name
   annotations:
-    networking.gke.io/certmap: meeting-gateway-certmap
-    networking.gke.io/static-ip: meeting-gateway-ip
+    networking.gke.io/cert-map: garbadge-shop-map # Updated to your map name
+    networking.gke.io/static-ip: meeting-gateway-ip # Don't forget your Static IP!
 spec:
   gatewayClassName: gke-l7-global-external-managed
   listeners:
@@ -13,9 +12,9 @@ spec:
       protocol: HTTPS
       port: 443
       tls:
-        mode: Terminate
-        certificateRefs:
-          - name: noop
-    - name: http
+        mode: Terminate # <--- IMPORTANT: Decrypt HTTPS here
+        options:
+          networking.gke.io/cert-map: garbadge-shop-map # Redundant but safe to keep alongside annotation
+    - name: http # Optional: Allow HTTP (port 80)
       protocol: HTTP
       port: 80
