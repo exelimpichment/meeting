@@ -5,6 +5,8 @@ metadata:
   labels:
     app: meeting-api-gateway
     env: $NAMESPACE
+  annotations:
+    cloud.google.com/neg: '{"exposed_ports": {"3000":{}}}'
 spec:
   selector:
     app: meeting-api-gateway
