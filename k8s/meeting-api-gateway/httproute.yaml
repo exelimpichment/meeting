@@ -1,0 +1,18 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1
+metadata:
+  name: meeting-api-route
+  namespace: $NAMESPACE
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: meeting-gateway
+  hostnames:
+    - '$HOSTNAME'
+  rules:
+    - matches:
+        - path:
+            value: /
+      backendRefs:
+        - name: meeting-api-gateway
+          port: 3000 # <--- Change this from 80 to 3000

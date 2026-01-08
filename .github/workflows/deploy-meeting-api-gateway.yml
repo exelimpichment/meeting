@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - '**'
     paths:
       - '.github/workflows/reusable-deploy.yml'
       - 'apps/meeting-api-gateway/**'

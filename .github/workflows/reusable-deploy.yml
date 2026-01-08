@@ -109,6 +109,7 @@ jobs:
           GSA_NAME: ${{ env.GSA_NAME }}
           GCP_SECRET_NAME: ${{ env.GCP_SECRET_NAME }}
           SECRET_VERSION: ${{ env.SECRET_VERSION }}
+          HOSTNAME: ${{ inputs.environment == 'production' && 'garbadge.shop' || 'staging.garbadge.shop' }}
         run: |
           # Create namespace if it doesn't exist
           kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
@@ -120,6 +121,9 @@ jobs:
           envsubst '$NAMESPACE $PROJECT_ID $GCP_SECRET_NAME $SECRET_VERSION' < ${{ inputs.k8s_folder }}/app-secrets.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
 
           # Apply manifests with envsubst
+          envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/gateway.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
+          envsubst '$NAMESPACE $HOSTNAME' < ${{ inputs.k8s_folder }}/httproute.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
           envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/configmap.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
           envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/service.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
+          envsubst '$NAMESPACE' < ${{ inputs.k8s_folder }}/health-check-policy.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
           envsubst '$IMAGE_NAME $NAMESPACE' < ${{ inputs.k8s_folder }}/deployment.yaml | kubectl apply -f - -n ${{ env.NAMESPACE }}
