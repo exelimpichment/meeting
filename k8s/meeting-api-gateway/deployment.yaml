@@ -6,7 +6,7 @@ metadata:
     app: meeting-api-gateway
     env: $NAMESPACE
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: meeting-api-gateway
