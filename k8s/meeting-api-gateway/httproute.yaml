@@ -8,7 +8,7 @@ spec:
     - kind: Gateway
       name: meeting-gateway
   hostnames:
-    - 'garbadge.shop'
+    - '$HOSTNAME'
   rules:
     - matches:
         - path:
