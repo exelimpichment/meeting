@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { IAmPrismaService } from './iam/src/prisma';
 
 @Injectable()
 export class MeetingApiGatewayService {
-  constructor() {}
+  constructor(private readonly iamPrismaService: IAmPrismaService) {}
 
   // Should only answer: “Is the process healthy enough to keep running?”
   // implement some lightweight check.
@@ -15,5 +16,9 @@ export class MeetingApiGatewayService {
   // Should check dependencies (DB, cache, migrations, etc.) that are needed to serve requests.
   readiness(): { status: string } {
     return { status: 'ok' };
+  }
+
+  dbFetch() {
+    return this.iamPrismaService.users.findMany();
   }
 }

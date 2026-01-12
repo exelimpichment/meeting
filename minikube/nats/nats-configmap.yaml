@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nats-config
+  namespace: meeting-app
+  labels:
+    app: nats
+data:
+  nats.conf: |
+    # NATS Server Configuration for Minikube stress testing
+
+    # Client connections
+    port: 4222
+
+    # HTTP monitoring
+    http_port: 8222
+
+    # Logging
+    debug: false
+    trace: false
+    logtime: true
+
+    # Connection limits - adjust for stress testing
+    max_connections: 64000
+    max_payload: 1048576  # 1MB
+    max_pending: 67108864 # 64MB
+
+    # Write deadline for slow consumers
+    write_deadline: "10s"
+
+    # Ping/Pong settings
+    ping_interval: "2m"
+    ping_max: 2

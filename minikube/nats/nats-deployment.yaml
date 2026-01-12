@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats
+  namespace: meeting-app
+  labels:
+    app: nats
+    version: v0.0.1
+spec:
+  replicas: 3  # Multiple replicas for load testing
+  selector:
+    matchLabels:
+      app: nats
+  template:
+    metadata:
+      labels:
+        app: nats
+        version: v0.0.1
+    spec:
+      containers:
+        - name: nats
+          image: nats:2.11.9-alpine
+          ports:
+            - containerPort: 4222
+              name: client
+            - containerPort: 8222
+              name: monitor
+          args:
+            - "--config"
+            - "/etc/nats/nats.conf"
+          volumeMounts:
+            - name: config
+              mountPath: /etc/nats
+          resources:
+            # Start conservative - adjust based on stress test results
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "200m"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8222
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8222
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+      volumes:
+        - name: config
+          configMap:
+            name: nats-config
+      restartPolicy: Always

@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-service
+  namespace: meeting-app
+  labels:
+    app: nats
+spec:
+  selector:
+    app: nats
+  ports:
+    - port: 4222
+      targetPort: 4222
+      protocol: TCP
+      name: client
+    - port: 8222
+      targetPort: 8222
+      protocol: TCP
+      name: monitor
+  type: ClusterIP
+  # Round-robin load balancing (default behavior)
+  # sessionAffinity: None ensures equal distribution across pods
+  sessionAffinity: None
+---
+# LoadBalancer for external access during stress testing
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats-loadbalancer
+  namespace: meeting-app
+  labels:
+    app: nats
+spec:
+  selector:
+    app: nats
+  ports:
+    - port: 4222
+      targetPort: 4222
+      protocol: TCP
+      name: client
+    - port: 8222
+      targetPort: 8222
+      protocol: TCP
+      name: monitor
+  type: LoadBalancer
+  sessionAffinity: None
+  # For minikube, use: minikube tunnel

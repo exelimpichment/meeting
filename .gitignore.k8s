@@ -1,0 +1,6 @@
+# Kubernetes secrets - NEVER commit actual secrets
+k8s/minicube/secrets/.env.local
+.env.local
+
+# Don't commit actual secret files with real values
+!k8s/minicube/secrets/.env.example

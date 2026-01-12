@@ -5,12 +5,15 @@ metadata:
   labels:
     app: meeting-api-gateway
     env: $NAMESPACE
+  annotations:
+    cloud.google.com/neg: '{"exposed_ports": {"3000":{}}}'
 spec:
   selector:
     app: meeting-api-gateway
     env: $NAMESPACE
   ports:
-    - protocol: TCP
-      port: 80
+    - name: http
+      protocol: TCP
+      port: 3000 # <--- Change this from 80 to 3000
       targetPort: 3000
   type: ClusterIP
