@@ -26,4 +26,10 @@ export class MeetingApiGatewayController {
   e2eTest() {
     return { message: 'Hello World!' };
   }
+
+  @Auth(AuthType.None)
+  @Get('db-fetch')
+  dbFetch() {
+    return this.meetingApiGatewayService.dbFetch();
+  }
 }

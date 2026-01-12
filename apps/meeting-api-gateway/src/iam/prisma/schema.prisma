@@ -13,7 +13,7 @@ datasource db {
 }
 
 model users {
-  id        String           @id @default(uuid())
+  id        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email     String           @unique
   password  String
   createdAt DateTime         @default(now())
@@ -22,16 +22,16 @@ model users {
 }
 
 model refresh_tokens {
-  id          String    @id @default(uuid())
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   jti         String    @unique
   hashedToken String
-  userId      String
+  userId      String    @db.Uuid
   user        users     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt   DateTime
   revokedAt   DateTime?
   createdAt   DateTime  @default(now())
   lastUsedAt  DateTime?
-  parentId    String?
+  parentId    String?   @db.Uuid
   ip          String?
   userAgent   String?
 

@@ -7,9 +7,10 @@ metadata:
     app: auth-db
 spec:
   type: ExternalName
-  externalName: host.docker.internal # can be with host IP (e.g., 192.168.49.1) if needed
+  # Supabase pgbouncer endpoint (from your DATABASE_URL)
+  externalName: aws-1-eu-west-1.pooler.supabase.com
   ports:
-    - port: 3306
-      targetPort: 3306
+    - port: 6543
+      targetPort: 6543
       protocol: TCP
-      name: mysql
+      name: postgres

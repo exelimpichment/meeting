@@ -13,6 +13,6 @@ import { Module } from '@nestjs/common';
   ],
   providers: [],
   controllers: [],
-  exports: [AuthenticationModule, HashingModule],
+  exports: [AuthenticationModule, HashingModule, IAmPrismaModule],
 })
 export class IAmModule {}
