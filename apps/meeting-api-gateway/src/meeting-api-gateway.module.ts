@@ -1,13 +1,11 @@
-import { RefreshGrantMiddleware } from '@/apps/meeting-api-gateway/src/iam/src/refresh-tokens/refresh-grant.middleware';
 import { MeetingApiGatewayController } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.controller';
 import { ConversationsModule } from '@/apps/meeting-api-gateway/src/conversations/conversations.module';
 import { SharedAuthenticationModule } from '@/libs/shared-authentication/src/shared-authentication.module';
 import { MeetingApiGatewayService } from '@/apps/meeting-api-gateway/src/meeting-api-gateway.service';
-import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
-import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
+import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards';
+import { supabaseEnvSchema } from '@/libs/shared-authentication/src/configs/supabase-env.schema';
 import { KafkaModule } from '@/apps/meeting-api-gateway/src/kafka/kafka.module';
 import { UsersModule } from '@/apps/meeting-api-gateway/src/users/users.module';
-import { IAmModule } from '@/apps/meeting-api-gateway/src/iam/src/iam.module';
 import { NatsModule } from '@/apps/meeting-api-gateway/src/nats/nats.module';
 import { ConfigModule as CustomConfigModule } from '@config/config.module';
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
@@ -36,7 +34,8 @@ import {
       ),
 
       validate: (config) => {
-        const mergedSchemas = meetingApiGatewayEnvSchema.merge(jwtEnvSchema);
+        const mergedSchemas =
+          meetingApiGatewayEnvSchema.merge(supabaseEnvSchema);
 
         const result = mergedSchemas.safeParse(config);
 
@@ -56,7 +55,6 @@ import {
       serviceName: 'meeting-api-gateway',
       prettyPrint: process.env.NODE_ENV !== 'production',
     }),
-    IAmModule,
     NatsModule,
     UsersModule,
     KafkaModule,
@@ -87,13 +85,10 @@ import {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
     },
-    RefreshGrantMiddleware,
   ],
 })
 export class MeetingApiGatewayModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(ContextMiddleware, RefreshGrantMiddleware, RequestLoggerMiddleware)
-      .forRoutes('*');
+    consumer.apply(ContextMiddleware, RequestLoggerMiddleware).forRoutes('*');
   }
 }

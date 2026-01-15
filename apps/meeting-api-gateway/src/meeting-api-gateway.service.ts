@@ -1,11 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { IAmPrismaService } from './iam/src/prisma';
 
 @Injectable()
 export class MeetingApiGatewayService {
-  constructor(private readonly iamPrismaService: IAmPrismaService) {}
-
-  // Should only answer: “Is the process healthy enough to keep running?”
+  // Should only answer: "Is the process healthy enough to keep running?"
   // implement some lightweight check.
   liveness(): { status: string } {
     return { status: 'ok' };
@@ -19,6 +16,6 @@ export class MeetingApiGatewayService {
   }
 
   dbFetch() {
-    return this.iamPrismaService.users.findMany();
+    return { message: 'User management is now handled by Supabase Auth' };
   }
 }

@@ -1,7 +1,7 @@
 import { KAFKA_PRODUCER_TOKEN } from '@/apps/messenger-ws-gateway/src/kafka/constants';
 import { KAFKA_TOPICS } from '@/apps/messenger-ws-gateway/src/kafka/topics.constants';
 import { DeleteMessageDto } from '@/libs/contracts/src/messenger/messenger.schema';
-import { JwtPayload } from '@/libs/shared-authentication/src/types';
+import { SupabaseAuthUser } from '@/libs/shared-authentication/src/types';
 import { Injectable, Logger, Inject } from '@nestjs/common';
 import { KafkaJS } from '@confluentinc/kafka-javascript';
 
@@ -14,7 +14,10 @@ export class MessageDeleteHandler {
     private readonly producer: KafkaJS.Producer,
   ) {}
 
-  async handle(user: JwtPayload, data: DeleteMessageDto): Promise<unknown> {
+  async handle(
+    user: SupabaseAuthUser,
+    data: DeleteMessageDto,
+  ): Promise<unknown> {
     console.log('MessageDeleteHandler called with user:', user);
 
     // forward message deletion to Kafka

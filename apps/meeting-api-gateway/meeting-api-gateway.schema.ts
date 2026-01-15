@@ -1,4 +1,4 @@
-import { jwtEnvSchema } from '@/libs/shared-authentication/src/configs/jwt-env.schema';
+import { supabaseEnvSchema } from '@/libs/shared-authentication/src/configs/supabase-env.schema';
 import { z } from 'zod';
 
 export const meetingApiGatewayEnvSchema = z
@@ -23,6 +23,6 @@ export const meetingApiGatewayEnvSchema = z
     CACHE_REDIS_URL: z.string().default('redis://localhost:6379'),
     CACHE_TTL_MS: z.coerce.number().default(60000),
   })
-  .merge(jwtEnvSchema);
+  .merge(supabaseEnvSchema);
 
 export type MeetingApiGatewayEnv = z.infer<typeof meetingApiGatewayEnvSchema>;

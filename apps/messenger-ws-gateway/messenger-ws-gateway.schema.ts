@@ -1,14 +1,17 @@
-import { z } from 'zod';
+import { supabaseEnvSchema } from '@/libs/shared-authentication/src/configs/supabase-env.schema';
 import { ConfigService } from '@nestjs/config';
+import { z } from 'zod';
 
-export const MessengerWsGatewayEnvSchema = z.object({
-  KAFKA_BROKER: z.string(),
-  NATS_SERVER: z.string(),
-  PORT: z.coerce.number(),
-  NODE_ENV: z
-    .enum(['development', 'production', 'test'])
-    .default('development'),
-});
+export const MessengerWsGatewayEnvSchema = z
+  .object({
+    KAFKA_BROKER: z.string(),
+    NATS_SERVER: z.string(),
+    PORT: z.coerce.number(),
+    NODE_ENV: z
+      .enum(['development', 'production', 'test'])
+      .default('development'),
+  })
+  .merge(supabaseEnvSchema);
 
 export function getEnvConfig(
   configService: ConfigService<MessengerWsGatewayEnv>,

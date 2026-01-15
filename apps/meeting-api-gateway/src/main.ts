@@ -3,7 +3,6 @@ import { MeetingApiGatewayEnv } from '../meeting-api-gateway.schema';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@libs/config/src/config.service';
 import { ZodValidationPipe } from 'nestjs-zod';
-import * as cookieParser from 'cookie-parser';
 import { NestFactory } from '@nestjs/core';
 
 async function bootstrap() {
@@ -23,7 +22,6 @@ async function bootstrap() {
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
-    exposedHeaders: ['Set-Cookie'],
   });
 
   app.connectMicroservice<MicroserviceOptions>({
@@ -34,7 +32,6 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ZodValidationPipe());
-  app.use(cookieParser());
 
   // Start both HTTP and microservice
   await app.startAllMicroservices();

@@ -1,7 +1,7 @@
 import { ConversationsController } from '@/apps/meeting-api-gateway/src/conversations/conversations.controller';
 import { ConversationsService } from '@/apps/meeting-api-gateway/src/conversations/conversations.service';
+import { SupabaseAuthUser } from '@/libs/shared-authentication/src/types';
 import { ConversationWithMessage } from '@exelimpichment/prisma-types';
-import { JwtPayload } from '@/libs/shared-authentication/src/types';
 import { Test, TestingModule } from '@nestjs/testing';
 
 describe('ConversationsController', () => {
@@ -9,15 +9,10 @@ describe('ConversationsController', () => {
   let getConversationsMock: jest.Mock;
   let editConversationMock: jest.Mock;
 
-  const mockJwtPayload: JwtPayload = {
-    sub: 'b8b3e3eb-ad07-4a04-9e86-ef6ad6069c27', // user ID (required)
-    email: 'test@example.com', // user email (required)
-    iat: Math.floor(Date.now() / 1000), // issued at timestamp (required)
-    exp: Math.floor(Date.now() / 1000) + 3600, // expiration timestamp (required)
-    aud: 'your-audience', // audience (required)
-    iss: 'your-issuer', // issuer (required)
-    jti: 'optional-jwt-id', // optional JWT ID
-  };
+  const mockUser: SupabaseAuthUser = {
+    sub: 'b8b3e3eb-ad07-4a04-9e86-ef6ad6069c27',
+    email: 'test@example.com',
+  } as SupabaseAuthUser;
 
   const mockConversations: ConversationWithMessage[] = [
     {
@@ -85,10 +80,10 @@ describe('ConversationsController', () => {
       getConversationsMock.mockResolvedValue(mockConversations);
 
       // act
-      const result = await controller.getConversations(mockJwtPayload);
+      const result = await controller.getConversations(mockUser);
 
       // assert
-      expect(getConversationsMock).toHaveBeenCalledWith(mockJwtPayload.sub);
+      expect(getConversationsMock).toHaveBeenCalledWith(mockUser.sub);
       expect(getConversationsMock).toHaveBeenCalledTimes(1);
       expect(result).toEqual(mockConversations);
       expect(result).toHaveLength(2);
@@ -102,10 +97,10 @@ describe('ConversationsController', () => {
       getConversationsMock.mockResolvedValue(emptyResult);
 
       // act
-      const result = await controller.getConversations(mockJwtPayload);
+      const result = await controller.getConversations(mockUser);
 
       // assert
-      expect(getConversationsMock).toHaveBeenCalledWith(mockJwtPayload.sub);
+      expect(getConversationsMock).toHaveBeenCalledWith(mockUser.sub);
       expect(getConversationsMock).toHaveBeenCalledTimes(1);
       expect(result).toEqual(emptyResult);
       expect(result).toHaveLength(0);
@@ -117,11 +112,11 @@ describe('ConversationsController', () => {
       getConversationsMock.mockRejectedValue(serviceError);
 
       // act & assert
-      await expect(controller.getConversations(mockJwtPayload)).rejects.toThrow(
+      await expect(controller.getConversations(mockUser)).rejects.toThrow(
         'Service unavailable',
       );
 
-      expect(getConversationsMock).toHaveBeenCalledWith(mockJwtPayload.sub);
+      expect(getConversationsMock).toHaveBeenCalledWith(mockUser.sub);
       expect(getConversationsMock).toHaveBeenCalledTimes(1);
     });
   });
@@ -138,16 +133,16 @@ describe('ConversationsController', () => {
 
       // act
       const result = await controller.editConversation(
-        mockJwtPayload,
+        mockUser,
         mockConversationId,
         mockBody,
       );
 
       // assert
-      expect(editConversationMock).toHaveBeenCalledWith(mockJwtPayload.sub, {
+      expect(editConversationMock).toHaveBeenCalledWith(mockUser.sub, {
         name: mockBody.name,
         conversationId: mockConversationId,
-        userId: mockJwtPayload.sub,
+        userId: mockUser.sub,
       });
 
       expect(editConversationMock).toHaveBeenCalledTimes(1);
@@ -165,17 +160,13 @@ describe('ConversationsController', () => {
 
       // act & assert
       await expect(
-        controller.editConversation(
-          mockJwtPayload,
-          mockConversationId,
-          mockBody,
-        ),
+        controller.editConversation(mockUser, mockConversationId, mockBody),
       ).rejects.toThrow('Service unavailable');
 
-      expect(editConversationMock).toHaveBeenCalledWith(mockJwtPayload.sub, {
+      expect(editConversationMock).toHaveBeenCalledWith(mockUser.sub, {
         name: mockBody.name,
         conversationId: mockConversationId,
-        userId: mockJwtPayload.sub,
+        userId: mockUser.sub,
       });
 
       expect(editConversationMock).toHaveBeenCalledTimes(1);

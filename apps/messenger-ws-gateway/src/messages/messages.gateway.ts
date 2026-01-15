@@ -3,7 +3,7 @@ import { MessageDeleteHandler } from '@/apps/messenger-ws-gateway/src/messages/h
 import { MessageSendHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-send.handler';
 import { MessageEditHandler } from '@/apps/messenger-ws-gateway/src/messages/handlers/message-edit.handler';
 import { WebSocketExceptionFilter } from '@/apps/messenger-ws-gateway/src/filters/websocket-exception.filter';
-import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards/authentication.guard';
+import { AuthenticationGuard } from '@/libs/shared-authentication/src/guards';
 import { validateDto } from '@/apps/messenger-ws-gateway/src/messages/utils/dto-validator';
 import { WsUser } from '@/libs/shared-authentication/src/decorators/ws-user.decorator';
 import { MessageEventType } from '@/apps/messenger-ws-gateway/src/constants';
@@ -28,7 +28,7 @@ import {
 
 import {
   AuthenticatedWebSocket,
-  JwtPayload,
+  SupabaseAuthUser,
 } from '@/libs/shared-authentication/src/types';
 
 @WebSocketGateway({
@@ -82,7 +82,7 @@ export class MessagesGateway
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.SEND)
   async handleMessage(
-    @WsUser() user: JwtPayload,
+    @WsUser() user: SupabaseAuthUser,
     @MessageBody() data: unknown,
   ) {
     const validatedData = validateDto(sendMessageSchema, data);
@@ -92,7 +92,7 @@ export class MessagesGateway
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.EDIT)
   async handleMessageEdit(
-    @WsUser() user: JwtPayload,
+    @WsUser() user: SupabaseAuthUser,
     @MessageBody() data: unknown,
   ): Promise<unknown> {
     const validatedData = validateDto(editMessageSchema, data);
@@ -102,7 +102,7 @@ export class MessagesGateway
   @UseGuards(AuthenticationGuard)
   @SubscribeMessage(MessageEventType.DELETE)
   async handleMessageDelete(
-    @WsUser() user: JwtPayload,
+    @WsUser() user: SupabaseAuthUser,
     @MessageBody() data: unknown,
   ): Promise<unknown> {
     const validatedData = validateDto(deleteMessageSchema, data);
