@@ -4,16 +4,22 @@ metadata:
   name: meeting-api-gateway-config
   namespace: meeting-app
 data:
-  # application configuration
   BASE_URL: 'localhost:3001'
   WEB_APP_URL: 'localhost:3000'
   NODE_ENV: 'development'
   PORT: '3001'
-  KAFKA_BROKER: 'localhost:29092'
+  KAFKA_BROKER: 'nats-service:4222'
   NATS_URL: 'nats://nats-service:4222'
 
-  # jwt configuration (non-sensitive)
   JWT_ACCESS_TOKEN_AUDIENCE: 'meeting-api-gateway'
   JWT_ACCESS_TOKEN_ISSUER: 'meeting-api-gateway'
   JWT_ACCESS_TOKEN_TTL: '3600'
+  JWT_ACCESS_TOKEN_EXPIRATION_TIME: '3600'
+
+  JWT_REFRESH_TOKEN_AUDIENCE: 'meeting-api-gateway'
+  JWT_REFRESH_TOKEN_ISSUER: 'meeting-api-gateway'
   JWT_REFRESH_TOKEN_TTL: '86400'
+  JWT_REFRESH_EXPIRATION_TIME: '86400'
+
+  CACHE_TTL_MS: '60000'
+  REDIS_URL: 'redis://redis.meeting-app.svc.cluster.local:6379/0'
